@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>小米路由器插件中心</title>
+    <link href="<%=resource%>/web/css/style.css?v=<%=ver%>" rel="stylesheet">
+    <script type="text/javascript" src="<%=resource%>/web/js/jquery-3.2.1.min.js"></script>
+</head>
+    
+<body>
+    <div class="head">
+       <h1>小米路由器插件中心</h4>
+    </div>
+    <div class="content">
+        <a href="<%=luci.dispatcher.build_url("web", "monlor", "ss")%>"><ul class="module" id="ss">
+            <li class="icontype"><img src="<%=resource%>/web/img/monlor-shadowsocks.png"></li>
+            <li class="contenttype">Shadowsocks<br><br>到墙外看看</li>
+        </ul></a>
+        <a href="<%=luci.dispatcher.build_url("web", "monlor", "koolproxy")%>"><ul class="module" id="kp">
+            <li class="icontype"><img src="<%=resource%>/web/img/monlor-shadowsocks.png"></li>
+            <li class="contenttype">Koolproxy<br><br>过滤广告</li>
+        </ul></a>
+        <a href="<%=luci.dispatcher.build_url("web", "monlor", "frp")%>"><ul class="module" id="frp">
+            <li class="icontype"><img src="<%=resource%>/web/img/monlor-shadowsocks.png"></li>
+            <li class="contenttype">Frp<br><br>内网穿透工具</li>
+        </ul></a>
+        <a href="<%=luci.dispatcher.build_url("web", "monlor", "tinyproxy")%>"><ul class="module" id="meow">
+            <li class="icontype"><img src="<%=resource%>/web/img/monlor-shadowsocks.png"></li>
+            <li class="contenttype">Tinyproxy<br><br>Http代理</li>
+        </ul></a>
+        <a href="<%=luci.dispatcher.build_url("web", "monlor", "kms")%>"><ul class="module" id="kms">
+            <li class="icontype"><img src="<%=resource%>/web/img/monlor-shadowsocks.png"></li>
+            <li class="contenttype">Kms<br><br>系统激活工具</li>
+        </ul></a>
+        <a href="<%=luci.dispatcher.build_url("web", "monlor", "aria2")%>"><ul class="module" id="aria2">
+            <li class="icontype"><img src="<%=resource%>/web/img/monlor-shadowsocks.png"></li>
+            <li class="contenttype">Aria2<br><br>Linux下的下载神器</li>
+        </ul></a>
+        <a href="<%=luci.dispatcher.build_url("web", "monlor", "webshell")%>"><ul class="module" id="webshell">
+            <li class="icontype"><img src="<%=resource%>/web/img/monlor-shadowsocks.png"></li>
+            <li class="contenttype">Webshell<br><br>网页终端</li>
+        </ul></a>
+        <a href="<%=luci.dispatcher.build_url("web", "monlor", "nginx")%>"><ul class="module" id="nginx">
+            <li class="icontype"><img src="<%=resource%>/web/img/monlor-shadowsocks.png"></li>
+            <li class="contenttype">Nginx<br><br>可搭建网页服务器</li>
+        </ul></a>
+        <a href="<%=luci.dispatcher.build_url("web", "monlor", "fastdick")%>"><ul class="module" id="fastdick">
+            <li class="icontype"><img src="<%=resource%>/web/img/monlor-shadowsocks.png"></li>
+            <li class="contenttype">迅雷快鸟<br><br>提升上下行宽带</li>
+        </ul></a>
+    </div>
+    
+    <script>
+        $(function(){
+            $(".module").fadeIn(1000);
+        })
+    </script>
+</body>
+    
+</html>

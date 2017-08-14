@@ -1,0 +1,179 @@
+#!/bin/ash /etc/rc.common
+
+START=95                                             
+STOP=
+SERVICE_USE_PID=1                                    
+SERVICE_WRITE_PID=1                                  
+SERVICE_DAEMONIZE=1 
+
+MPATH=`uci get monlor.tools.mpath`
+. $MPATH/script/mecho
+
+MONLOR=$MPATH
+BIN=$MPATH/bin/koolproxy
+LOG=$MPATH/log/koolproxy.log
+CONF=$MPATH/conf/koolproxy.conf
+BAK=$MPATH/backup
+
+update () {
+
+	curl -sLo /tmp/koolproxy https://raw.githubusercontent.com/koolproxy/koolproxy-bin/master/arm
+	chmod +x /tmp/koolproxy
+	if [ `$BIN -v` = `/tmp/koolproxy -v` ]; then
+		echo 'koolproxy is the latest version'
+		exit 1
+	else
+		cp $BIN $BAK
+		cp /tmp/koolproxy $BIN
+		rm -rf /tmp/koolproxy
+		echo 'koolproxy updated success'
+	fi
+
+}
+
+addrules () {
+
+	#add white ipset                                                                       
+	MEO -bla1t "Add koolproxy rules ... \c"
+	ipset -N white_kp_list nethash > /dev/null 2>&1                                                
+
+	ip_lan="0.0.0.0/8 10.0.0.0/8 100.64.0.0/10 127.0.0.0/8 169.254.0.0/16 172.16.0.0/12 192.168.0.0/16 224.0.0.0/4 240.0.0.0/4"
+	for ip in $ip_lan                                                            
+        do                                                                           
+                ipset -A white_kp_list $ip >/dev/null 2>&1                           
+        done       
+	#add black ipset
+	ipset -N black_koolproxy nethash > /dev/null 2>&1
+	ipset -A black_koolproxy 110.110.110.110 >/dev/null 2>&1
+	[ ! -f /etc/dnsmasq.d/koolproxy_ipset.conf ] && ln -s $MONLOR/bin/data/koolproxy_ipset.conf /etc/dnsmasq.d/
+
+	#add chain
+	iptables -t nat -N KOOLPROXY
+	iptables -t nat -A KOOLPROXY -m set --match-set white_kp_list dst -j RETURN
+	iptables -t nat -N KOOLPROXY_HTTP
+	iptables -t nat -A KOOLPROXY_HTTP -p tcp -m multiport --dport 80 -j REDIRECT --to-ports 3000
+	iptables -t nat -N KOOLPROXY_HTTPS
+	iptables -t nat -A KOOLPROXY_HTTPS -p tcp -m multiport --dport 80,443 -j REDIRECT --to-ports 3000
+	#no kp	
+	iptables -t nat -A KOOLPROXY -m mac --mac-source 54:EE:75:7D:13:37 -j RETURN
+	#kp https
+	cat $MPATH/conf/kpcontrol.conf | while read line
+	do
+		line=`echo $line | awk '{print$2}'`                                     
+                [ -z $line ] || [[ ${line:0:1} == "#" ]] && break
+		iptables -t nat -A KOOLPROXY -m mac --mac-source $line -p tcp -j KOOLPROXY_HTTPS
+	done
+	#default http
+	iptables -t nat -A KOOLPROXY -p tcp -j KOOLPROXY_HTTP
+	
+	#iptablenu=$(iptables -t nat -L PREROUTING | awk '/SHADOWSOCKS/{print NR}')
+	iptablenu=`iptables -nvL PREROUTING -t nat |sed 1,2d | sed -n '/SHADOWSOCKS/='`
+	if [ ! -f $iptablenu ];then
+		iptablenu=`expr $iptablenu + 1`
+	else
+		iptablenu=1
+	fi
+	
+	[ "$mode" == "video" ] || [ "$mode" == "whole" ] && iptables -t nat -I PREROUTING $iptablenu -p tcp -j KOOLPROXY
+	[ "$mode" == "black" ] && iptables -t nat -I PREROUTING $iptablenu -p tcp -m set --match-set black_koolproxy dst -j KOOLPROXY
+
+	/etc/init.d/dnsmasq restart 
+	
+	MEO -gre1 "Done!"
+} 
+
+delrules () {
+
+	#del iptables
+	MEO -bla1t "Delete koolproxy rules ... \c"
+	cd /tmp
+	iptables -t nat -S | grep -E "KOOLPROXY|KOOLPROXY_HTTP|KOOLPROXY_HTTPS" | sed 's/-A/iptables -t nat -D/g'|sed 1,3d > clean.sh && chmod 777 clean.sh && ./clean.sh && rm clean.sh > /dev/null 2>&1
+	iptables -t nat -X KOOLPROXY > /dev/null 2>&1
+	iptables -t nat -X KOOLPROXY_HTTP > /dev/null 2>&1
+	iptables -t nat -X KOOLPROXY_HTTPS > /dev/null 2>&1
+	ipset -F white_kp_list > /dev/null 2>&1 && ipset -X white_kp_list > /dev/null 2>&1
+	ipset -F black_koolproxy > /dev/null 2>&1 && ipset -X black_koolproxy > /dev/null 2>&1
+	rm -rf /etc/dnsmasq.d/koolproxy_ipset.conf
+
+	/etc/init.d/dnsmasq restart 
+	MEO -gre1 "Done!"
+	
+}
+
+start () {
+
+	ps | grep koolproxy | grep -v grep | grep -v {koolproxy} > /dev/null 2>&1
+	if [ $? -eq 0 ]; then
+		MEO -pur1t 'Koolproxy is already running'
+		exit
+	fi
+	uci set monlor.koolproxy.version=`$BIN -v`
+	uci commit monlor
+	MEO -bla1t 'Starting koolproxy ... \c'
+	mode=`uci get monlor.koolproxy.mode`
+	case $mode in
+		video) service_start $BIN --mark -e -d;;
+		whole|black) service_start $BIN --mark -d;;
+	esac
+	
+	if [ ! -f $MONLOR/bin/data/private/ca.key.pem ]; then
+		cd $MONLOR/bin/data/
+		sh gen_ca.sh
+	fi
+	#cp $MPATH/bin/data/certs/ca.crt /userdisk/data/Router/Nginx/fileserver/koolproxy.crt
+		
+	MEO -gre1 "Done!"	
+	addrules
+	#etc/monlor/script/ss restart 
+}
+
+stop () {
+
+	MEO -bla1t 'Stopping koolproxy ... \c'
+	service_stop $BIN                                                       
+	ps  | grep $BIN | grep -v grep | grep -v {koolproxy} | grep -v restart | awk '{print $1}' | xargs kill -9 > /dev/null 2>&1
+	MEO -gre1 "Done!"
+	delrules 
+
+}
+
+restart () {
+
+	if [[ "$1" == "video" || "$1" == "whole" || "$1" == "black" ]]; then
+		uci set monlor.koolproxy.mode=$1
+		uci commit monlor
+	elif [ "$1" ]; then
+		MEO -red1t "Mode name error, exit ... "
+		exit
+	fi
+	stop
+	sleep 2
+	start
+
+}
+
+reload () {
+
+	MEO -bla1t "Reload iptables rules ... "
+	delhttps > /dev/null 2>&1
+	sleep 1
+	addhttps
+	echo "Done!"
+
+}
+
+enable() {
+
+	uci set monlor.koolproxy.enable=1
+	uci commit monlor
+	restart
+
+}
+
+disable() {
+
+	uci set monlor.koolproxy.enable=0
+	uci commit monlor
+	stop
+
+}

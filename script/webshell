@@ -1,0 +1,68 @@
+#!/bin/ash /etc/rc.common
+
+START=95
+STOP=
+SERVICE_USE_PID=1
+SERVICE_WRITE_PID=1
+SERVICE_DAEMONIZE=1
+
+MPATH=`uci get monlor.tools.mpath`
+. $MPATH/script/mecho
+
+BIN=$MPATH/bin/webshell
+LOG=$MPATH/log/webshell.log
+CONF=$MPATH/conf/webshell.conf
+
+start () {
+		
+	ps | grep webshell | grep -v grep | grep -v {webshell} > /dev/null 2>&1
+	if [ $? -eq 0 ]; then
+		MEO -pur1t 'Webshell is already running'
+		exit 1
+	fi
+	uci set monlor.webshell.version=`$BIN --version | awk '{print$3}'`	
+	uci commit monlor
+	echo `date` > $LOG	
+	MEO -bla1t 'Starting webshell ... \c' 
+	service_start $BIN -p 4200 -s /:LOGIN -u root  
+	if [ $? -eq 0 ]; then
+                MEO -gre1 "Done!"
+        else
+                MEO -red1 'Failed!'
+        fi
+
+}
+
+stop () {
+
+	MEO -bla1t 'Stopping webshell ... \c'
+	service_stop $BIN
+	#kill -9 $(ps | grep webshell | grep -v grep | grep -v {webshell} | awk '{print $1}') > /dev/null 2>&1
+	ps | grep webshell |  grep -v grep | grep -v {webshell} | awk '{print $1}' | xargs kill -9 > /dev/null 2>&1
+	MEO -gre1 "Done!"
+
+}
+
+restart () {
+
+	stop
+	sleep 2
+	start
+
+}
+
+enable() {
+
+	uci set monlor.webshell.enable=1
+	uci commit monlor
+	restart
+
+}
+
+disable() {
+
+	uci set monlor.webshell.enable=0
+	uci commit monlor
+	stop
+
+}

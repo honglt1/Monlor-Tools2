@@ -1,0 +1,116 @@
+#!/bin/ash /etc/rc.common
+
+START=95
+STOP=
+SERVICE_USE_PID=1
+SERVICE_WRITE_PID=1
+SERVICE_DAEMONIZE=1
+
+MPATH=`uci get monlor.tools.mpath`
+. $MPATH/script/mecho
+
+BIN=$MPATH/bin/ngrok
+LOG=$MPATH/log/ngrok.log
+CONF=$MPATH/conf/ngrok.conf
+BAK=$MPATH/backup
+
+update () {
+
+	curl -sLo /tmp/vlmcsd https://raw.githubusercontent.com/koolshare/ttsoft/master/ngrok/ngrok/bin/vlmcsd
+	chmod +x /tmp/vlmcsd
+	version=`/tmp/vlmcsd -V | awk -F '[ ,]+' '/vlmcsd/{print$2;exit;}'`
+	if [ $version != `uci get monlor.ngrok.version` ]; then
+		cp $BIN $BAK
+		cp /tmp/vlmcsd $BIN
+	fi
+	rm -rf /tmp/vlmcsd
+
+}
+
+get_config () {
+
+	local cmdstr=""
+	[ `uci show monlor.ngrok | grep ser_host | wc -l` -eq 0 ] && uci set monlor.ngrok.ser_host=server.ngrok.cc
+	[ `uci show monlor.ngrok | grep ser_port | wc -l` -eq 0 ] && uci set monlor.ngrok.ser_port=4443
+	[ `uci show monlor.ngrok | grep ser_token | wc -l` -eq 0 ] && uci set monlor.ngrok.ser_token=" "
+	ser_host=`uci get monlor.ngrok.ser_host`
+	ser_port=`uci get monlor.ngrok.ser_port`
+	ser_token=`uci get monlor.ngrok.ser_token`
+	while read line
+	do 
+		[[ ${line:0:1} == "#" ]] && continue 
+		type=`echo $line | awk -F ',' '{print$2}'`
+		lhost=`echo $line | awk -F ',' '{print$3}'`
+		lport=`echo $line | awk -F ',' '{print$4}'`
+		rport=`echo $line | awk -F ',' '{print$5}'`
+		domain=`echo $line | awk -F ',' '{print$6}'`
+		if [ "$type" == "tcp" ]; then
+			cmdstr="$cmdstr -AddTun[Type:$type,Lhost:$lhost,Lport:$lport,Rport:$rport]"
+		else
+			if [ `echo $domain | grep "\." | wc -l` -ne 0 ]; then
+				cmdstr="$cmdstr -AddTun[Type:$type,Lhost:$lhost,Lport:$lport,Hostname:$domain]" 
+			else
+				cmdstr="$cmdstr -AddTun[Type:$type,Lhost:$lhost,Lport:$lport,Sdname:$domain]" 
+			fi
+		fi
+	done < $CONF
+	[ -z "$cmdstr" ] || cmdstr="$BIN -SER[Shost:$ser_host,Sport:$ser_port,Password:$ser_token]$cmdstr"
+	echo $cmdstr
+	
+} 
+
+start () {
+
+	ps | grep ngrok | grep -v grep | grep -v {ngrok} > /dev/null 2>&1
+	if [ $? -eq 0 ]; then                                                              
+		MEO -pur1t 'Ngrok is already running'                                            
+		exit 1
+	fi
+	MEO -bla1t 'Starting ngrok .... \c'
+	#update
+	uci set monlor.ngrok.version=`$BIN | awk -F "v|-" '/ngrokc/{print$2}'`        
+	runstr=`get_config`
+	echo $runstr > /tmp/runstr
+	uci commit monlor
+	echo `date` > $LOG	
+	service_start $runstr
+	if [ $? -eq 0 ]; then
+                MEO -gre1 "Done!"
+        else
+                MEO -red1 'Failed!'
+        fi
+
+}
+
+stop () {
+
+	MEO -bla1t 'Stopping ngrok .... \c'
+	service_stop $BIN
+	kill -9 $(ps | grep ngrok | grep -v grep | grep -v {ngrok} | awk '{print $1}') > /dev/null 2>&1
+	MEO -gre1 "Done!"
+
+}
+
+restart () {
+
+	stop
+	sleep 2
+	start
+
+}
+
+enable() {
+
+	uci set monlor.ngrok.enable=1
+	uci commit monlor
+	restart
+
+}
+
+disable() {
+
+	uci set monlor.ngrok.enable=0
+	uci commit monlor
+	stop
+
+}

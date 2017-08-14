@@ -1,0 +1,56 @@
+#!/bin/ash 
+
+LOG=/etc/monlor/log/baidupcs.log
+CRON=/var/spool/cron/crontabs/root
+
+start() {
+
+	find  /userdisk/data/  -name  '.*'  -type  f  -print  -exec  rm  -rf  {} \;  > /dev/null 2>&1  &
+
+	/opt/bin/pcs synch -durc /userdisk/data/Computer/ /Computer > /dev/null 2>&1 &
+	/opt/bin/pcs synch -dur /userdisk/data/Game/ /Game > /dev/null 2>&1 &
+	/opt/bin/pcs synch -dur /userdisk/data/Photo/ /Photo > /dev/null 2>&1 &
+	/opt/bin/pcs synch -dur /userdisk/data/Program/ /Program > /dev/null 2>&1 &
+	/opt/bin/pcs synch -dur /userdisk/data/Router/ /Router > /dev/null 2>&1 &
+	
+}
+
+stop() {
+
+	killall /opt/bin/pcs
+
+}
+
+restart() {
+
+	stop
+	sleep 2
+	start
+
+}
+
+enable() {
+
+	cat $CRON | grep baidupcs > /dev/null 2>&1
+        if [ $? -ne 0 ]; then
+		echo "*/40 * * * * /etc/monlor/script/baidupcs start" > $CRON
+	fi
+
+}
+
+disable() {
+
+	cat $CRON | grep baidupcs > /dev/null 2>&1
+	if [ $? -eq 0 ];then
+		sed -i '/baidupcs/d' $CRON
+	fi
+
+}
+
+case $1 in
+	start) start;;
+	stop) stop;;
+	restart) restart;;
+	enable) enable;;
+	disable) disable;;
+esac

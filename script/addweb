@@ -1,0 +1,62 @@
+#!/bin/ash
+
+MPATH=`uci get monlor.tools.mpath`
+LUCI="/usr/lib/lua/luci"
+MIWEB="/www/xiaoqiang/web"
+MOUNT="/tmp/mountfiles"
+WEB="$MPATH/web"
+
+umount -lf $MIWEB > /dev/null 2>&1
+umount -lf $LUCI > /dev/null 2>&1
+
+rm -rf $MOUNT
+mkdir -p $MOUNT
+
+cp -rf $LUCI $MOUNT
+cp -rf $MIWEB $MOUNT
+mkdir -p $MOUNT/luci/view/web/monlor/
+ln -sf $WEB/lua/* $MOUNT/luci/controller/api/
+ln -sf $WEB/htm/* $MOUNT/luci/view/web/monlor/
+ln -sf $WEB/css/* $MOUNT/web/css/
+ln -sf $WEB/js/* $MOUNT/web/js/
+ln -sf $WEB/img/* $MOUNT/web/img/
+
+cat $MOUNT/luci/controller/web/index.lua | grep monlor > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+	
+	sed -i '/智能限速QoS/a\    entry({"web", "monlor"}, alias("web", "monlor", "index"), _("index"), 70)' $MOUNT/luci/controller/web/index.lua
+	sed -i '/............QoS/a\    entry({"web", "monlor", "index"}, template("web/monlor/index"), _("index"), 71)' $MOUNT/luci/controller/web/index.lua
+	sed -i '/............QoS/a\    entry({"web", "monlor", "ss"}, template("web/monlor/ss"), _("ss"), 72)' $MOUNT/luci/controller/web/index.lua
+	sed -i '/............QoS/a\    entry({"web", "monlor", "koolproxy"}, template("web/monlor/koolproxy"), _("koolproxy"), 73)' $MOUNT/luci/controller/web/index.lua
+	sed -i '/............QoS/a\    entry({"web", "monlor", "frp"}, template("web/monlor/frp"), _("frp"), 74)' $MOUNT/luci/controller/web/index.lua
+	sed -i '/............QoS/a\    entry({"web", "monlor", "tinyproxy"}, template("web/monlor/tinyproxy"), _("tinyproxy"), 75)' $MOUNT/luci/controller/web/index.lua
+	sed -i '/............QoS/a\    entry({"web", "monlor", "kms"}, template("web/monlor/kms"), _("kms"), 76)' $MOUNT/luci/controller/web/index.lua
+	sed -i '/............QoS/a\    entry({"web", "monlor", "aria2"}, template("web/monlor/aria2"), _("aria2"), 77)' $MOUNT/luci/controller/web/index.lua
+	sed -i '/............QoS/a\    entry({"web", "monlor", "webshell"}, template("web/monlor/webshell"), _("webshell"), 78)' $MOUNT/luci/controller/web/index.lua
+	sed -i '/............QoS/a\    entry({"web", "monlor", "nginx"}, template("web/monlor/nginx"), _("nginx"), 79)' $MOUNT/luci/controller/web/index.lua
+	sed -i '/............QoS/a\    entry({"web", "monlor", "fastdick"}, template("web/monlor/fastdick"), _("fastdick"), 80)' $MOUNT/luci/controller/web/index.lua
+		
+fi
+
+cat $MOUNT/luci/view/web/inc/header.htm | grep monlor > /dev/null 2>&1
+if [ $? -ne 0 ]	; then
+	
+	sed -i '/高级设置/a\                    <li <%if string.find(REQUEST_URI, "/monlor") then%>class="active"<%end%>><a href="<%=luci.dispatcher.build_url("web","monlor","index")%>"><%:插件中心%></a></li>' $MOUNT/luci/view/web/inc/header.htm
+
+fi	
+
+#photo web
+sed -i 's/#admin-mob/#admin-PC/' $MOUNT/luci/view/web/sysauth.htm
+sed -i 's/"detail"/"detail" style="display:none;"/' $MOUNT/luci/view/web/sysauth.htm
+sed -i 's/"download"/"download" style="display:none;"/' $MOUNT/luci/view/web/sysauth.htm   
+sed -i 's/"tip"/"tip" style="display:none;"/' $MOUNT/luci/view/web/sysauth.htm
+sed -i 's/<!-- //' $MOUNT/luci/view/web/sysauth.htm
+sed -i 's/ -->//' $MOUNT/luci/view/web/sysauth.htm
+sed -i 's/minValue="2"//'  $MOUNT/luci/view/web/setting/nat_dmz.htm
+
+mount -o blind $MOUNT/luci $LUCI
+mount -o blind $MOUNT/web $MIWEB
+
+rm -rf /tmp/luci-modulecache
+rm -rf /tmp/luci-indexcache
+	

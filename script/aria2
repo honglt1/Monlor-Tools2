@@ -1,0 +1,85 @@
+#!/bin/ash /etc/rc.common
+
+START=95
+STOP=
+SERVICE_USE_PID=1
+SERVICE_WRITE_PID=1
+SERVICE_DAEMONIZE=1
+
+MPATH=`uci get monlor.tools.mpath`
+. $MPATH/script/mecho
+
+BIN=$MPATH/bin/aria2
+LOG=$MPATH/log/aria2.log
+CONF=$MPATH/conf/aria2.conf
+BAK=$MPATH/backup
+
+update () {
+
+	curl -sLo /tmp/aria2c https://raw.githubusercontent.com/koolshare/merlin-aria2/master/aria2/aria2/aria2c
+	chmod +x /tmp/aria2c
+	version=`/tmp/aria2c -v | awk '/aria2 version/{print$3}'`
+	if [ $version != `uci get monlor.aria2.version` ]; then
+		cp $BIN $BAK
+		cp /tmp/aria2c $BIN
+	fi
+	rm -rf /tmp/aria2c
+
+}
+
+start () {
+
+	ps | grep aria2 | grep -v grep | grep -v {aria2} > /dev/null 2>&1
+	if [ $? -eq 0 ]; then
+		MEO -pur1t 'Aria2 is already running'
+		exit 1
+	fi
+	MEO -bla1t 'Starting aria2 ... \c'
+	#update
+	[ ! -f /tmp/aria2.session ] && touch /tmp/aria2.session
+	uci set monlor.aria2.version=`$BIN -v | awk '/aria2 version/{print$3}'`
+	uci commit monlor
+	
+	iptables -I INPUT -p tcp --dport 6800 -m comment --comment "monlor-aria2" -j ACCEPT 
+	service_start $BIN --conf-path=$CONF -D -l $LOG
+	if [ $? -eq 0 ]; then
+                MEO -gre1 "Done!"
+        else
+                MEO -red1 'Failed!'
+        fi
+
+}
+
+stop () {
+
+	MEO -bla1t 'Stopping aria2 ... \c'
+	service_stop $BIN
+	ps | grep $BIN | grep -v grep | awk '{print$1}' | xargs kill -9 > /dev/null 2>&1
+	iptables -D INPUT -p tcp --dport 6800 -m comment --comment "monlor-aria2" -j ACCEPT > /dev/null 2>&1
+	MEO -gre1 "Done!"
+
+}
+
+restart () {
+
+	stop
+	sleep 2
+	start
+
+}
+
+enable() {
+
+	uci set monlor.aria2.enable=1
+	uci commit monlor
+	restart
+
+}
+
+disable() {
+
+	uci set monlor.aria2.enable=0
+	uci commit monlor
+	stop
+
+}

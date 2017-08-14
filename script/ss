@@ -1,0 +1,446 @@
+#!/bin/ash /etc/rc.common
+
+START=95
+SERVICE_USE_PID=1
+SERVICE_WRITE_PID=1
+SERVICE_DAEMONIZE=1
+
+MPATH=`uci get monlor.tools.mpath`
+. $MPATH/script/mecho
+
+wan_mode=`ifconfig | grep pppoe-wan | wc -l`
+if [ "$wan_mode" = '1' ];then
+	wanip=$(ifconfig pppoe-wan | grep "inet addr:" | cut -d: -f2 | awk '{print$1}')
+else
+	wanip=$(ifconfig eth0.2 | grep "inet addr:" | cut -d: -f2 | awk '{print$1}')
+fi
+lanip=$(uci get network.lan.ipaddr)
+redip=$lanip
+CONFIG=$MPATH/conf/ss.conf
+DNSCONF=$MPATH/conf/dns2socks.conf
+SSGCONF=$MPATH/conf/ssg.conf
+chnroute=$MPATH/conf/chnroute.conf
+gfwlist=$MPATH/conf/gfwlist.conf
+custom_black=$MPATH/conf/custom_black.conf
+custom_white=$MPATH/conf/custom_white.conf
+APPPATH=$MPATH/bin/ss-redir
+SSGBIN=$MPATH/bin/ssg-redir
+LOCALPATH=$MPATH/bin/ss-local
+DNSPATH=$MPATH/bin/dns2socks
+
+get_config() {
+    
+	local_ip=0.0.0.0
+	id=`uci get monlor.ss.id`
+	ss_name=`uci get monlor.$id.ss_name`
+    	ss_server=`uci get monlor.$id.ss_server`
+    	ss_server_port=`uci get monlor.$id.ss_server_port`
+	ss_password=`uci get monlor.$id.ss_password`
+	ss_method=`uci get monlor.$id.ss_method`
+    
+	echo -e '{\n  "server":"'$ss_server'",\n  "server_port":'$ss_server_port',\n  "local_port":'1081',\n  "local_address":"'$local_ip'",\n  "password":"'$ss_password'",\n  "timeout":600,\n  "method":"'$ss_method'"\n}' > $CONFIG
+	cp $CONFIG $DNSCONF && sed -i 's/1081/1082/g' $DNSCONF
+	
+	if [ `uci get monlor.ss.ssgena` == 1 ]; then
+	
+		ssgid=`uci get monlor.ss.ssgid`
+        	ssg_name=`uci get monlor.$ssgid.ss_name`
+        	ssg_server=`uci get monlor.$ssgid.ss_server`
+        	ssg_server_port=`uci get monlor.$ssgid.ss_server_port`
+        	ssg_password=`uci get monlor.$ssgid.ss_password`
+        	ssg_method=`uci get monlor.$ssgid.ss_method`
+		echo -e '{\n  "server":"'$ssg_server'",\n  "server_port":'$ssg_server_port',\n  "local_port":'1085',\n  "local_address":"'$local_ip'",\n  "password":"'$ssg_password'",\n  "timeout":600,\n  "method":"'$ssg_method'"\n}' > $SSGCONF
+	
+	fi
+
+}
+
+dnsconfig() {
+
+	insmod ipt_REDIRECT 2>/dev/null
+	service_start $LOCALPATH -c $DNSCONF
+	killall $DNSPATH > /dev/null 2>&1
+	iptables -t nat -D PREROUTING -s $lanip/24 -p udp --dport 53 -j DNAT --to $redip > /dev/null 2>&1
+    	MEO -bla1t "Starting dns process ... \c"
+    	#DNS_SERVER=$(uci get monlor.ss.dns_server)
+    	#DNS_SERVER_PORT=$(uci get monlor.ss.dns_port)
+    	DNS_SERVER=8.8.8.8
+    	DNS_SERVER_PORT=53
+    	service_start $DNSPATH 127.0.0.1:1082 $DNS_SERVER:$DNS_SERVER_PORT 127.0.0.1:15353 
+    	if [ $? -eq 0 ];then
+    		MEO -gre1 "Done!"
+    	else 
+        	MEO -red1 "Failed!"
+        	exit
+    	fi
+    
+}
+
+addrules() {
+
+	#?~H~[建CHAIN
+        MEO -bla1t "Add iptables rules... \c"
+        iptables -t nat -N SHADOWSOCKS
+        iptables -t nat -A SHADOWSOCKS -d 0.0.0.0/8 -j RETURN
+        iptables -t nat -A SHADOWSOCKS -d $lanip/24 -j RETURN
+        iptables -t nat -A SHADOWSOCKS -d $wanip/16 -j RETURN
+        iptables -t nat -A SHADOWSOCKS -d $ss_server -j RETURN
+        #iptables -t nat -A SHADOWSOCKS -d $ssg_server -j RETURN 
+
+        iptables -t nat -N SHADOWSOCK
+
+        #lan access control
+        cat $MPATH/conf/sscontrol.conf | while read line
+        do
+        	#mac=`cat /tmp/dhcp.leases | grep -i $line | awk '{print $2}'`
+        	line=`echo $line | awk '{print$2}'`
+        	[ -z $line ] || [[ ${line:0:1} == "#" ]] && break
+        	#iptables -t nat -A SHADOWSOCKS -s $line -p tcp -m multiport --dports 80,443 -j SHADOWSOCK
+        	iptables -t nat -A SHADOWSOCKS -m mac --mac-source $line -p tcp -j SHADOWSOCK
+        done
+        #default = all ss
+        #iptables -t nat -A SHADOWSOCKS -p tcp -j SHADOWSOCK
+        iptables -t nat -A SHADOWSOCKS -p tcp -j RETURN
+        
+        cat $custom_black | while read line                                                                   
+        do                                                                                              
+        	echo "server=/.$line/127.0.0.1#15353" >> /etc/dnsmasq.d/custom_black.conf  
+                echo "ipset=/.$line/custom_black" >> /etc/dnsmasq.d/custom_black.conf                     
+        done                          
+        cat $custom_white | while read line
+        do
+        	echo "ipset=/.$line/custom_white" >> /etc/dnsmasq.d/custom_white.conf
+        	#echo "ipset=/.$line/nogfwnet" >> /etc/dnsmasq.d/custom_white.conf
+        done                                                                  
+        ipset -N custom_black iphash -!  
+        ipset -N custom_white iphash -!
+        MEO -gre1 "Done!"	
+
+}
+
+start() {
+
+	id=$(uci get monlor.ss.id)
+    	ss_mode=$(uci get monlor.$id.ss_mode)
+
+	AreadyRunning=$(ps | grep -E 'ss-redir|ssg-redir' | grep -v grep | wc -l)
+	if [ "$AreadyRunning" != '0'  ];then
+		MEO -pur1t "SS is aleady running"
+		exit
+	fi
+
+    	get_config
+    	
+    	dnsconfig                                                                                                                            
+    	                                                                                                                                             
+	addrules
+    	
+    	MEO -bla1t "Starting ss($id) service ... \c"
+    	case $ss_mode in
+        "gfwlist")
+            	service_start $APPPATH -b 0.0.0.0 -c $CONFIG   
+            	if [ $? -eq 0 ]; then
+                	MEO -gre1 "Done!"
+            	else    
+                	MEO -red1 "Failed!"
+                	exit
+            	fi
+            	ss_gfwlist
+            	;;
+        "whitelist")
+        	service_start $APPPATH -b 0.0.0.0 -c $CONFIG
+        	if [ $? -eq 0 ]; then                                           
+                        MEO -gre1 "Done!"                         
+                else                                                            
+                        MEO -red1 "Failed!"                       
+                        exit                                
+	        fi
+	        ss_whitelist
+	        ;;
+        "wholemode")
+            	service_start $APPPATH -b 0.0.0.0 -c $CONFIG 
+            	if [ $? -eq 0 ]; then
+                	MEO -gre1 "Done!"
+            	else    
+                	MEO -red1 "Failed!"
+                	exit
+            	fi
+            	ss_wholemode
+            	;;
+    	"empty")
+    		MEO -red1 "Failed!"
+    		#MEO -red1t "server mode error, exit ... "
+    		#exit
+    	esac
+
+	if [ `uci get monlor.ss.ssgena` == 1 ]; then
+		ssgid=`uci get monlor.ss.ssgid`               
+                ssg_mode=`uci get monlor.$ssgid.ssg_mode`
+		MEO -bla1t "Starting ssg($ssgid) service ... \c"
+		case $ssg_mode in
+		"cngame")
+			service_start $SSGBIN -b 0.0.0.0 -u -c $SSGCONF
+                	if [ $? -eq 0 ]; then
+                       		MEO -gre1 "Done!"
+                	else
+                       	 	MEO -red1 "Failed!"
+                        	exit
+                	fi
+                	ss_addudp	
+                	ss_cngame	
+			;;
+		"frgame") 
+			service_start $SSGBIN -b 0.0.0.0 -u -c $SSGCONF
+			if [ $? -eq 0 ]; then
+				MEO -gre1 "Done!"
+			else
+				MEO -red1 "Failed!"
+				exit
+			fi
+			ss_addudp
+			ss_frgame
+			;;
+		"empty")
+			MEO -red1 "Failed!"
+			#echo "server mode error, exit ... \c"
+			#exit
+		esac
+	fi
+	
+  	#ss_mode=$(uci get $appname.$id.ss_mode)
+	#iptablenu=$(iptables -t nat -L PREROUTING | awk '/KOOLPROXY/{print NR}')
+	iptablenu=`iptables -nvL PREROUTING -t nat |sed 1,2d | sed -n '/KOOLPROXY/='`
+	iptablenu=1
+    	[ "$ss_mode" == "gfwlist" ] || [ "$ss_mode" == "wholemode" ] || [ "$ss_mode" == "whitelist" ] && iptables -t nat -I PREROUTING $iptablenu -p tcp -m multiport --dports 80,443 -j SHADOWSOCKS
+	
+	#[ "$ss_mode" == "gfwlist" ] && iptables -t nat -I PREROUTING 2 -p tcp -m set --match-set gfwlist dst -j SHADOWSOCKS
+	
+	/etc/init.d/dnsmasq restart
+
+}
+
+
+ss_gfwlist() {
+
+    	MEO -bla1t "Add gfwlist iptables ... \c"
+    	cat $gfwlist $custom_black | while read line                                             
+	do                                                                         
+		echo "server=/.$line/127.0.0.1#15353" >> /etc/dnsmasq.d/gfwlist_ipset.conf
+		echo "ipset=/.$line/gfwlist" >> /etc/dnsmasq.d/gfwlist_ipset.conf  
+	done    
+    	ipset -N gfwlist iphash -!
+	iptables -t nat -A SHADOWSOCK -p tcp -m set --match-set gfwlist dst -j REDIRECT --to-port 1081
+	iptables -t nat -A SHADOWSOCK -p tcp -m set ! --match-set custom_white dst -j REDIRECT --to-port 1081 
+    	MEO -gre1 "Done!"
+
+}
+
+ss_whitelist() {
+
+	MEO -bla1t "Add whitelist iptables ... \c"                                    
+	sed -e "s/^/-A nogfwnet &/g" -e "1 i\-N nogfwnet hash:net" $chnroute | ipset -R -!
+	iptables -t nat -A SHADOWSOCK -p tcp -m set --match-set custom_black dst -j REDIRECT --to-ports 1081
+	iptables -t nat -A SHADOWSOCK -p tcp -m set ! --match-set nogfwnet dst -j REDIRECT --to-ports 1081 
+	MEO -gre1 "Done!"
+}
+
+ss_addudp() {
+
+	iptables -t nat -A PREROUTING -s $lanip/24 -p udp --dport 53 -j DNAT --to $lanip
+        ip rule add fwmark 0x01/0x01 table 300
+        ip route add local 0.0.0.0/0 dev lo table 300
+        iptables -t mangle -N SHADOWSOCKS
+        iptables -t mangle -A SHADOWSOCKS -d 0.0.0.0/8 -j RETURN
+        iptables -t mangle -A SHADOWSOCKS -d 127.0.0.1/16 -j RETURN
+        iptables -t mangle -A SHADOWSOCKS -d $lanip/16 -j RETURN
+        iptables -t mangle -A SHADOWSOCKS -d $wanip/16 -j RETURN
+        iptables -t mangle -A SHADOWSOCKS -d $ss_server -j RETURN
+        #iptables -t mangle -A SHADOWSOCKS -d $ssg_server -j RETURN
+	iptables -t mangle -N SHADOWSOCK
+        #lan control
+	cat $MPATH/conf/sscontrol.conf | while read line
+	do
+		#mac=`cat /tmp/dhcp.leases | grep -i $line | awk '{print $3}'`
+		line=`echo $line | awk '{print$2}'`     
+                [ -z $line ] || [[ ${line:0:1} == "#" ]] && break
+        	#iptables -t mangle -A SHADOWSOCKS -s $line -j SHADOWSOCK
+		iptables -t mangle -A SHADOWSOCKS -m mac --mac-source $line -j SHADOWSOCK
+	done
+	iptables -t mangle -A SHADOWSOCKS -j RETURN
+        iptables -t mangle -A PREROUTING -p udp -j SHADOWSOCKS	
+
+}
+
+ss_cngame() {
+
+	MEO -bla1t "Add cngame iptables ... \c"
+	
+	iptables -t mangle -A SHADOWSOCK -p udp -m set ! --match-set custom_white dst -j TPROXY --on-port 1085 --tproxy-mark 0x01/0x0 
+
+	MEO -gre1 "Done!"                
+	
+	chmod -x /opt/filetunnel/stunserver > /dev/null 2>&1
+	killall -9 stunserver > /dev/null 2>&1
+
+}
+
+ss_frgame() {
+
+	MEO -bla1t "Add frgame iptables ... \c"
+
+	[ $ss_mode != "whitelist" ] && sed -e "s/^/-A nogfwnet &/g" -e "1 i\-N nogfwnet hash:net" $chnroute | ipset -R -!
+	iptables -t mangle -A SHADOWSOCK -p udp -m set ! --match-set nogfwnet dst -j TPROXY --on-port 1085 --tproxy-mark 0x01/0x01
+	#iptables -t mangle -A SHADOWSOCK -p udp -j TPROXY --on-port 1085 --tproxy-mark 0x01/0x01 
+
+    	MEO -gre1 "Done!"
+    
+    	chmod -x /opt/filetunnel/stunserver > /dev/null 2>&1
+	killall -9 stunserver > /dev/null 2>&1
+
+}
+
+ss_wholemode() {
+
+    	MEO -bla1t "Add wholemode iptables ... \c"
+    	iptables -t nat -A SHADOWSOCK -p tcp -j REDIRECT --to-ports 1081
+    	MEO -gre1 "Done!"
+
+}
+
+
+stop() {
+
+    	MEO -bla1t "Stopping ss service ... \c"
+    	killall ss-redir > /dev/null 2>&1
+	killall ssg-redir > /dev/null 2>&1
+	killall ss-local > /dev/null 2>&1
+    	killall $DNSPATH > /dev/null 2>&1
+    	#ps | grep dns2socks | grep -v grep | xargs kill -9 > /dev/null 2>&1
+    	MEO -gre1 "Done!"
+    	stop_ss_rules
+
+}
+
+stop_ss_rules() {
+
+    	MEO -bla1t "Delete iptables rules ... \c"
+    	cd /tmp
+    	iptables -t nat -S | grep -E 'SHADOWSOCK|SHADOWSOCKS'| sed 's/-A/iptables -t nat -D/g'|sed 1,2d > clean.sh && chmod 777 clean.sh && ./clean.sh && rm clean.sh
+	iptables -t mangle -S | grep -E 'SHADOWSOCK|SHADOWSOCKS'| sed 's/-A/iptables -t mangle -D/g'|sed 1,2d > clean.sh && chmod 777 clean.sh && ./clean.sh && rm clean.sh
+    	ip rule del fwmark 0x01/0x01 table 300 &> /dev/null
+	ip route del local 0.0.0.0/0 dev lo table 300 &> /dev/null
+	iptables -t nat -D PREROUTING -p tcp -j SHADOWSOCKS &> /dev/null
+	iptables -t mangle -F SHADOWSOCKS &> /dev/null
+	iptables -t mangle -X SHADOWSOCKS &> /dev/null
+	iptables -t mangle -F SHADOWSOCK &> /dev/null
+	iptables -t mangle -X SHADOWSOCK &> /dev/null
+	iptables -t nat -F SHADOWSOCK &> /dev/null
+	iptables -t nat -X SHADOWSOCK &> /dev/null
+	iptables -t nat -F SHADOWSOCKS &> /dev/null
+	iptables -t nat -X SHADOWSOCKS &> /dev/null
+	ipset destroy nogfwnet &> /dev/null
+	ipset destroy gfwlist &> /dev/null
+	ipset destroy custom_black &> /dev/null
+	ipset destroy custom_white &> /dev/null
+    	iptables -t nat -D PREROUTING -s $lanip/24 -p udp --dport 53 -j DNAT --to $redip > /dev/null 2>&1
+    	/etc/init.d/dnsmasq restart
+    	MEO -gre1 "Done!"
+    	chmod +x /opt/filetunnel/stunserver > /dev/null 2>&1
+	rm -rf $CONFIG
+	rm -rf $DNSCONF
+	rm -rf $SSGCONF
+	rm -rf /etc/dnsmasq.d/gfwlist_ipset.conf > /dev/null 2>&1
+	rm -rf /etc/dnsmasq.d/custom_*.conf > /dev/null 2>&1
+}
+
+
+status() {
+
+        MEO -bla1t "Checking ss ... \c"
+        status=`ps | grep -E "ss-redir|ssr-redir" | grep -v 'grep'  | grep -v script | grep -v '{' | wc -l`
+	if [ "$status" == "1" ];then #进程存在，已运行
+        	echo "running"
+       		MEO -bla1t "Checking google ... \c"
+		id=$(uci get monlor.ss.id)
+		DNS_PORT=1082
+		http_status=`curl  -s -w %{http_code} https://www.google.com.hk/images/branding/googlelogo/1x/googlelogo_color_116x41dp.png -k -o /dev/null --socks5 127.0.0.1:1082`
+		if [ "$http_status" == "200" ];then
+			echo "ok"   #翻墙正常
+		else
+			MEO -red1 "Failed!" 
+		fi
+	else
+		echo "stopped"
+	fi
+
+}
+
+restart() 
+{
+
+	uci set monlor.ss.version=`$APPPATH -h | awk '/shadowsocks-libev/{print$2}'`
+	
+	if [ "$1" ]; then                                                    
+		$MPATH/script/ssconf show | grep ss_name | grep -w $1 > /dev/null 2>&1
+		if [ $? -eq 0 ]; then
+			uci set monlor.ss.id=$1   
+			uci set monlor.ss.ssgid=" "
+		else
+			MEO -red1t "Server name error, exit ... "
+			exit
+		fi
+	else
+		MIN=200
+		$MPATH/script/ssconf show | grep ss_ping | awk -F "'|ms" '{print$2}' | awk -F "." '{print$1}' | while read line
+		do
+			ssg_mode=`$MPATH/script/ssconf show | grep -w -B 7 $line | awk -F "'" '/ssg_mode/{print$2}'`
+			[[ "$ssg_mode" == "cngame" ]] && continue
+			if [[ $line -lt $MIN ]]; then
+				MIN="$line"
+			fi
+			echo $MIN > /tmp/min_ping
+		done
+		MIN=`cat /tmp/min_ping`
+		rm -rf /tmp/min_ping
+		ssid=`$MPATH/script/ssconf show | grep -w -B 7 $MIN | awk -F "'" '/ss_name/{print$2;exit;}'`
+		uci set monlor.ss.id=$ssid
+		if [ `uci get monlor.ss.ssgena` -eq 1 ]; then
+			ssgid=`uci get monlor.ss.ssgid`
+			[ `uci get monlor.$ssgid.ssg_mode` == "frgame" ] && uci set monlor.ss.ssgid=$ssid
+		fi
+			
+		
+	fi
+	if [ "$2" ]; then
+		$MPATH/script/ssconf show | grep ss_name | grep -w $2 > /dev/null 2>&1
+		if [ $? -eq 0 ]; then
+			uci set monlor.ss.ssgid=$2
+			uci set monlor.ss.ssgena=1
+		else
+			MEO -red1t "Server name error, exit ... "
+			exit
+		fi
+	elif [ "$1" ]; then
+		uci set monlor.ss.ssgena=0
+	fi
+	stop
+	sleep 1
+	start
+
+}
+
+enable() {
+
+	uci set monlor.ss.enable=1
+	restart
+
+}
+
+disable() {
+
+	uci set monlor.ss.enable=0
+	stop
+
+}
+
+

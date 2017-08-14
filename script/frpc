@@ -1,0 +1,131 @@
+#!/bin/ash /etc/rc.common
+
+START=95
+STOP=
+SERVICE_USE_PID=1
+SERVICE_WRITE_PID=1
+SERVICE_DAEMONIZE=1
+
+MPATH=`uci get monlor.tools.mpath`
+. $MPATH/script/mecho
+
+BIN=$MPATH/bin/frpc
+LOG=$MPATH/log/frpc.log
+CONF=$MPATH/conf/frpc.conf
+BAK=$MPATH/backup
+
+update () {
+
+	curl -sLo /tmp/frpc https://raw.githubusercontent.com/koolshare/merlin_frpc/master/frpc/bin/frpc
+	chmod +x /tmp/frpc
+	version=`/tmp/frpc --version`
+	if [ $version != `uci get monlor.frpc.version` ]; then
+		cp $BIN $BAK
+		cp /tmp/frpc $BIN
+	fi
+	rm -rf /tmp/frpc
+
+}
+
+get_config() {
+
+	server=`uci get monlor.frpc.server`
+	server_port=`uci get monlor.frpc.server_port`
+	token=`uci get monlor.frpc.token`
+	rm -rf $CONF
+	echo "[common]" >> $CONF
+	echo "server_addr = $server" >> $CONF
+	echo "server_port = $server_port" >> $CONF
+	echo "protocol = kcp" >> $CONF
+	echo "privilege_token = $token" >> $CONF
+	echo "log_file = $LOG" >> $CONF
+	echo "log_level = info" >> $CONF
+	echo "log_max_days = 1" >> $CONF
+	cat $MPATH/conf/frplist | while read line
+	do
+	if [ ! -f "$line" ]; then
+		[[ ${line:0:1} == "#" ]] && continue 
+		#local_port=`echo $line | awk -F ',' '{print$4}'`
+		#[ `netstat -apn | grep -w "0.0.0.0:$local_port" | wc -l` -eq 0 ] && continue > /dev/null 2>&1
+		echo >> $CONF
+		echo "[`echo $line | awk -F ',' '{print$1}'`]" >> $CONF    
+		
+		line2=`echo $line | awk -F ',' '{print$2}'`
+		echo "type = $line2" >> $CONF
+		
+		echo "local_ip = `echo $line | awk -F ',' '{print$3}'`" >> $CONF
+		
+		echo "local_port = `echo $line | awk -F ',' '{print$4}'`" >> $CONF
+		
+		if [ $line2 == "tcp" -o $line2 == "udp" ]; then
+			echo "remote_port = `echo $line | awk -F ',' '{print$5}'`" >> $CONF
+		fi
+		
+		if [ $line2 == "http" -o $line2 == "https" ]; then
+			line6=`echo $line | awk -F ',' '{print$6}'`
+			[ `echo $line6 | grep "\." | wc -l` -ne 0 ] && echo "subdomain = $line6" >> $CONF || echo "custom_domain = $line6" >> $CONF
+		fi
+		
+		echo "use_encryption = true" >> $CONF
+		
+		echo "use_gzip = false" >> $CONF
+	fi
+	done
+
+}
+
+start () {
+
+	ps | grep frpc | grep -v grep | grep -v {frpc} > /dev/null 2>&1
+	if [ $? -eq 0 ]; then                                                              
+	        MEO -pur1t 'Frpc is already running'                                            
+		exit 1
+	fi
+	MEO -bla1t 'Starting frpc ... \c'
+	#update
+	get_config
+	uci set monlor.frpc.version=`$BIN --version`
+	uci commit monlor
+	echo `date` > $LOG	
+	service_start $BIN -c $CONF
+	if [ $? -eq 0 ]; then
+		MEO -gre1 "Done!"
+	else 
+		MEO -red1 "Failed!"
+	fi
+
+
+}
+
+stop () {
+
+	MEO -bla1t 'Stopping frpc ... \c'
+	service_stop $BIN
+	ps | grep $BIN | grep -v grep | awk '{print$1}' | xargs kill -9 > /dev/null 2>&1
+	MEO -gre1 "Done!"
+
+}
+
+restart () {
+
+	stop
+	sleep 2
+	start
+
+}
+
+enable () {
+
+	uci set monlor.frpc.enable=1
+	uci commit monlor
+	restart
+
+}
+
+disable() {
+
+	uci set monlor.frpc.enable=0
+	uci commit monlor
+	stop
+
+}

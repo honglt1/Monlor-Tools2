@@ -1,0 +1,73 @@
+#!/bin/ash /etc/rc.common
+
+START=95
+STOP=
+SERVICE_USE_PID=1
+SERVICE_WRITE_PID=1
+SERVICE_DAEMONIZE=1
+
+MPATH=`uci get monlor.tools.mpath`
+. $MPATH/script/mecho
+
+BIN=$MPATH/bin/kms
+LOG=$MPATH/log/kms.log
+CONF=$MPATH/conf/kms.conf
+BAK=$MPATH/backup
+
+start () {
+
+	ps | grep kms | grep -v grep | grep -v {kms} > /dev/null 2>&1
+	if [ $? -eq 0 ]; then                                                              
+		MEO -pur1t 'Kms is already running'                                            
+		exit 1
+	fi
+	MEO -bla1t 'Starting kms .... \c'
+	#update
+	uci set monlor.kms.version=`$BIN -V | awk -F '[ ,]+' '/vlmcsd/{print$2;exit;}'`        
+	uci commit monlor
+	echo `date` > $LOG	
+	echo -e "srv-host=_vlmcs._tcp,XiaoQiang,1688,0,100\ndomain=lan" > $MPATH/conf/kms.conf
+	
+	iptables -I INPUT -p tcp --dport 1688 -m comment --comment "monlor-kms" -j ACCEPT
+	service_start $BIN -i $CONF -l $LOG	
+	if [ $? -eq 0 ]; then
+                MEO -gre1 "Done!"
+        else
+                MEO -red1 'Failed!'
+        fi
+
+}
+
+stop () {
+
+	MEO -bla1t 'Stopping kms .... \c'
+	service_stop $BIN
+	kill -9 $(ps | grep kms | grep -v grep | grep -v {kms} | awk '{print $1}') > /dev/null 2>&1
+	iptables -D INPUT -p tcp --dport 1688 -m comment --comment "monlor-kms" -j ACCEPT  > /dev/null 2>&1
+	MEO -gre1 "Done!"
+
+}
+
+restart () {
+
+	stop
+	sleep 2
+	start
+
+}
+
+enable() {
+
+	uci set monlor.kms.enable=1
+	uci commit monlor
+	restart
+
+}
+
+disable() {
+
+	uci set monlor.kms.enable=0
+	uci commit monlor
+	stop
+
+}
