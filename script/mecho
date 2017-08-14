@@ -56,13 +56,13 @@ MEO() {
 			[ "$two" != "$1" ] && two="$2"
 		;;
 	esac
-	if [ `uci get monlor.tools.color_en` -eq 0 ]; then
-		echo -e "$now$two$three"
-		echo -e "$now$two$three" >> /tmp/monlor.log
-	else
+	#if [ `uci get monlor.tools.color_en` -eq 0 ]; then
+	#	echo -e "$now$two$three"
+	#	echo -e "$now$two$three" >> /tmp/monlor.log
+	#else
 		echo -e "\033[49;36;1m$now\033[0m\033[49"$color""$type"m$two\033[49"$color""$type"m$three\033[0m" 
 		echo -e "\033[49;36;1m$now\033[0m\033[49$color"$type"m$two\033[49$color"$type"m$three\033[0m" >> /tmp/monlor.log
-	fi
+	#fi
 	
 }
 

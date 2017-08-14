@@ -122,7 +122,7 @@ install() {
     #	echo "Done!"
     #fi
     
-    [ -f $2 ] && MEO -red1t "Please input install place ...  " && exit
+    [ ! -f $2 ] && MEO -red1t "Please input install place ...  " && exit
     
     MEO -bla1t "Checking monlor file ... \c"
     if [ -d $MPATH ]; then
@@ -257,8 +257,8 @@ uninstall() {
     MEO -gre1 "Done!"
     
     #Delete web
-    umount -l /usr/lib/lua/luci
-    umount -l /www/xiaoqiang/web
+    umount -lf /usr/lib/lua/luci > /dev/null 2>&1
+    umount -lf /www/xiaoqiang/web > /dev/null 2>&1
     rm -rf /tmp/mountfiles
     
 }
