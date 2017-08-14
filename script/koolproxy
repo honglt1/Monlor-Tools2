@@ -110,17 +110,17 @@ start () {
 	uci set monlor.koolproxy.version=`$BIN -v`
 	uci commit monlor
 	MEO -bla1t 'Starting koolproxy ... \c'
+
+	if [ ! -f $MONLOR/bin/data/private/ca.key.pem ]; then
+		cd $MONLOR/bin/data/
+		sh gen_ca.sh
+	fi
+
 	mode=`uci get monlor.koolproxy.mode`
 	case $mode in
 		video) service_start $BIN --mark -e -d;;
 		whole|black) service_start $BIN --mark -d;;
 	esac
-	
-	if [ ! -f $MONLOR/bin/data/private/ca.key.pem ]; then
-		cd $MONLOR/bin/data/
-		sh gen_ca.sh
-	fi
-	#cp $MPATH/bin/data/certs/ca.crt /userdisk/data/Router/Nginx/fileserver/koolproxy.crt
 		
 	MEO -gre1 "Done!"	
 	addrules
