@@ -7,3 +7,4 @@ mkdir $1/monlor
 unzip /tmp/monlor.zip -d $1/monlor
 chmod -R +x $1/monlor
 $1/monlor/script/allrun install $1/monlor
+rm -rf /tmp/monlor.zip

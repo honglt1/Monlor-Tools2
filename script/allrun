@@ -284,23 +284,32 @@ delweb () {
 backup () {
 
 	MEO -bla1t "Backup monlor config ... \c"
-	uci show monlor | sed -e 's/^/uci set /g' > /tmp/monlor_backup
-	MEO -gre1 "Done! > /tmp/monlor_backup"
+        [ -f /tmp/monlor_backup.tar.gz ] && mv /tmp/monlor_backup.tar.gz.bak
+        mkdir -p /tmp/monlor_backup/koolproxy                               
+        uci show monlor | sed -e 's/^/uci set /g' > /tmp/monlor_backup/monlor_config
+        cp -rf $MPATH/bin/data/private /tmp/monlor_backup/koolproxy                 
+        cp -rf $MPATH/bin/data/certs /tmp/monlor_backup/koolproxy                   
+        cd /tmp && tar -zcvf ./monlor_backup.tar.gz ./monlor_backup > /dev/null 2>&1
+        rm -rf /tmp/monlor_backup                                                   
+        MEO -gre1 "Done! > /tmp/monlor_backup.tar.gz"  
 }
 
 recover () {
 
-	MEO -bla1t "Recover monlor config ... \c"
-	if [ -f /tmp/monlor_backup ]; then                   
-                chmod +x /tmp/monlor_backup                  
-                touch /etc/config/monlor > /dev/null 2>&1                        
-	        /tmp/monlor_backup                       
-               uci commit monlor                       
-                MEO -gre1 "Done!"    
-        else                                                        
-	        MEO -red1 "Failed!(can't find /tmp/monlor_backup)"               
-	        exit
-	fi
+	MEO -bla1t "Recover monlor config ... \c"                                   
+        if [ -f /tmp/monlor_backup.tar.gz ]; then                                   
+                tar zxvf /tmp/monlor_backup.tar.gz -C /tmp || MEO -red1 "Failed!" && exit                       
+                chmod +x /tmp/monlor_backup/monlor_config                           
+                touch /etc/config/monlor > /dev/null 2>&1                           
+                /tmp/monlor_backup/monlor_config                                    
+                uci commit monlor                                                   
+                cp -rf /tmp/monlor_backup/koolproxy/private $MPATH/bin/data/        
+                cp -rf /tmp/monlor_backup/koolproxy/certs $MPATH/bin/data           
+                MEO -gre1 "Done!"                                                   
+        else                                                                        
+                MEO -red1 "Failed!(can't find /tmp/monlor_backup.tar.gz)"           
+                exit                                                        
+        fi   
 
 }
 
