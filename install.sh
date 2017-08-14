@@ -1,6 +1,7 @@
 #!/bin/ash
 
 [ -f $1 ] && echo "Please input install place!" && exit
+[ -d $1/monlor ] && echo "$1/monlor directory exist!" && exit
 curl -Lo /tmp/monlor.zip https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/monlor.zip
 mkdir $1/monlor
 unzip /tmp/monlor.zip -d $1/monlor
