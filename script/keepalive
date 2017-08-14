@@ -122,7 +122,7 @@ MEO -blat "***************************************************"
 
 if [ `ps | grep -E 'ss-redir|ssg-redir' | grep -v grep | wc -l'` != 0 ]; then
     id=`uci get monlor.ss.id`
-    ssgid=`uci get monlor.ss.ssgid`
+    ssgid=`uci get monlor.ss.ssgid` > /dev/null 2>&1
     ssmode=`uci get monlor.$id.ss_mode`
     [ ! -f $ssgid ] && ssgmode=`uci get monlor.$ssgid.ssg_mode`
     if [ `uci get monlor.ss.ssgena` == 0 ]; then
