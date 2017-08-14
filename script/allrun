@@ -56,7 +56,7 @@ start() {
     
     #update rules
     #$MPATH/script/addweb
-    $MPATH/script/ssconf ping
+    [ `uci show monlor | grep monlor.*.ss | grep -v monlor.ss | wc -l` -ne 0 ] && $MPATH/script/ssconf ping
     
 }
 
