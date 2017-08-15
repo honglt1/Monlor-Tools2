@@ -294,11 +294,12 @@ backup () {
         mkdir -p /tmp/monlor_backup/koolproxy                               
         uci show monlor | sed -e 's/^/uci set /g' > /tmp/monlor_backup/monlor_config
         cp -rf $MPATH/bin/data/private /tmp/monlor_backup/koolproxy                 
-        cp -rf $MPATH/bin/data/certs /tmp/monlor_backup/koolproxy                   
-        cd /tmp && tar -zcvf ./monlor_backup.tar.gz ./monlor_backup > /dev/null 2>&1
-        rm -rf /tmp/monlor_backup     
+        cp -rf $MPATH/bin/data/certs /tmp/monlor_backup/koolproxy     
 	mkdir -p /tmp/monlor_backup/config
-	cd $MPATH/conf/ && cp kp* ngrok* frplist* custom* ssc* nginxlist /tmp/monlor_backup/config                                      
+	cd $MPATH/conf/ && cp kp* ngrok* frplist* custom* ssc* nginxlist /tmp/monlor_backup/config
+              
+        cd /tmp && tar -zcvf ./monlor_backup.tar.gz ./monlor_backup > /dev/null 2>&1
+        rm -rf /tmp/monlor_backup                                           
         MEO -gre1 "Done! > /tmp/monlor_backup.tar.gz"  
 }
 
@@ -306,7 +307,7 @@ recover () {
 
 	MEO -bla1t "Recover monlor config ... \c"                                   
         if [ -f /tmp/monlor_backup.tar.gz ]; then                                   
-                tar zxvf /tmp/monlor_backup.tar.gz -C /tmp || MEO -red1 "Failed!" && exit                       
+                tar zxvf /tmp/monlor_backup.tar.gz -C /tmp > /dev/null 2>&1 || "MEO -red1 "Failed!" && exit"                      
                 chmod +x /tmp/monlor_backup/monlor_config                           
                 touch /etc/config/monlor > /dev/null 2>&1                           
                 /tmp/monlor_backup/monlor_config                                    
