@@ -265,7 +265,7 @@ uninstall() {
     rm -rf /tmp/mountfiles
 
     #close ssh port 
-    iptables -D INPUT -p tcp --dport 22 -j ACCEPT > /dev/null 2>&1
+    #iptables -D INPUT -p tcp --dport 22 -j ACCEPT > /dev/null 2>&1
     
 }
 
