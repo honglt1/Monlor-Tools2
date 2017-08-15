@@ -7,9 +7,9 @@ clear
 echo -n "Sure to install Monlor-Tools?(y/n) "
 read ans
 [ "$ans" != "y" ] && exit 
-curl -Lo /tmp/monlor.tar.gz https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/monlor.tar.gz
+curl -Lo /tmp/monlor.zip https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/monlor.zip
 mkdir $1/monlor
-tar zxvf /tmp/monlor.tar.gz -C $1/monlor
+unzip /tmp/monlor.zip -d $1/monlor
 chmod -R +x $1/monlor
 $1/monlor/script/allrun install $1/monlor
 rm -rf /tmp/monlor.zip
