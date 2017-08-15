@@ -3,6 +3,7 @@
 [ -f $1 ] && echo "Please input install place!" && exit
 [ -d $1/monlor ] && echo "Monlor-Tools is installed!" && exit
 [ `cat /proc/xiaoqiang/model` != "R2D" ] && echo "Only support Miwifi R2D!" && exit
+clear
 echo -n "Sure to install Monlor-Tools?(y/n) "
 read ans
 [ "$ans" != "y" ] && exit 

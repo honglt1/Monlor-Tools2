@@ -59,7 +59,7 @@ start() {
     [ `uci show monlor | grep monlor.*.ss | grep -v monlor.ss | wc -l` -ne 0 ] && $MPATH/script/ssconf ping
 
     #open ssh port 
-    iptables -I INPUT -p tcp --dport 22 -j ACCEPT
+    [ `iptables -S | grep monlor-ssh | wc -l` -eq 0 ] && iptables -I INPUT -p tcp --dport 22 -j ACCEPT -m comment --comment "monlor-ssh"
 
     #backup everyday
     backup    
