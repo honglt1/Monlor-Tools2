@@ -120,6 +120,7 @@ start () {
 	case $mode in
 		video) service_start $BIN --mark -e -d;;
 		whole|black) service_start $BIN --mark -d;;
+		*) service_start $BIN -e -d && uci set monlor.koolproxy.mode=video
 	esac
 		
 	MEO -gre1 "Done!"	
