@@ -150,11 +150,11 @@ install() {
     if [ $? -ne 0 ]; then
         MEO -pur1 'Add profile ... \c'
         sed -i "s#/usr/sbin#/usr/sbin:"$MPATH"/script#g" /etc/profile
-        source /etc/profile > /dev/null 2>&1
     fi
     cat /etc/profile | grep keepalive > /dev/null 2>&1
     if [ $? -ne 0 ]; then
     	sed -i "/banner/a\\$MPATH/script/keepalive" /etc/profile
+	sed -i "/banner/d" /etc/profile
     fi
     MEO -gre1 "Done!"
 
@@ -241,6 +241,7 @@ uninstall() {
     sed -i "/keepalive/d" /etc/profile
     sed -i 's/:\/opt\/bin:\/opt\/sbin//' /etc/profile
     sed -i '/LD_LIBRARY_PATH/d' /etc/profile
+    sed -i "/\/bin\/sh/a[ -f /etc/banner ] && cat /etc/banner" /etc/profile
     MEO -gre1 "Done!"
     
     MEO -bla1t 'Delete firewall added ... \c'
