@@ -1,5 +1,6 @@
 #!/bin/ash
-. /etc/monlor/script/mecho
+MPATH=`uci get monlor.tools.mpath`
+. $MPATH/script/mecho
 MEO "*****************************************"
 MEO -blu1 "Testing ss server ... "
 MEO "*****************************************"

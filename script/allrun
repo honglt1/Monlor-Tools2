@@ -6,7 +6,7 @@
 #SERVICE_DAEMONIZE=1
 
 MPATH=`uci get monlor.tools.mpath` > /dev/null 2>&1
-[ $2 ] && MPATH="$2"
+[ -f $2 ] && MPATH="$2"
 BIN=$MPATH/bin
 SCR=$MPATH/script
 CONF=$MPATH/conf
@@ -15,7 +15,6 @@ CRON=/var/spool/cron/crontabs/root
 . $MPATH/script/mecho > /dev/null 2>&1
 start() {
 
-    [ "$1" == "1" ] && check
     rm -rf /tmp/monlor.log $MPATH/log/*
     [ `uci get monlor.ss.enable` == 1 ] && $SCR/ss start
     [ `uci get monlor.koolproxy.enable` == 1 ] && $SCR/koolproxy start
@@ -61,9 +60,6 @@ start() {
 
     #open ssh port 
     [ `iptables -S | grep monlor-ssh | wc -l` -eq 0 ] && iptables -I INPUT -p tcp --dport 22 -j ACCEPT -m comment --comment "monlor-ssh"
-
-    #backup everyday
-    backup
 
 }
 
@@ -115,7 +111,7 @@ disable() {
 
 }
 
-check() {
+install() {
 
     #MEO -bla1t "Install node ... "
     #if [ -d /data/usr/bin/node-0.10.28 ]; then
@@ -129,6 +125,8 @@ check() {
     #	chmod 777 /usr/bin/npm
     #	echo "Done!"
     #fi
+
+    [ ! -f $2 ] && MEO -red1t "Please input install place ...  " && exit
     
     MEO -bla1t "Checking monlor file ... \c"
     if [ -d $MPATH ]; then
@@ -167,7 +165,7 @@ check() {
 	#uci set firewall.monlor=include
 	#uci set firewall.monlor.path="$MPATH/script/allrun start"
 	#uci set firewall.monlor.reload=1
-	echo "$MPATH/script/allrun start 1" >> /etc/firewall.user
+	echo "$MPATH/script/allrun install $MPATH" >> /etc/firewall.user
     fi
     MEO -gre1 "Done!"
      
@@ -219,15 +217,7 @@ check() {
         mkdir $LOG > /dev/null 2>&1
     fi
     MEO -gre1 "Done!"
-
-}
-
-install () {
-
-    [ ! -f $2 ] && MEO -red1t "Please input install place ...  " && exit
     
-    check
-
     if [ -f /tmp/monlor_backup.tar.gz ]; then
 	MEO -blu1t "Found backup file, Recovering ... "
 	recover
