@@ -228,7 +228,7 @@ install () {
     
     check
 
-    if [ `ls /tmp/ | grep -w monlor.tar.gz | wc -l` -ne 0 ]; then
+    if [ -f /tmp/monlor_backup.tar.gz ]; then
 	MEO -bla1t "Found Monlor-Tools backup file, Recovering ... "
 	recover
     fi
