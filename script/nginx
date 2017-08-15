@@ -48,8 +48,8 @@ get_config() {
 
 start () {
 
-	result1=`ps | grep $BIN | grep -v grep | grep -v {nginx} | grep -v sysapihttpd | wc -l`
-	if [ $result1 -eq 1 ]; then
+	result=`ps | grep -E 'worker process|master process' | grep -v grep | grep -v sysapihttpd | wc -l`
+	if [ $result -ne 0 ]; then
 		MEO -pur1t 'Nginx is already running'
 		exit 1
 	fi

@@ -102,7 +102,7 @@ fi
 
 fastdick_ver=`uci get monlor.fastdick.version || echo none` > /dev/null 2>&1
 MEO -bla1t "Checking fastdick(version:$fastdick_ver) ... \c"
-ps | grep fastdick | grep -v grep | grep -v {fastdick} > /dev/null 2>&1
+ps | grep fastdick | grep -v grep > /dev/null 2>&1
 if [ $? -eq 0 ]; then
     MEO -gre1 "Running!"
 else
