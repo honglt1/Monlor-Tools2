@@ -393,6 +393,7 @@ restart()
 		MIN=200
 		$MPATH/script/ssconf show | grep ss_ping | awk -F "'|ms" '{print$2}' | awk -F "." '{print$1}' | while read line
 		do
+			[ "$line" == "bad" ] && continue
 			ssg_mode=`$MPATH/script/ssconf show | grep -w -B 7 $line | awk -F "'" '/ssg_mode/{print$2}'`
 			[[ "$ssg_mode" == "cngame" ]] && continue
 			if [[ $line -lt $MIN ]]; then
