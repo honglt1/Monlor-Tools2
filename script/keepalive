@@ -4,6 +4,7 @@ MPATH=`uci get monlor.tools.mpath`
 SCR=$MPATH/script
 [ "$1" == "-m" ] && . $MPATH/script/mecho_phone || . $MPATH/script/mecho
 clear
+[ -f /etc/banner ] && cat /etc/banner
 
 MEO -blat "***************************************************"
 MEO -bla1t "Checking CPU tempreture ... \c"
@@ -169,3 +170,5 @@ fi
 #if [ $? -ne 0 ]; then
 #	sed -i '49,54s/\/userdisk\/data/\/userdisk\/data\/Chaco/' /etc/samba/smb.conf
 #fi
+
+MEO
