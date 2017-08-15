@@ -40,7 +40,7 @@ start() {
     #if [ `uci get monlor.vsftpd.enable` -eq 1 ];then
     #	[ `mount | grep /tmp/ftp | wc -l` -eq 0 ] && mount -o blind /userdisk/data/Chaco/Share/ftp /var/ftp
     #fi
-    #cp /etc/config/monlor $MPATH/conf  
+
     #entware mount
     if [ -d $MPATH/opt ]; then 
     	umount -lf /opt 
@@ -60,7 +60,10 @@ start() {
 
     #open ssh port 
     iptables -I INPUT -p tcp --dport 22 -j ACCEPT
-    
+
+    #backup everyday
+    backup    
+
 }
 
 enable() {
