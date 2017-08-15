@@ -33,13 +33,13 @@ start() {
     mount -o remount,rw /                                                
    
     #mount samba
-    [ `cat /etc/samba/smb.conf | grep -A 7 "XiaoMi" | grep Chaco | wc -l` == 0 ] && sed -i '49,54s/\/userdisk\/data/\/userdisk\/data\/Chaco/' /etc/samba/smb.conf 
-    [ `mount | grep Chaco/Download | wc -l` == 0 ] && mount -o blind /userdisk/data/下载 /userdisk/data/Chaco/Download
+    #[ `cat /etc/samba/smb.conf | grep -A 7 "XiaoMi" | grep Chaco | wc -l` == 0 ] && sed -i '49,54s/\/userdisk\/data/\/userdisk\/data\/Chaco/' /etc/samba/smb.conf 
+    #[ `mount | grep Chaco/Download | wc -l` == 0 ] && mount -o blind /userdisk/data/下载 /userdisk/data/Chaco/Download
     
     #mount ftp
-    if [ `uci get monlor.vsftpd.enable` -eq 1 ];then
-    	[ `mount | grep /tmp/ftp | wc -l` -eq 0 ] && mount -o blind /userdisk/data/Chaco/Share/ftp /var/ftp
-    fi
+    #if [ `uci get monlor.vsftpd.enable` -eq 1 ];then
+    #	[ `mount | grep /tmp/ftp | wc -l` -eq 0 ] && mount -o blind /userdisk/data/Chaco/Share/ftp /var/ftp
+    #fi
     #cp /etc/config/monlor $MPATH/conf  
     #entware mount
     if [ -d $MPATH/opt ]; then 
@@ -57,6 +57,9 @@ start() {
     #update rules
     #$MPATH/script/addweb
     [ `uci show monlor | grep monlor.*.ss | grep -v monlor.ss | wc -l` -ne 0 ] && $MPATH/script/ssconf ping
+
+    #open ssh port 
+    iptables -I INPUT -p tcp --dport 22 -j ACCEPT
     
 }
 
@@ -260,6 +263,9 @@ uninstall() {
     umount -lf /usr/lib/lua/luci > /dev/null 2>&1
     umount -lf /www/xiaoqiang/web > /dev/null 2>&1
     rm -rf /tmp/mountfiles
+
+    #close ssh port 
+    iptables -D INPUT -p tcp --dport 22 -j ACCEPT > /dev/null 2>&1
     
 }
 
@@ -290,7 +296,9 @@ backup () {
         cp -rf $MPATH/bin/data/private /tmp/monlor_backup/koolproxy                 
         cp -rf $MPATH/bin/data/certs /tmp/monlor_backup/koolproxy                   
         cd /tmp && tar -zcvf ./monlor_backup.tar.gz ./monlor_backup > /dev/null 2>&1
-        rm -rf /tmp/monlor_backup                                                   
+        rm -rf /tmp/monlor_backup     
+	mkdir -p /tmp/monlor_backup/config
+	cd $MPATH/conf/ && cp kp* ngrok* frplist* custom* ssc* nginxlist /tmp/monlor_backup/config                                      
         MEO -gre1 "Done! > /tmp/monlor_backup.tar.gz"  
 }
 
@@ -304,7 +312,8 @@ recover () {
                 /tmp/monlor_backup/monlor_config                                    
                 uci commit monlor                                                   
                 cp -rf /tmp/monlor_backup/koolproxy/private $MPATH/bin/data/        
-                cp -rf /tmp/monlor_backup/koolproxy/certs $MPATH/bin/data           
+                cp -rf /tmp/monlor_backup/koolproxy/certs $MPATH/bin/data    
+		cp -rf /tmp/monlor_backup/config/* $MPATH/conf       
                 MEO -gre1 "Done!"                                                   
         else                                                                        
                 MEO -red1 "Failed!(can't find /tmp/monlor_backup.tar.gz)"           
