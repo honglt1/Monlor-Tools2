@@ -1,5 +1,2 @@
 #name port path customize
-aria2,8081,/userdisk/data/Chaco/Router/Nginx/aria2,
-fileserver,8088,/userdisk/data/Chaco/Share/http,charset utf-8;
-#web,8080,/userdisk/data/Chaco/Router/Nginx/web,if ($host = 'monlor.com' ) {rewrite ^/(.*)$ http://www.monlor.com/$1 permanent;}
-web,8080,/userdisk/data/Chaco/Router/Nginx/web,
+web,8080,/share,
