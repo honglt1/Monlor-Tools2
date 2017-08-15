@@ -62,7 +62,7 @@ start() {
     [ `iptables -S | grep monlor-ssh | wc -l` -eq 0 ] && iptables -I INPUT -p tcp --dport 22 -j ACCEPT -m comment --comment "monlor-ssh"
 
     #backup everyday
-    backup    
+    backup
 
 }
 
@@ -173,6 +173,7 @@ install() {
      
     MEO -bla1t 'Checking nginx file ... \c' 
     if [ ! -d /userdisk/router/ ]; then
+	MEO -pur1 'Add nginxfile ... \c'
     	mkdir -p /userdisk/router/nginx/temp
     	mkdir -p /userdisk/router/nginx/logs
     fi
@@ -181,7 +182,7 @@ install() {
     MEO -bla1t 'Checking uci ... \c'
     if [ ! -f /etc/config/monlor ]; then
         #cp $MPATH/conf/monlor /etc/config
-	
+	MEO -pur1 "Add uci ... \c"
 	touch /etc/config/monlor
 	uci set monlor.ss=config
 	uci set monlor.ss.enable=0
@@ -218,8 +219,9 @@ install() {
         mkdir $LOG > /dev/null 2>&1
     fi
     MEO -gre1 "Done!"
- 
+
     start
+ 
 }
 
 uninstall() {
@@ -293,7 +295,7 @@ delweb () {
 backup () {
 
 	MEO -bla1t "Backup monlor config ... \c"
-        [ -f /tmp/monlor_backup.tar.gz ] && mv /tmp/monlor_backup.tar.gz.bak
+        [ -f /tmp/monlor_backup.tar.gz ] && mv /tmp/monlor_backup.tar.gz /tmp/monlor_backup.tar.gz.bak
         mkdir -p /tmp/monlor_backup/koolproxy                               
         uci show monlor | sed -e 's/^/uci set /g' > /tmp/monlor_backup/monlor_config
         cp -rf $MPATH/bin/data/private /tmp/monlor_backup/koolproxy                 
