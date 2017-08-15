@@ -163,8 +163,8 @@ if [ `ps | grep koolproxy | grep -v grep | wc -l` != 0 ]; then
     
 fi
 
-rm -rf /userdisk/data/TDDOWNLOAD 
-cat /etc/samba/smb.conf | grep -A 7 "XiaoMi" | grep Chaco > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-	sed -i '49,54s/\/userdisk\/data/\/userdisk\/data\/Chaco/' /etc/samba/smb.conf
-fi
+#rm -rf /userdisk/data/TDDOWNLOAD 
+#cat /etc/samba/smb.conf | grep -A 7 "XiaoMi" | grep Chaco > /dev/null 2>&1
+#if [ $? -ne 0 ]; then
+#	sed -i '49,54s/\/userdisk\/data/\/userdisk\/data\/Chaco/' /etc/samba/smb.conf
+#fi
