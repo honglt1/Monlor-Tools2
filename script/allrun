@@ -15,6 +15,7 @@ CRON=/var/spool/cron/crontabs/root
 . $MPATH/script/mecho > /dev/null 2>&1
 start() {
 
+    [ "$1" == "1" ] && check
     rm -rf /tmp/monlor.log $MPATH/log/*
     [ `uci get monlor.ss.enable` == 1 ] && $SCR/ss start
     [ `uci get monlor.koolproxy.enable` == 1 ] && $SCR/koolproxy start
@@ -113,7 +114,8 @@ disable() {
     $SCR/vsftpd diable
 
 }
-install() {
+
+check() {
 
     #MEO -bla1t "Install node ... "
     #if [ -d /data/usr/bin/node-0.10.28 ]; then
@@ -127,8 +129,6 @@ install() {
     #	chmod 777 /usr/bin/npm
     #	echo "Done!"
     #fi
-    
-    [ ! -f $2 ] && MEO -red1t "Please input install place ...  " && exit
     
     MEO -bla1t "Checking monlor file ... \c"
     if [ -d $MPATH ]; then
@@ -167,7 +167,7 @@ install() {
 	#uci set firewall.monlor=include
 	#uci set firewall.monlor.path="$MPATH/script/allrun start"
 	#uci set firewall.monlor.reload=1
-	echo "$MPATH/script/allrun install $MPATH" >> /etc/firewall.user
+	echo "$MPATH/script/allrun start 1" >> /etc/firewall.user
     fi
     MEO -gre1 "Done!"
      
@@ -219,6 +219,14 @@ install() {
         mkdir $LOG > /dev/null 2>&1
     fi
     MEO -gre1 "Done!"
+
+}
+
+install () {
+
+    [ ! -f $2 ] && MEO -red1t "Please input install place ...  " && exit
+    
+    check
 
     if [ `ls /tmp/ | grep -w monlor.tar.gz | wc -l` -ne 0 ]; then
 	MEO -bla1t "Found Monlor-Tools backup file, Recovering ... "
