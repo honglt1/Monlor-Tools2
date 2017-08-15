@@ -35,7 +35,8 @@ start () {
 	uci commit monlor
 	echo `date` > $LOG	
 	
-	/bin/sh $BIN & 
+	#/bin/sh $BIN & 
+	service_start $BIN
 	if [ $? -eq 0 ]; then
                 MEO -gre1 "Done!"
         else
