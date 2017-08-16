@@ -219,8 +219,9 @@ install() {
     MEO -gre1 "Done!"
     
     if [ -f /tmp/monlor_backup.tar.gz ]; then
-	MEO -blu1t "Found backup file, Recovering ... "
-	recover
+	MEO -blu1t "Found backup file, Recover?(y/n) "
+	read ans
+	[ "$ans" == "y" ] && recover
     fi
 
     start
