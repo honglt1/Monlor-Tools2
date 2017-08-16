@@ -171,4 +171,6 @@ fi
 #	sed -i '49,54s/\/userdisk\/data/\/userdisk\/data\/Chaco/' /etc/samba/smb.conf
 #fi
 
+[ "$1" == "ping" ] && $MPATH/script/ssconf ping
+
 MEO

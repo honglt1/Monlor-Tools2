@@ -140,7 +140,7 @@ install() {
     cat $CRON | grep allrun > /dev/null 2>&1
     if [ $? -ne 0 ]; then
          MEO -pur1 'Add crontab ... \c'
-         echo "*/20 * * * * $MPATH/script/keepalive" >> $CRON
+         echo "*/20 * * * * $MPATH/script/keepalive ping" >> $CRON
          echo "0 4 * * * $MPATH/script/allrun start" >> $CRON
     fi
     MEO -gre1 'Done!'
