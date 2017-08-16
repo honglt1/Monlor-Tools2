@@ -29,6 +29,7 @@ update () {
 
 get_config() {
 
+	[ `uci show monlor.frpc | grep server | wc -l` -eq 0 ] && MEO -red1 "Failed!(no frp server)"
 	server=`uci get monlor.frpc.server`
 	server_port=`uci get monlor.frpc.server_port`
 	token=`uci get monlor.frpc.token`

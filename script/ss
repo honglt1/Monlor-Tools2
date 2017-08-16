@@ -6,6 +6,7 @@ SERVICE_WRITE_PID=1
 SERVICE_DAEMONIZE=1
 
 MPATH=`uci get monlor.tools.mpath`
+MURL="https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master"
 . $MPATH/script/mecho
 
 wan_mode=`ifconfig | grep pppoe-wan | wc -l`
@@ -90,6 +91,7 @@ addrules() {
         iptables -t nat -N SHADOWSOCK
 
         #lan access control
+	[ ! -f $MPATH/conf/sscontrol.conf ] && touch $MPATH/conf/sscontrol.conf
         cat $MPATH/conf/sscontrol.conf | while read line
         do
         	#mac=`cat /tmp/dhcp.leases | grep -i $line | awk '{print $2}'`
@@ -102,6 +104,9 @@ addrules() {
         #iptables -t nat -A SHADOWSOCKS -p tcp -j SHADOWSOCK
         iptables -t nat -A SHADOWSOCKS -p tcp -j RETURN
         
+	[ ! -f $custom_black ] && touch $custom_black
+	[ ! -f $custom_white ] && touch $custom_white
+
         cat $custom_black | while read line                                                                   
         do                                                                                              
         	echo "server=/.$line/127.0.0.1#15353" >> /etc/dnsmasq.d/custom_black.conf  
@@ -433,8 +438,23 @@ restart()
 enable() {
 
 	uci set monlor.ss.enable=1
-	restart
-
+	if [ -x $APPPATH ]; then
+		MEO -bla1t "Update ss files ... \c"
+		ping -4 baidu.com -c 4 -w 10 -q > /dev/null 2>&1
+		if [ $? -ne 0 ]; then
+			MEO -red1 "Failed!(bad network)"
+			exit
+		fi
+		curl -sLo $APPPATH $MURL/bin/ss-redir
+		cp $APPPATH $SSGBIN
+		curl -sLo $LOCALPATH $MURL/bin/ss-local
+		curl -sLo $DNSPATH $MURL/bin/dns2socks
+		curl -sLo $gfwlist $MURL/conf/gfwlist.conf
+		curl -sLo $chnroute $MURL/conf/chnroute.conf
+		curl -sLo $MPATH/script/ss $MURL/script/ss
+		chmod -R +x $MPATH
+	fi
+	MEO -gre1 "Done!"
 }
 
 disable() {
