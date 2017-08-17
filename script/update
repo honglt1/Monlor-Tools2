@@ -22,7 +22,7 @@ curl -sLo /tmp/md5info $MURL/app/md5info
 [ $? -ne 0 ] && MEO -red1 "Failed!(download failed)"
 [ "`cat /tmp/md5info | grep $1.zip | cut -d' ' -f4`" != "`md5sum /tmp/$1.zip | cut -d ' ' -f1`" ] && MEO -red1 "Failed!(verify failed)" && exit
 [ ! -d $MPATH/backup ] && mkdir $MPATH/backup
-mv $MPATH/conf/$1.conf $MPATH/conf/*list $MPATH/backup > /dev/null 2>&1
+cp $MPATH/conf/$1.conf $MPATH/conf/*list $MPATH/backup > /dev/null 2>&1
 unzip -o /tmp/$1.zip -d $MPATH > /dev/null 2>&1
 chmod -R +x $MPATH
 rm -rf /tmp/$1.zip /tmp/md5info
