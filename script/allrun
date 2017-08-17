@@ -279,7 +279,7 @@ backup () {
         cp -rf $MPATH/bin/data/private /tmp/monlor_backup/koolproxy                 
         cp -rf $MPATH/bin/data/certs /tmp/monlor_backup/koolproxy     
 	mkdir -p /tmp/monlor_backup/config
-	cd $MPATH/conf/ && cp kp* ngrok* frplist* custom* ssc* nginxlist /tmp/monlor_backup/config
+	cd $MPATH/conf/ && cp kp* ngrok* frplist* custom* ssc* nginxlist fastdick* /tmp/monlor_backup/config
         cd /tmp && tar -zcvf ./monlor_backup.tar.gz ./monlor_backup > /dev/null 2>&1
         rm -rf /tmp/monlor_backup                                           
         MEO -gre1 "Done! > /tmp/monlor_backup.tar.gz"  

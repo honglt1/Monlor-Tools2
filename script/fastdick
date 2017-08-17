@@ -15,6 +15,16 @@ CONF=$MPATH/conf/fastdick.conf
 BAK=$MPATH/backup
 appname=fastdick
 
+getconfig () {
+
+	uid=`cat $CONF | awk -F ':' '/uid/{print$2}'`
+	pwd=`cat $CONF | awk -F ':' '/pwd/{print$2}'`
+	peerid=`cat $CONF | awk -F ':' '/peerid/{print$2}'`
+	sed -i '14s/.*/uid=$uid/' $BIN
+	sed -i '15s/.*/pwd=$pwd/' $BIN
+	sed -i '17s/.*/peerid=$peerid/' $BIN
+
+}
 
 start () {
 
@@ -27,8 +37,7 @@ start () {
 		exit 1
 	fi
 	MEO -bla1t "Starting $appname .... \c"
-	#update
-	#uci set monlor.$appname.version=`cat $BIN | grep APP_VERSION | awk -F '"' '{print$2}'`        
+	getconfig   
 	uci set monlor.$appname.version=2.0.3.4
 	uci commit monlor
 	echo `date` > $LOG	
@@ -57,7 +66,7 @@ stop () {
 restart () {
 
 	stop
-	sleep 2
+	sleep 1
 	start
 
 }

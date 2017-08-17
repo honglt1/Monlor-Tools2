@@ -53,7 +53,7 @@ stop () {
 restart () {
 
 	stop
-	sleep 2
+	sleep 1
 	start
 
 }
