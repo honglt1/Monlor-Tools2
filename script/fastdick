@@ -32,8 +32,7 @@ start () {
 	[ ! -x $BIN ] && MEO -red1t "Fastdick not installed" && exit
 	uci set monlor.$appname.enable=1
 	uci commit monlor
-	ps | grep fastdick | grep -v grep > /dev/null 2>&1
-	if [ $? -eq 0 ]; then                                                              
+	if [ `ps | grep $BIN | grep -v grep | wc -l` -ne 0 ]; then                                                               
 		MEO -pur1t 'Fastdick is already running'                                            
 		exit 1
 	fi
@@ -59,7 +58,7 @@ stop () {
 	uci set monlor.$appname.enable=0
 	uci commit monlor
 	MEO -bla1t "Stopping $appname .... \c"
-	kill -9 $(ps | grep $BIN | grep -v grep | grep -v {fastdick} | awk '{print $1}') > /dev/null 2>&1
+	kill -9 $(ps | grep $BIN | grep -v grep | awk '{print $1}') > /dev/null 2>&1
 	MEO -gre1 "Done!"
 
 }
