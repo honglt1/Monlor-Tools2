@@ -11,7 +11,7 @@ appname=vsftpd
 
 get_config() {
 
-	MEO -bla1t "Load vsftpd setting ... \c"
+	MEO -bla1t "Load $appname setting ... \c"
 	
 	[ `uci show monlor.$appname | grep root_enable | wc -l` -eq 0 ] && uci set monlor.$appname.root_enable=1
 	[ `uci show monlor.$appname | grep anon_enable | wc -l` -eq 0 ] && uci set monlor.$appname.anon_enable=1
@@ -97,9 +97,7 @@ restart () {
 
 enable() {
 
-	uci set monlor.$appname.enable=1
-	uci commit monlor
-	restart
+	$MPATH/script/update $appname
 
 }
 
