@@ -45,7 +45,7 @@ stop () {
 	MEO -bla1t "Stopping $appname ... \c"
 	service_stop $BIN
 	#kill -9 $(ps | grep webshell | grep -v grep | grep -v {webshell} | awk '{print $1}') > /dev/null 2>&1
-	ps | grep webshell |  grep -v grep | grep -v {webshell} | awk '{print $1}' | xargs kill -9 > /dev/null 2>&1
+	ps | grep $BIN |  grep -v grep | grep -v {webshell} | awk '{print $1}' | xargs kill -9 > /dev/null 2>&1
 	MEO -gre1 "Done!"
 
 }

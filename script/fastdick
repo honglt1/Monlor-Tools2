@@ -49,7 +49,7 @@ stop () {
 	uci set monlor.$appname.enable=0
 	uci commit monlor
 	MEO -bla1t "Stopping $appname .... \c"
-	kill -9 $(ps | grep fastdick | grep -v grep | grep -v {fastdick} | awk '{print $1}') > /dev/null 2>&1
+	kill -9 $(ps | grep $BIN | grep -v grep | grep -v {fastdick} | awk '{print $1}') > /dev/null 2>&1
 	MEO -gre1 "Done!"
 
 }

@@ -80,7 +80,7 @@ stop () {
 	uci commit monlor
 	MEO -bla1t "Stopping $appname .... \c"
 	service_stop $BIN
-	kill -9 $(ps | grep vsftpd | grep -v grep | grep -v {vsftpd} | awk '{print $1}') > /dev/null 2>&1
+	kill -9 $(ps | grep $BIN | grep -v grep | grep -v {vsftpd} | awk '{print $1}') > /dev/null 2>&1
 	rm -rf /etc/vsftpd*
 	iptables -D INPUT -p tcp --dport 21 -j ACCEPT -m comment --comment "monlor-vsftpd" > /dev/null 2>&1
 	MEO -gre1 "Done!"
