@@ -5,9 +5,11 @@ MURL="https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master"
 . $MPATH/script/mecho
 
 if [ "$1" != "allrun" ]; then
-	[ `uci get monlor.$1.enable` -eq 1 ] && $MPATH/script/$1 stop
-	uci set monlor.$1.enable=1
-	uci commit monlor
+	if [ `uci get monlor.$1.enable` -eq 1 ]; then
+		$MPATH/script/$1 stop
+		uci set monlor.$1.enable=1
+		uci commit monlor
+	fi
 fi
 MEO -bla1t "Update $1 files ... \c"
 ping -4 baidu.com -c 4 -w 10 -q > /dev/null 2>&1
