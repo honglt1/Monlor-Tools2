@@ -13,25 +13,23 @@ BIN=$MPATH/bin/fastdick
 LOG=$MPATH/log/fastdick.log
 CONF=$MPATH/conf/fastdick.conf
 BAK=$MPATH/backup
+appname=fastdick
 
-update () {
-
-	curl -Lo /tmp/fastdick https://github.com/fffonion/Xunlei-Fastdick/raw/master/swjsq.py
-	chmod +x /tmp/fastdick
-
-}
 
 start () {
 
-	ps | grep fastdick | grep -v grep | grep -v {fastdick} > /dev/null 2>&1
+	[ ! -x $BIN ] && MEO -red1t "Fastdick not installed" && exit
+	uci set monlor.$appname.enable=1
+	uci commit monlor
+	ps | grep fastdick | grep -v grep > /dev/null 2>&1
 	if [ $? -eq 0 ]; then                                                              
 		MEO -pur1t 'Fastdick is already running'                                            
 		exit 1
 	fi
-	MEO -bla1t 'Starting fastdick .... \c'
+	MEO -bla1t "Starting $appname .... \c"
 	#update
-	#uci set monlor.fastdick.version=`cat $BIN | grep APP_VERSION | awk -F '"' '{print$2}'`        
-	uci set monlor.fastdick.version=2.0.3.4
+	#uci set monlor.$appname.version=`cat $BIN | grep APP_VERSION | awk -F '"' '{print$2}'`        
+	uci set monlor.$appname.version=2.0.3.4
 	uci commit monlor
 	echo `date` > $LOG	
 	
@@ -47,7 +45,10 @@ start () {
 
 stop () {
 
-	MEO -bla1t 'Stopping fastdick .... \c'
+	[ ! -x $BIN ] && MEO -red1t "Fastdick not installed" && exit
+	uci set monlor.$appname.enable=0
+	uci commit monlor
+	MEO -bla1t "Stopping $appname .... \c"
 	kill -9 $(ps | grep fastdick | grep -v grep | grep -v {fastdick} | awk '{print $1}') > /dev/null 2>&1
 	MEO -gre1 "Done!"
 
@@ -63,16 +64,17 @@ restart () {
 
 enable() {
 
-	uci set monlor.fastdick.enable=1
-	uci commit monlor
-	restart
+	$MPATH/script/update $appname
 
 }
 
 disable() {
 
-	uci set monlor.fastdick.enable=0
+	uci set monlor.$appname.enable=0
 	uci commit monlor
 	stop
+	MEO -bla1t "Delete $appname files ... \c"
+	rm -rf $BIN $LOG 
+	MEO -gre1 "Done!"	
 
 }

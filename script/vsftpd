@@ -7,21 +7,23 @@ BIN=$MPATH/bin/vsftpd
 LOG=$MPATH/log/vsftpd.log
 CONF=$MPATH/conf/vsftpd.conf
 BAK=$MPATH/backup
+appname=vsftpd
 
 get_config() {
 
 	MEO -bla1t "Load vsftpd setting ... \c"
 	
-	[ `uci show monlor.vsftpd | grep root_enable | wc -l` -eq 0 ] && uci set monlor.vsftpd.root_enable=1
-	[ `uci show monlor.vsftpd | grep anon_enable | wc -l` -eq 0 ] && uci set monlor.vsftpd.anon_enable=1
-	[ `uci show monlor.vsftpd | grep write_enable | wc -l` -eq 0 ] && uci set monlor.vsftpd.write_enable=1
-	[ `uci show monlor.vsftpd | grep chroot | wc -l` -eq 0 ] && uci set monlor.vsftpd.chroot=1
-	[ `uci show monlor.vsftpd | grep log_enable | wc -l` -eq 0 ] && uci set monlor.vsftpd.log_enable=0
-	[ `uci show monlor.vsftpd | grep ftp_port | wc -l` -eq 0 ] && uci set monlor.vsftpd.ftp_port=" "
+	[ `uci show monlor.$appname | grep root_enable | wc -l` -eq 0 ] && uci set monlor.$appname.root_enable=1
+	[ `uci show monlor.$appname | grep anon_enable | wc -l` -eq 0 ] && uci set monlor.$appname.anon_enable=1
+	[ `uci show monlor.$appname | grep write_enable | wc -l` -eq 0 ] && uci set monlor.$appname.write_enable=1
+	[ `uci show monlor.$appname | grep chroot | wc -l` -eq 0 ] && uci set monlor.$appname.chroot=1
+	[ `uci show monlor.$appname | grep log_enable | wc -l` -eq 0 ] && uci set monlor.$appname.log_enable=0
+	[ `uci show monlor.$appname | grep ftp_port | wc -l` -eq 0 ] && uci set monlor.$appname.ftp_port=" "
 	
-	[ `uci get monlor.vsftpd.root_enable` = "1" ] && echo "root" >> /etc/vsftpd.users || touch /etc/vsftpd.users 
+	[ `uci get monlor.$appname.root_enable` = "1" ] && echo "root" >> /etc/vsftpd.users || touch /etc/vsftpd.users 
+	[ ! -f $MPATH/conf/ftpuser.conf ] && touch $MPATH/conf/ftpuser.conf 
 	cat $MPATH/conf/ftpuser.conf >> /etc/vsftpd.users
-	if [ `uci get monlor.vsftpd.anon_enable` = "1" ]; then 
+	if [ `uci get monlor.$appname.anon_enable` = "1" ]; then 
 		anon_enable=YES 
 		mkdir -p /var/ftp/pub > /dev/null 2>&1
 		sed -i '/ftp/d' /etc/passwd
@@ -32,10 +34,10 @@ get_config() {
 	else
 		anon_enable=NO 
 	fi
-	[ `uci get monlor.vsftpd.write_enable` = "1" ] && write_enable=YES || write_enable=NO
-	[ `uci get monlor.vsftpd.chroot` = "1" ] && chroot=YES || chroot=NO
-	[ `uci get monlor.vsftpd.log_enable` = "1" ] && xferlog_enable=YES || xferlog_enable=NO
-	[ -f `uci get monlor.vsftpd.ftp_port` ] && ftp_port=21
+	[ `uci get monlor.$appname.write_enable` = "1" ] && write_enable=YES || write_enable=NO
+	[ `uci get monlor.$appname.chroot` = "1" ] && chroot=YES || chroot=NO
+	[ `uci get monlor.$appname.log_enable` = "1" ] && xferlog_enable=YES || xferlog_enable=NO
+	[ -f `uci get monlor.$appname.ftp_port` ] && ftp_port=21
 	cp -rf $CONF /etc/vsftpd.conf
 	echo -e '\nanonymous_enable='$anon_enable'\nchroot_local_user='$chroot'\nlisten_port='$ftp_port'\nwrite_enable='$write_enable'\nxferlog_enable='$xferlog_enable'\n' >> /etc/vsftpd.conf
 	MEO -gre1 "Done!"	
@@ -44,16 +46,19 @@ get_config() {
 
 start () {
 
+	[ ! -x $BIN ] && MEO -red1t "Vsftpd not installed" && exit
+	uci set monlor.$appname.enable=1
+	uci commit monlor
 	ps | grep vsftpd | grep -v grep | grep -v {vsftpd} > /dev/null 2>&1
 	if [ $? -eq 0 ]; then                                                              
 		MEO -pur1t 'Vsftpd is already running'                                            
 		exit 1
 	fi
 	get_config
-	MEO -bla1t 'Starting vsftpd .... \c'
+	MEO -bla1t "Starting $appname .... \c"
 	#update
-	#uci set monlor.vsftpd.version=`$BIN -v | awk '{print$3}'`        
-	uci set monlor.vsftpd.version=3.0.3
+	#uci set monlor.$appname.version=`$BIN -v | awk '{print$3}'`        
+	uci set monlor.$appname.version=3.0.3
 	uci commit monlor
 	echo `date` > $LOG	
 	mkdir -m 0755 -p /var/ftp/pub	
@@ -70,7 +75,10 @@ start () {
 
 stop () {
 
-	MEO -bla1t 'Stopping vsftpd .... \c'
+	[ ! -x $BIN ] && MEO -red1t "Vsftpd not installed" && exit
+	uci set monlor.$appname.enable=0
+	uci commit monlor
+	MEO -bla1t "Stopping $appname .... \c"
 	service_stop $BIN
 	kill -9 $(ps | grep vsftpd | grep -v grep | grep -v {vsftpd} | awk '{print $1}') > /dev/null 2>&1
 	rm -rf /etc/vsftpd*
@@ -89,7 +97,7 @@ restart () {
 
 enable() {
 
-	uci set monlor.vsftpd.enable=1
+	uci set monlor.$appname.enable=1
 	uci commit monlor
 	restart
 
@@ -97,9 +105,12 @@ enable() {
 
 disable() {
 
-	uci set monlor.vsftpd.enable=0
+	uci set monlor.$appname.enable=0
 	uci commit monlor
 	stop
+	MEO -bla1t "Delete $appname files ... \c"
+	rm -rf $BIN $CONF $LOG $MPATH/conf/ftpuser.conf
+	MEO -gre1 "Done!"
 
 }
 

@@ -12,24 +12,8 @@ MPATH=`uci get monlor.tools.mpath`
 MONLOR=$MPATH
 BIN=$MPATH/bin/koolproxy
 LOG=$MPATH/log/koolproxy.log
-CONF=$MPATH/conf/koolproxy.conf
 BAK=$MPATH/backup
-
-update () {
-
-	curl -sLo /tmp/koolproxy https://raw.githubusercontent.com/koolproxy/koolproxy-bin/master/arm
-	chmod +x /tmp/koolproxy
-	if [ `$BIN -v` = `/tmp/koolproxy -v` ]; then
-		echo 'koolproxy is the latest version'
-		exit 1
-	else
-		cp $BIN $BAK
-		cp /tmp/koolproxy $BIN
-		rm -rf /tmp/koolproxy
-		echo 'koolproxy updated success'
-	fi
-
-}
+appname=koolproxy
 
 addrules () {
 
@@ -102,25 +86,28 @@ delrules () {
 
 start () {
 
+	[ ! -x $BIN ] && MEO -red1t "Koolproxy not installed" && exit
+	uci set monlor.$appname.enable=1
+	uci commit monlor
 	ps | grep koolproxy | grep -v grep | grep -v {koolproxy} > /dev/null 2>&1
 	if [ $? -eq 0 ]; then
 		MEO -pur1t 'Koolproxy is already running'
 		exit
 	fi
-	uci set monlor.koolproxy.version=`$BIN -v`
+	uci set monlor.$appname.version=`$BIN -v`
 	uci commit monlor
-	MEO -bla1t 'Starting koolproxy ... \c'
+	MEO -bla1t "Starting $appname ... \c"
 
 	if [ ! -f $MONLOR/bin/data/private/ca.key.pem ]; then
 		cd $MONLOR/bin/data/
 		sh gen_ca.sh
 	fi
 
-	mode=`uci get monlor.koolproxy.mode`
+	mode=`uci get monlor.$appname.mode`
 	case $mode in
 		video) service_start $BIN --mark -e -d;;
 		whole|black) service_start $BIN --mark -d;;
-		*) service_start $BIN -e -d && uci set monlor.koolproxy.mode=video
+		*) service_start $BIN -e -d && uci set monlor.$appname.mode=video
 	esac
 		
 	MEO -gre1 "Done!"	
@@ -130,7 +117,10 @@ start () {
 
 stop () {
 
-	MEO -bla1t 'Stopping koolproxy ... \c'
+	[ ! -x $BIN ] && MEO -red1t "Koolproxy not installed" && exit
+	uci set monlor.$appname.enable=0
+	uci commit monlor
+	MEO -bla1t "Stopping $appname ... \c"
 	service_stop $BIN                                                       
 	ps  | grep $BIN | grep -v grep | grep -v {koolproxy} | grep -v restart | awk '{print $1}' | xargs kill -9 > /dev/null 2>&1
 	MEO -gre1 "Done!"
@@ -140,15 +130,15 @@ stop () {
 
 restart () {
 
+	stop
 	if [[ "$1" == "video" || "$1" == "whole" || "$1" == "black" ]]; then
-		uci set monlor.koolproxy.mode=$1
+		uci set monlor.$appname.mode=$1
 		uci commit monlor
 	elif [ "$1" ]; then
 		MEO -red1t "Mode name error, exit ... "
 		exit
 	fi
-	stop
-	sleep 2
+	sleep 1
 	start
 
 }
@@ -165,16 +155,17 @@ reload () {
 
 enable() {
 
-	uci set monlor.koolproxy.enable=1
-	uci commit monlor
-	restart
+	$MPATH/script/update $appname
 
 }
 
 disable() {
 
-	uci set monlor.koolproxy.enable=0
+	uci set monlor.$appname.enable=0
 	uci commit monlor
 	stop
+	MEO -bla1t "Delete $appname files ... \c"
+	rm -rf $BIN $MPATH/bin/data
+	MEO -gre1 "Done!"
 
 }

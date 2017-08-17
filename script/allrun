@@ -56,7 +56,6 @@ start() {
     
     #update rules
     #$MPATH/script/addweb
-    [ `uci show monlor | grep monlor.*.ss | grep -v monlor.ss | wc -l` -ne 0 ] && $MPATH/script/ssconf ping
 
     #open ssh port 
     [ `iptables -S | grep monlor-ssh | wc -l` -eq 0 ] && iptables -I INPUT -p tcp --dport 22 -j ACCEPT -m comment --comment "monlor-ssh"
@@ -65,17 +64,7 @@ start() {
 
 enable() {
 
-    $SCR/ss enable                                                
-    $SCR/koolproxy enable                                                
-    $SCR/frpc enable                                             
-    $SCR/ngrok enable
-    $SCR/tinyproxy enable                                                       
-    $SCR/kms enable                                                      
-    $SCR/aria2 enable                                                      
-    $SCR/nginx enable                                                     
-    $SCR/webshell enable
-    $SCR/fastdick enable
-    $SCR/vsftpd enable
+    $MPATH/script/update allrun
 
 }
 
@@ -93,22 +82,6 @@ stop() {
     $SCR/fastdick stop
     $SCR/vsftpd stop
     
-}
-
-disable() {
-
-    $SCR/ss disable     
-    $SCR/koolproxy disable  
-    $SCR/frpc disable        
-    $SCR/ngrok disable
-    $SCR/tinyproxy disable     
-    $SCR/kms disable         
-    $SCR/aria2 disable               
-    $SCR/nginx disable    
-    $SCR/webshell disable        
-    $SCR/fastdick disable 
-    $SCR/vsftpd diable
-
 }
 
 install() {
@@ -345,5 +318,5 @@ case $1 in
     backup) backup;;
     recover) recover;;
     addweb) addweb;;
-    *) MEO -bla1t "Usage: $1 {start|stop|restart|install|uninstall|addweb|delweb|backup|recover}";;
+    *) MEO -bla1t "Usage: $0 {start|stop|restart|install|uninstall|addweb|delweb|backup|recover}";;
 esac

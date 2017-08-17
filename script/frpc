@@ -13,26 +13,14 @@ BIN=$MPATH/bin/frpc
 LOG=$MPATH/log/frpc.log
 CONF=$MPATH/conf/frpc.conf
 BAK=$MPATH/backup
-
-update () {
-
-	curl -sLo /tmp/frpc https://raw.githubusercontent.com/koolshare/merlin_frpc/master/frpc/bin/frpc
-	chmod +x /tmp/frpc
-	version=`/tmp/frpc --version`
-	if [ $version != `uci get monlor.frpc.version` ]; then
-		cp $BIN $BAK
-		cp /tmp/frpc $BIN
-	fi
-	rm -rf /tmp/frpc
-
-}
+appname=frpc
 
 get_config() {
 
-	[ `uci show monlor.frpc | grep server | wc -l` -eq 0 ] && MEO -red1 "Failed!(no frp server)"
-	server=`uci get monlor.frpc.server`
-	server_port=`uci get monlor.frpc.server_port`
-	token=`uci get monlor.frpc.token`
+	[ `uci show monlor.$appname | grep server | wc -l` -eq 0 ] && MEO -red1 "Failed!(no frp server)"
+	server=`uci get monlor.$appname.server`
+	server_port=`uci get monlor.$appname.server_port`
+	token=`uci get monlor.$appname.token`
 	rm -rf $CONF
 	echo "[common]" >> $CONF
 	echo "server_addr = $server" >> $CONF
@@ -42,6 +30,7 @@ get_config() {
 	echo "log_file = $LOG" >> $CONF
 	echo "log_level = info" >> $CONF
 	echo "log_max_days = 1" >> $CONF
+	[ ! -f $MPATH/conf/frplist ] && echo "#name,type,local ip,local port,remot port,subdomain/custom domain" > $MPATH/conf/frplist
 	cat $MPATH/conf/frplist | while read line
 	do
 	if [ ! -f "$line" ]; then
@@ -77,15 +66,17 @@ get_config() {
 
 start () {
 
+	[ ! -x $BIN ] && MEO -red1t "Frpc not installed" && exit
+	uci set monlor.$appname.enable=1
+	uci commit monlor
 	ps | grep frpc | grep -v grep | grep -v {frpc} > /dev/null 2>&1
 	if [ $? -eq 0 ]; then                                                              
 	        MEO -pur1t 'Frpc is already running'                                            
 		exit 1
 	fi
-	MEO -bla1t 'Starting frpc ... \c'
-	#update
+	MEO -bla1t "Starting $appname ... \c"
 	get_config
-	uci set monlor.frpc.version=`$BIN --version`
+	uci set monlor.$appname.version=`$BIN --version`
 	uci commit monlor
 	echo `date` > $LOG	
 	service_start $BIN -c $CONF
@@ -100,7 +91,10 @@ start () {
 
 stop () {
 
-	MEO -bla1t 'Stopping frpc ... \c'
+	[ ! -x $BIN ] && MEO -red1t "Frpc not installed" && exit
+	uci set monlor.$appname.enable=0
+	uci commit monlor
+	MEO -bla1t "Stopping $appname ... \c"
 	service_stop $BIN
 	ps | grep $BIN | grep -v grep | awk '{print$1}' | xargs kill -9 > /dev/null 2>&1
 	MEO -gre1 "Done!"
@@ -117,16 +111,17 @@ restart () {
 
 enable () {
 
-	uci set monlor.frpc.enable=1
-	uci commit monlor
-	restart
+	$MPATH/script/update frpc
 
 }
 
 disable() {
 
-	uci set monlor.frpc.enable=0
+	uci set monlor.$appname.enable=0
 	uci commit monlor
 	stop
+	MEO -bla1t "Delete $appname files ... \c"
+	rm -rf $BIN $CONF $LOG $MPATH/conf/frplist
+	MEO -gre1 "Done!"
 
 }

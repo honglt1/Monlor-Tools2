@@ -6,7 +6,6 @@ SERVICE_WRITE_PID=1
 SERVICE_DAEMONIZE=1
 
 MPATH=`uci get monlor.tools.mpath`
-MURL="https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master"
 . $MPATH/script/mecho
 
 wan_mode=`ifconfig | grep pppoe-wan | wc -l`
@@ -28,11 +27,12 @@ APPPATH=$MPATH/bin/ss-redir
 SSGBIN=$MPATH/bin/ssg-redir
 LOCALPATH=$MPATH/bin/ss-local
 DNSPATH=$MPATH/bin/dns2socks
+appname=ss
 
 get_config() {
     
 	local_ip=0.0.0.0
-	id=`uci get monlor.ss.id`
+	id=`uci get monlor.$appname.id`
 	ss_name=`uci get monlor.$id.ss_name`
     	ss_server=`uci get monlor.$id.ss_server`
     	ss_server_port=`uci get monlor.$id.ss_server_port`
@@ -42,9 +42,9 @@ get_config() {
 	echo -e '{\n  "server":"'$ss_server'",\n  "server_port":'$ss_server_port',\n  "local_port":'1081',\n  "local_address":"'$local_ip'",\n  "password":"'$ss_password'",\n  "timeout":600,\n  "method":"'$ss_method'"\n}' > $CONFIG
 	cp $CONFIG $DNSCONF && sed -i 's/1081/1082/g' $DNSCONF
 	
-	if [ `uci get monlor.ss.ssgena` == 1 ]; then
+	if [ `uci get monlor.$appname.ssgena` == 1 ]; then
 	
-		ssgid=`uci get monlor.ss.ssgid`
+		ssgid=`uci get monlor.$appname.ssgid`
         	ssg_name=`uci get monlor.$ssgid.ss_name`
         	ssg_server=`uci get monlor.$ssgid.ss_server`
         	ssg_server_port=`uci get monlor.$ssgid.ss_server_port`
@@ -63,8 +63,8 @@ dnsconfig() {
 	killall $DNSPATH > /dev/null 2>&1
 	iptables -t nat -D PREROUTING -s $lanip/24 -p udp --dport 53 -j DNAT --to $redip > /dev/null 2>&1
     	MEO -bla1t "Starting dns process ... \c"
-    	#DNS_SERVER=$(uci get monlor.ss.dns_server)
-    	#DNS_SERVER_PORT=$(uci get monlor.ss.dns_port)
+    	#DNS_SERVER=$(uci get monlor.$appname.dns_server)
+    	#DNS_SERVER_PORT=$(uci get monlor.$appname.dns_port)
     	DNS_SERVER=8.8.8.8
     	DNS_SERVER_PORT=53
     	service_start $DNSPATH 127.0.0.1:1082 $DNS_SERVER:$DNS_SERVER_PORT 127.0.0.1:15353 
@@ -125,7 +125,10 @@ addrules() {
 
 start() {
 
-	id=$(uci get monlor.ss.id)
+	[ ! -x $APPPATH ] && MEO -red1t "SS not installed" && exit
+	uci set monlor.$appname.enable=1
+	uci commit monlor
+	id=$(uci get monlor.$appname.id)
     	ss_mode=$(uci get monlor.$id.ss_mode)
 
 	AreadyRunning=$(ps | grep -E 'ss-redir|ssg-redir' | grep -v grep | wc -l)
@@ -178,8 +181,8 @@ start() {
     		#exit
     	esac
 
-	if [ `uci get monlor.ss.ssgena` == 1 ]; then
-		ssgid=`uci get monlor.ss.ssgid`               
+	if [ `uci get monlor.$appname.ssgena` == 1 ]; then
+		ssgid=`uci get monlor.$appname.ssgid`               
                 ssg_mode=`uci get monlor.$ssgid.ssg_mode`
 		MEO -bla1t "Starting ssg($ssgid) service ... \c"
 		case $ssg_mode in
@@ -314,8 +317,11 @@ ss_wholemode() {
 
 
 stop() {
-
-    	MEO -bla1t "Stopping ss service ... \c"
+	
+	[ ! -x $APPPATH ] && MEO -red1t "SS not installed" && exit
+	uci set monlor.$appname.enable=0
+	uci commit monlor
+    	MEO -bla1t "Stopping $appname service ... \c"
     	killall ss-redir > /dev/null 2>&1
 	killall ssg-redir > /dev/null 2>&1
 	killall ss-local > /dev/null 2>&1
@@ -361,12 +367,12 @@ stop_ss_rules() {
 
 status() {
 
-        MEO -bla1t "Checking ss ... \c"
+        MEO -bla1t "Checking $appname ... \c"
         status=`ps | grep -E "ss-redir|ssr-redir" | grep -v 'grep'  | grep -v script | grep -v '{' | wc -l`
 	if [ "$status" == "1" ];then #进程存在，已运行
         	echo "running"
        		MEO -bla1t "Checking google ... \c"
-		id=$(uci get monlor.ss.id)
+		id=$(uci get monlor.$appname.id)
 		DNS_PORT=1082
 		http_status=`curl  -s -w %{http_code} https://www.google.com.hk/images/branding/googlelogo/1x/googlelogo_color_116x41dp.png -k -o /dev/null --socks5 127.0.0.1:1082`
 		if [ "$http_status" == "200" ];then
@@ -382,14 +388,14 @@ status() {
 
 restart() 
 {
-
-	uci set monlor.ss.version=`$APPPATH -h | awk '/shadowsocks-libev/{print$2}'`
+	stop
+	uci set monlor.$appname.version=`$APPPATH -h | awk '/shadowsocks-libev/{print$2}'`
 	
 	if [ "$1" ]; then                                                    
 		$MPATH/script/ssconf show | grep ss_name | grep -w $1 > /dev/null 2>&1
 		if [ $? -eq 0 ]; then
-			uci set monlor.ss.id=$1   
-			uci set monlor.ss.ssgid=" "
+			uci set monlor.$appname.id=$1   
+			uci set monlor.$appname.ssgid=" "
 		else
 			MEO -red1t "Server name error, exit ... "
 			exit
@@ -409,10 +415,10 @@ restart()
 		MIN=`cat /tmp/min_ping`
 		rm -rf /tmp/min_ping
 		ssid=`$MPATH/script/ssconf show | grep -w -B 7 $MIN | awk -F "'" '/ss_name/{print$2;exit;}'`
-		uci set monlor.ss.id=$ssid
-		if [ `uci get monlor.ss.ssgena` -eq 1 ]; then
-			ssgid=`uci get monlor.ss.ssgid`
-			[ `uci get monlor.$ssgid.ssg_mode` == "frgame" ] && uci set monlor.ss.ssgid=$ssid
+		uci set monlor.$appname.id=$ssid
+		if [ `uci get monlor.$appname.ssgena` -eq 1 ]; then
+			ssgid=`uci get monlor.$appname.ssgid`
+			[ `uci get monlor.$ssgid.ssg_mode` == "frgame" ] && uci set monlor.$appname.ssgid=$ssid
 		fi
 			
 		
@@ -420,16 +426,15 @@ restart()
 	if [ "$2" ]; then
 		$MPATH/script/ssconf show | grep ss_name | grep -w $2 > /dev/null 2>&1
 		if [ $? -eq 0 ]; then
-			uci set monlor.ss.ssgid=$2
-			uci set monlor.ss.ssgena=1
+			uci set monlor.$appname.ssgid=$2
+			uci set monlor.$appname.ssgena=1
 		else
 			MEO -red1t "Server name error, exit ... "
 			exit
 		fi
 	elif [ "$1" ]; then
-		uci set monlor.ss.ssgena=0
+		uci set monlor.$appname.ssgena=0
 	fi
-	stop
 	sleep 1
 	start
 
@@ -437,30 +442,18 @@ restart()
 
 enable() {
 
-	uci set monlor.ss.enable=1
-	if [ -x $APPPATH ]; then
-		MEO -bla1t "Update ss files ... \c"
-		ping -4 baidu.com -c 4 -w 10 -q > /dev/null 2>&1
-		if [ $? -ne 0 ]; then
-			MEO -red1 "Failed!(bad network)"
-			exit
-		fi
-		curl -sLo $APPPATH $MURL/bin/ss-redir
-		cp $APPPATH $SSGBIN
-		curl -sLo $LOCALPATH $MURL/bin/ss-local
-		curl -sLo $DNSPATH $MURL/bin/dns2socks
-		curl -sLo $gfwlist $MURL/conf/gfwlist.conf
-		curl -sLo $chnroute $MURL/conf/chnroute.conf
-		curl -sLo $MPATH/script/ss $MURL/script/ss
-		chmod -R +x $MPATH
-	fi
-	MEO -gre1 "Done!"
+	$MPATH/script/update $appname
+
 }
 
 disable() {
 
-	uci set monlor.ss.enable=0
+	uci set monlor.$appname.enable=0
+	uci commit monlor
 	stop
+	MEO -bla1t "Delete $appname files ... \c"
+	rm -rf $APPPATH $SSGBIN $DNSPATH $gfwlist $chnroute $MPATH/script/ss*
+	MEO -gre1 "Done!"
 
 }
 
