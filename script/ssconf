@@ -152,5 +152,5 @@ case $1 in
  	ping) ping;;
  	backup) backup;;
  	recover) recover;;
- 	*) MEO -bla1t "Usage: $0 {add|show|del|ping|backup|recover}"
+ 	*) MEO -bla1 "Usage: $0 {add|show|del|ping|backup|recover}"
 esac

@@ -68,6 +68,24 @@ enable() {
 
 }
 
+update() {
+
+    mv /tmp/version $MPATH/conf
+    enable
+    [ `uci get monlor.ss.enable` == 1 ] && $SCR/ss enable
+    [ `uci get monlor.koolproxy.enable` == 1 ] && $SCR/koolproxy enable
+    [ `uci get monlor.frpc.enable` == 1 ] && $SCR/frpc enable
+    [ `uci get monlor.ngrok.enable` == 1 ] && $SCR/ngrok enable
+    [ `uci get monlor.tinyproxy.enable` == 1 ] && $SCR/tinyproxy enable
+    [ `uci get monlor.kms.enable` == 1 ] && $SCR/kms enable
+    [ `uci get monlor.aria2.enable` == 1 ] && $SCR/aria2 enable
+    [ `uci get monlor.nginx.enable` == 1 ] && $SCR/nginx enable
+    [ `uci get monlor.webshell.enable` == 1 ] && $SCR/webshell enable
+    [ `uci get monlor.fastdick.enable` == 1 ] && $SCR/fastdick enable
+    [ `uci get monlor.vsftpd.enable` == 1 ] && $SCR/vsftpd enable
+
+}
+
 stop() {
     
     $SCR/ss stop
@@ -313,9 +331,10 @@ case $1 in
     install) install;;
     uninstall) uninstall;;
     enable) enable;;
+    update) update;;
     disable) disable;;
     backup) backup;;
     recover) recover;;
     addweb) addweb;;
-    *) MEO -bla1t "Usage: $0 {start|stop|restart|install|uninstall|addweb|delweb|backup|recover}";;
+    *) MEO -bla1 "Usage: $0 {start|stop|enable|update|install|uninstall|addweb|delweb|backup|recover}";;
 esac

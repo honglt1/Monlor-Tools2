@@ -17,7 +17,9 @@ if [ "$now_ver" == "$lastest_ver" ]; then
 	MEO -gre1 "$lastest_ver" 
 else
 	MEO -pur1 "$lastest_ver"
-	MEO -pur1t "Run {allrun update} to get new version!"
+        MEO -bla1t "Run\c"
+        MEO -pur1 " allrun update \c"
+        MEO -bla1 "to get new version!"
 fi
 MEO -bla1t "***************************************************"
 MEO -bla1t "Checking CPU tempreture ... \c"
