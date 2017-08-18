@@ -7,15 +7,15 @@ clear
 [ -f /etc/banner ] && cat /etc/banner
 MEO -bla1t "***************************************************"
 now_ver=`cat $MPATH/conf/version || echo none`
-lastest_ver=`cat /tmp/version || echo none`
-[ `cat /tmp/version | wc -l` -gt 1 ] && lastest_ver=none
+latest_ver=`cat /tmp/version || echo none` > /dev/null 2>&1
+[ -f /tmp/version ] && [ `cat /tmp/version | wc -l` -gt 1 ] && latest_ver=none > /dev/null 2>&1
 MEO -bla1t "Monlor tools version:\c"
 MEO -gre1 "$now_ver\c"
-MEO -bla1 "  lastest:\c"
-if [ "$now_ver" == "$lastest_ver" ]; then	
-	MEO -gre1 "$lastest_ver" 
+MEO -bla1 "  latest:\c"
+if [ "$now_ver" == "$latest_ver" -o "$latest_ver" == "none" ]; then	
+	MEO -gre1 "$latest_ver" 
 else
-	MEO -pur1 "$lastest_ver"
+	MEO -pur1 "$latest_ver"
         MEO -bla1t "Run\c"
         MEO -pur1 " allrun update \c"
         MEO -bla1 "to get new version!"
