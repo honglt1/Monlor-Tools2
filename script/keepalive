@@ -9,7 +9,7 @@ MEO -bla1t "***************************************************"
 now_ver=`cat $MPATH/conf/version | awk '/monlor/{print$2}'`
 if [ -f /tmp/version ]; then
 	latest_ver=`cat /tmp/version | awk '/monlor/{print$2}'`
-	[ `cat /tmp/version | wc -l` -gt 1 ] && latest_ver=none 
+	[ `cat /tmp/version | grep monlor` -eq 0 ] && latest_ver=none 
 else
 	latest_ver=none
 fi
