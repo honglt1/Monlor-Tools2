@@ -65,7 +65,7 @@ start() {
 enable() {
 
     curl -sLo /tmp/version https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/conf/version
-    mv /tmp/version $MPATH/conf
+    cp /tmp/version $MPATH/conf
     $MPATH/script/update allrun
 
 }
@@ -73,7 +73,7 @@ enable() {
 update() {
 
     curl -sLo /tmp/version https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/conf/version
-    mv /tmp/version $MPATH/conf
+    cp /tmp/version $MPATH/conf
     enable
     [ `uci get monlor.ss.enable` == 1 ] && $SCR/ss enable
     [ `uci get monlor.koolproxy.enable` == 1 ] && $SCR/koolproxy enable

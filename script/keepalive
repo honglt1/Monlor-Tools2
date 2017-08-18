@@ -11,7 +11,7 @@ latest_ver=`cat /tmp/version || echo none` > /dev/null 2>&1
 [ -f /tmp/version ] && [ `cat /tmp/version | wc -l` -gt 1 ] && latest_ver=none > /dev/null 2>&1
 MEO -bla1t "Monlor tools version:\c"
 MEO -gre1 "$now_ver\c"
-MEO -bla1 "  latest:\c"
+MEO -bla1 "  latest version:\c"
 if [ "$now_ver" == "$latest_ver" -o "$latest_ver" == "none" ]; then	
 	MEO -gre1 "$latest_ver" 
 else
