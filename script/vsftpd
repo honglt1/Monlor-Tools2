@@ -39,6 +39,7 @@ get_config() {
 	[ `uci get monlor.$appname.log_enable` = "1" ] && xferlog_enable=YES || xferlog_enable=NO
 	[ -f `uci get monlor.$appname.ftp_port` ] && ftp_port=21
 	cp -rf $CONF /etc/vsftpd.conf
+	mkdir -p /var/run/vsftpd
 	echo -e 'anonymous_enable='$anon_enable'\nchroot_local_user='$chroot'\nlisten_port='$ftp_port'\nwrite_enable='$write_enable'\nxferlog_enable='$xferlog_enable'\n' >> /etc/vsftpd.conf
 	MEO -gre1 "Done!"	
 
