@@ -7,7 +7,7 @@ clear
 [ -f /etc/banner ] && cat /etc/banner
 MEO -bla1t "***************************************************"
 now_ver=`cat $MPATH/conf/version || echo none`
-latest_ver=`cat /tmp/version || echo none` > /dev/null 2>&1
+latest_ver=`"cat /tmp/version | awk '/monlor/{print$2}'" || echo none` > /dev/null 2>&1
 [ -f /tmp/version ] && [ `cat /tmp/version | wc -l` -gt 1 ] && latest_ver=none > /dev/null 2>&1
 MEO -bla1t "Monlor tools version:\c"
 MEO -gre1 "$now_ver\c"
@@ -157,9 +157,9 @@ if [ `ps | grep -E 'ss-redir|ssg-redir' | grep -v grep | wc -l'` != 0 ]; then
         ssg_mode="$ssgmode"
     fi
     MEO -bla1t 'SS running server: \c'
-    MEO -blu1 "$id$ssg_id"
+    MEO -yel1 "$id$ssg_id"
     MEO -bla1t "SS running mode: \c"
-    MEO -blu1 "$ss_mode$ssg_mode"
+    MEO -yel1 "$ss_mode$ssg_mode"
     MEO -bla1t "***************************************************"
 
 fi
@@ -170,11 +170,11 @@ if [ `ps | grep koolproxy | grep -v grep | wc -l` != 0 ]; then
     video_date=`cat $MPATH/bin/data/rules/koolproxy.txt | sed -n '4p' | awk '{print $3" "$4}'`
     mode=`uci get monlor.koolproxy.mode`
     MEO -bla1t "Koolproxy running mode: \c"
-    MEO -blu1 "$mode"
+    MEO -yel1 "$mode"
     MEO -bla1t "Koolproxy rule date: \c"
-    MEO -blu1 "$rules_date "
+    MEO -yel1 "$rules_date "
     MEO -bla1t "Koolproxy video date: \c"
-    MEO -blu1 "$video_date"
+    MEO -yel1 "$video_date"
     MEO -bla1t "***************************************************"
     
 fi
