@@ -6,8 +6,8 @@ SCR=$MPATH/script
 clear
 [ -f /etc/banner ] && cat /etc/banner
 MEO -bla1t "***************************************************"
-now_ver=`cat $MPATH/conf/version || echo none`
-if [ -f /tmp/version ] 
+now_ver=`cat $MPATH/conf/version | awk '/monlor/{print$2}'`
+if [ -f /tmp/version ]; then
 	latest_ver=`cat /tmp/version | awk '/monlor/{print$2}'`
 	[ `cat /tmp/version | wc -l` -gt 1 ] && latest_ver=none 
 else
