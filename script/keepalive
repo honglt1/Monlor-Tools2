@@ -7,8 +7,12 @@ clear
 [ -f /etc/banner ] && cat /etc/banner
 MEO -bla1t "***************************************************"
 now_ver=`cat $MPATH/conf/version || echo none`
-latest_ver=`"cat /tmp/version | awk '/monlor/{print$2}'" || echo none` > /dev/null 2>&1
-[ -f /tmp/version ] && [ `cat /tmp/version | wc -l` -gt 1 ] && latest_ver=none > /dev/null 2>&1
+if [ -f /tmp/version ] 
+	latest_ver=`cat /tmp/version | awk '/monlor/{print$2}'`
+	[ `cat /tmp/version | wc -l` -gt 1 ] && latest_ver=none 
+else
+	latest_ver=none
+fi
 MEO -bla1t "Monlor tools version:\c"
 MEO -gre1 "$now_ver\c"
 MEO -bla1 "  latest version:\c"
