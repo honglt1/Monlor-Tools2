@@ -6,7 +6,11 @@ SCR=$MPATH/script
 clear
 [ -f /etc/banner ] && cat /etc/banner
 MEO -blat "***************************************************"
-MEO -bla1t "  Monlor tools version:1.0.0  lastest:1.0.0"
+now_ver=`cat $MPATH/conf/version || echo none`
+curl -sLo /tmp/version https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/conf/version 
+lastest_ver=`cat /tmp/version`
+[ `cat /tmp/version | wc -l` -gt 1 ] && lastest_ver=none
+MEO -bla1t "  Monlor tools version:now_ver  lastest:lastest_ver"
 MEO -blat "***************************************************"
 MEO -bla1t "Checking CPU tempreture ... \c"
 MEO -gre1 "`cat /proc/dmu/temperature | awk '{printf$4}' | cut -b 1-2`°C"
