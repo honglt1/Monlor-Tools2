@@ -5,13 +5,21 @@ SCR=$MPATH/script
 [ "$1" == "-m" ] && . $MPATH/script/mecho_phone || . $MPATH/script/mecho
 clear
 [ -f /etc/banner ] && cat /etc/banner
-MEO -blat "***************************************************"
+MEO -bla1t "***************************************************"
 now_ver=`cat $MPATH/conf/version || echo none`
 curl -sLo /tmp/version https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/conf/version 
 lastest_ver=`cat /tmp/version`
 [ `cat /tmp/version | wc -l` -gt 1 ] && lastest_ver=none
-MEO -bla1t "  Monlor tools version:now_ver  lastest:lastest_ver"
-MEO -blat "***************************************************"
+MEO -bla1t "Monlor tools version:\c"
+MEO -gre1 "$now_ver\c"
+MEO -blat "  lastest:\c"
+if [ "$now_ver" == "$lastest" ] 	
+	MEO -gre1 "$lastest_ver" 
+else
+	MEO -pur1 "$lastest_ver"
+	MEO -pur1t "Run {allrun update} to get new version!"
+fi
+MEO -bla1t "***************************************************"
 MEO -bla1t "Checking CPU tempreture ... \c"
 MEO -gre1 "`cat /proc/dmu/temperature | awk '{printf$4}' | cut -b 1-2`°C"
 
@@ -125,7 +133,7 @@ else
     [ `uci get monlor.vsftpd.enable` == 1 ] && $SCR/vsftpd restart
 fi
 
-MEO -blat "***************************************************"
+MEO -bla1t "***************************************************"
 
 if [ `ps | grep -E 'ss-redir|ssg-redir' | grep -v grep | wc -l'` != 0 ]; then
     id=`uci get monlor.ss.id`
@@ -151,7 +159,7 @@ if [ `ps | grep -E 'ss-redir|ssg-redir' | grep -v grep | wc -l'` != 0 ]; then
     MEO -blu1 "$id$ssg_id"
     MEO -bla1t "SS running mode: \c"
     MEO -blu1 "$ss_mode$ssg_mode"
-    MEO -blat "***************************************************"
+    MEO -bla1t "***************************************************"
 
 fi
 
@@ -166,7 +174,7 @@ if [ `ps | grep koolproxy | grep -v grep | wc -l` != 0 ]; then
     MEO -blu1 "$rules_date "
     MEO -bla1t "Koolproxy video date: \c"
     MEO -blu1 "$video_date"
-    MEO -blat "***************************************************"
+    MEO -bla1t "***************************************************"
     
 fi
 
