@@ -5,7 +5,8 @@ SCR=$MPATH/script
 [ "$1" == "-m" ] && . $MPATH/script/mecho_phone || . $MPATH/script/mecho
 clear
 [ -f /etc/banner ] && cat /etc/banner
-
+MEO -blat "***************************************************"
+MEO -bla1t "  Monlor tools version:1.0.0  lastest:1.0.0"
 MEO -blat "***************************************************"
 MEO -bla1t "Checking CPU tempreture ... \c"
 MEO -gre1 "`cat /proc/dmu/temperature | awk '{printf$4}' | cut -b 1-2`°C"

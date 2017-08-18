@@ -5,7 +5,7 @@
 #SERVICE_WRITE_PID=1
 #SERVICE_DAEMONIZE=1
 
-MPATH=`uci get monlor.tools.mpath` > /dev/null 2>&1
+MPATH=`uci get monlor.tools.mpath` > /dev/null 2>&1 || MPATH=""
 [ ! -f $2 ] && MPATH="$2"
 BIN=$MPATH/bin
 SCR=$MPATH/script
@@ -99,7 +99,7 @@ install() {
     #	echo "Done!"
     #fi
 
-    [ ! -f $2 ] && MEO -red1t "Please input install place ...  " && exit
+    [ -c $MPATH ] && MEO -red1t "Please input install place ...  " && exit
     
     MEO -bla1t "Checking monlor file ... \c"
     if [ -d $MPATH ]; then
