@@ -7,8 +7,7 @@ clear
 [ -f /etc/banner ] && cat /etc/banner
 MEO -bla1t "***************************************************"
 now_ver=`cat $MPATH/conf/version || echo none`
-curl -sLo /tmp/version https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/conf/version 
-lastest_ver=`cat /tmp/version`
+lastest_ver=`cat /tmp/version || echo none`
 [ `cat /tmp/version | wc -l` -gt 1 ] && lastest_ver=none
 MEO -bla1t "Monlor tools version:\c"
 MEO -gre1 "$now_ver\c"
@@ -186,6 +185,6 @@ fi
 #	sed -i '49,54s/\/userdisk\/data/\/userdisk\/data\/Chaco/' /etc/samba/smb.conf
 #fi
 
-[ "$1" == "ping" ] && $MPATH/script/ssconf ping
+[ "$1" == "ping" ] && $MPATH/script/ssconf ping && curl -sLo /tmp/version https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/conf/version 
 
 MEO
