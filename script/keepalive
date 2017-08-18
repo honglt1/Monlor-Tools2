@@ -12,8 +12,8 @@ lastest_ver=`cat /tmp/version`
 [ `cat /tmp/version | wc -l` -gt 1 ] && lastest_ver=none
 MEO -bla1t "Monlor tools version:\c"
 MEO -gre1 "$now_ver\c"
-MEO -blat "  lastest:\c"
-if [ "$now_ver" == "$lastest" ] 	
+MEO -bla1 "  lastest:\c"
+if [ "$now_ver" == "$lastest" ]; then	
 	MEO -gre1 "$lastest_ver" 
 else
 	MEO -pur1 "$lastest_ver"
