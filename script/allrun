@@ -64,6 +64,8 @@ start() {
 
 enable() {
 
+    curl -sLo /tmp/version https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/conf/version
+    mv /tmp/version $MPATH/conf
     $MPATH/script/update allrun
 
 }

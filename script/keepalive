@@ -17,7 +17,7 @@ if [ "$now_ver" == "$latest_ver" -o "$latest_ver" == "none" ]; then
 else
 	MEO -pur1 "$latest_ver"
         MEO -bla1t "Run\c"
-        MEO -pur1 " allrun update \c"
+        MEO -pur1 " allrun enable \c"
         MEO -bla1 "to get new version!"
 fi
 MEO -bla1t "***************************************************"
