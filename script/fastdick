@@ -21,9 +21,9 @@ getconfig () {
 	uid=`cat $CONF | awk -F ':' '/uid/{print$2}'`
 	pwd=`cat $CONF | awk -F ':' '/pwd/{print$2}'`
 	peerid=`cat $CONF | awk -F ':' '/peerid/{print$2}'`
-	sed -i '14s/.*/uid=$uid/' $BIN
-	sed -i '15s/.*/pwd=$pwd/' $BIN
-	sed -i '17s/.*/peerid=$peerid/' $BIN
+	sed -i "14s/.*/uid=$uid/" $BIN
+	sed -i "15s/.*/pwd=$pwd/" $BIN
+	sed -i "17s/.*/peerid=$peerid/" $BIN
 
 }
 
