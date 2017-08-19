@@ -7,6 +7,7 @@ clear
 [ -f /etc/banner ] && cat /etc/banner
 
 version () {
+	[ ! -f /tmp/version ] && echo none && exit
 	case $2 in
 		now) echo `cat $MPATH/conf/version | grep $1 | awk '{print$2}'`;;
 		new) echo `cat /tmp/version | grep $1 | awk '{print$2}'`;;
@@ -40,33 +41,33 @@ ss_ver=`uci get monlor.ss.version || echo none` > /dev/null 2>&1
 MEO -bla1t "Checking ss(version:$ss_ver) ... \c"
 ps | grep -E 'ss-redir|ssg-redir' | grep -v grep | grep -v {ss} > /dev/null 2>&1
 if [ $? -eq 0 ]; then
-    MEO -gre1 "Running!\c"
-    [ `version ss now` == `version ss new` ] && MEO || MEO -sbl1 "Ⓝ"
+	MEO -gre1 "Running!\c"
+	[ `version ss now` == `version ss new` ] && MEO || MEO -sbl1 "Ⓝ"
 else
-    MEO -red51 "Stopped!"
-    [ `uci get monlor.ss.enable` == 1 ] && $SCR/ss restart
+	MEO -red51 "Stopped!"
+	[ `uci get monlor.ss.enable` == 1 ] && $SCR/ss restart
 fi
 
 kp_ver=`uci get monlor.koolproxy.version || echo none` > /dev/null 2>&1
 MEO -bla1t "Checking koolproxy(version:$kp_ver) ... \c"
 ps | grep koolproxy | grep -v grep > /dev/null 2>&1
 if [ $? -eq 0 ]; then
-    MEO -gre1 "Running!\c"
-    [ `version koolproxy now` == `version koolproxy new` ] && MEO || MEO -sbl1 "Ⓝ"
+	MEO -gre1 "Running!\c"
+	[ `version koolproxy now` == `version koolproxy new` ] && MEO || MEO -sbl1 "Ⓝ"
 else
-    MEO -red51 "Stopped!"
-    [ `uci get monlor.koolproxy.enable` == 1 ] && $SCR/koolproxy restart
+	MEO -red51 "Stopped!"
+	[ `uci get monlor.koolproxy.enable` == 1 ] && $SCR/koolproxy restart
 fi
 
 frpc_ver=`uci get monlor.frpc.version || echo none` > /dev/null 2>&1 
 MEO -bla1t "Checking frpc(version:$frpc_ver) ... \c"
 ps | grep frpc | grep -v grep | grep -v {frpc} > /dev/null 2>&1
 if [ $? -eq 0 ]; then 
-    MEO -gre1 "Running!\c"
-    [ `version frpc now` == `version frpc new` ] && MEO || MEO -sbl1 "Ⓝ"
+	MEO -gre1 "Running!\c"
+	[ `version frpc now` == `version frpc new` ] && MEO || MEO -sbl1 "Ⓝ"
 else
-    MEO -red51 "Stopped!"
-    [ `uci get monlor.frpc.enable` == 1 ] && $SCR/frpc restart
+	MEO -red51 "Stopped!"
+	[ `uci get monlor.frpc.enable` == 1 ] && $SCR/frpc restart
 fi
 
 ngrok_ver=`uci get monlor.ngrok.version || echo none` > /dev/null 2>&1
@@ -84,129 +85,131 @@ tinyproxy_ver=`uci get monlor.tinyproxy.version || echo none` > /dev/null 2>&1
 MEO -bla1t "Checking tinyproxy(version:$tinyproxy_ver) ... \c"
 ps | grep tinyproxy | grep -v grep > /dev/null 2>&1
 if [ $? -eq 0 ]; then 
-    MEO -gre1 "Running!\c"
-    [ `version tinyproxy now` == `version tinyproxy new` ] && MEO || MEO -sbl1 "Ⓝ"
+	MEO -gre1 "Running!\c"
+	[ `version tinyproxy now` == `version tinyproxy new` ] && MEO || MEO -sbl1 "Ⓝ"
 else
-    MEO -red51 "Stopped!"
-    [ `uci get monlor.tinyproxy.enable` == 1 ] && $SCR/tinyproxy restart
+	MEO -red51 "Stopped!"
+	[ `uci get monlor.tinyproxy.enable` == 1 ] && $SCR/tinyproxy restart
 fi
 
 kms_ver=`uci get monlor.kms.version || echo none` > /dev/null 2>&1
 MEO -bla1t "Checking kms(version:$kms_ver) ... \c"
 ps | grep kms | grep -v grep | grep -v {kms} > /dev/null 2>&1
 if [ $? -eq 0 ]; then 
-    MEO -gre1 "Running!\c"
-    [ `version kms now` == `version kms new` ] && MEO || MEO -sbl1 "Ⓝ"
+	MEO -gre1 "Running!\c"
+	[ `version kms now` == `version kms new` ] && MEO || MEO -sbl1 "Ⓝ"
 else
-    MEO -red51 "Stopped!"
-    [ `uci get monlor.kms.enable` == 1 ] && $SCR/kms restart
+	MEO -red51 "Stopped!"
+	[ `uci get monlor.kms.enable` == 1 ] && $SCR/kms restart
 fi
 
 aria2_ver=`uci get monlor.aria2.version || echo none` > /dev/null 2>&1
 MEO -bla1t "Checking aria2(version:$aria2_ver) ... \c"
 ps | grep aria2 | grep -v grep | grep -v {aira2} > /dev/null 2>&1
 if [ $? -eq 0 ]; then 
-    MEO -gre1 "Running!\c"
-    [ `version aria2 now` == `version aria2 new` ] && MEO || MEO -sbl1 "Ⓝ"
+	MEO -gre1 "Running!\c"
+	[ `version aria2 now` == `version aria2 new` ] && MEO || MEO -sbl1 "Ⓝ"
 else
-    MEO -red51 "Stopped!"
-    [ `uci get monlor.aria2.enable` == 1 ] && $SCR/aria2 restart
+	MEO -red51 "Stopped!"
+	[ `uci get monlor.aria2.enable` == 1 ] && $SCR/aria2 restart
 fi
 
 nginx_ver=`uci get monlor.nginx.version || echo none` > /dev/null 2>&1
 MEO -bla1t "Checking nginx(version:$nginx_ver) ... \c"
 ps | grep "nginx: worker process" | grep -v grep | grep -v sysapihttpd > /dev/null 2>&1
 if [ $? -eq 0 ]; then 
-    MEO -gre1 "Running!\c"
-    [ `version nginx now` == `version nginx new` ] && MEO || MEO -sbl1 "Ⓝ"
+	MEO -gre1 "Running!\c"
+	[ `version nginx now` == `version nginx new` ] && MEO || MEO -sbl1 "Ⓝ"
 else
-    MEO -red51 "Stopped!"
-    [ `uci get monlor.nginx.enable` == 1 ] && $SCR/nginx restart
+	MEO -red51 "Stopped!"
+	[ `uci get monlor.nginx.enable` == 1 ] && $SCR/nginx restart
 fi
 
 webshell_ver=`uci get monlor.webshell.version || echo none` > /dev/null 2>&1
 MEO -bla1t "Checking webshell(version:$webshell_ver) ... \c"
 ps | grep webshell | grep -v grep | grep -v {webshell} > /dev/null 2>&1
 if [ $? -eq 0 ]; then
-    MEO -gre1 "Running!\c"
-    [ `version webshell now` == `version webshell new` ] && MEO || MEO -sbl1 "Ⓝ"
+	MEO -gre1 "Running!\c"
+	[ `version webshell now` == `version webshell new` ] && MEO || MEO -sbl1 "Ⓝ"
 else
-    MEO -red51 "Stopped!"
-    [ `uci get monlor.webshell.enable` == 1 ] && $SCR/webshell restart
+	MEO -red51 "Stopped!"
+	[ `uci get monlor.webshell.enable` == 1 ] && $SCR/webshell restart
 fi
 
 fastdick_ver=`uci get monlor.fastdick.version || echo none` > /dev/null 2>&1
 MEO -bla1t "Checking fastdick(version:$fastdick_ver) ... \c"
 ps | grep fastdick | grep -v grep > /dev/null 2>&1
 if [ $? -eq 0 ]; then
-    MEO -gre1 "Running!\c"
-    [ `version fastdick now` == `version fastdick new` ] && MEO || MEO -sbl1 "Ⓝ"
+	MEO -gre1 "Running!\c"
+	[ `version fastdick now` == `version fastdick new` ] && MEO || MEO -sbl1 "Ⓝ"
 else
-    MEO -red51 "Stopped!"
-    [ `uci get monlor.fastdick.enable` == 1 ] && $SCR/fastdick restart
+	MEO -red51 "Stopped!"
+	[ `uci get monlor.fastdick.enable` == 1 ] && $SCR/fastdick restart
 fi
 
 vsftpd_ver=`uci get monlor.vsftpd.version || echo none` > /dev/null 2>&1
 MEO -bla1t "Checking vsftpd(version:$vsftpd_ver) ... \c"
 ps | grep vsftpd | grep -v grep | grep -v {vsftpd} > /dev/null 2>&1
 if [ $? -eq 0 ]; then
-    MEO -gre1 "Running!\c"
-    [ `version vsftpd now` == `version vsftpd new` ] && MEO || MEO -sbl1 "Ⓝ"
+	MEO -gre1 "Running!\c"
+	[ `version vsftpd now` == `version vsftpd new` ] && MEO || MEO -sbl1 "Ⓝ"
 else
-    MEO -red51 "Stopped!"
-    [ `uci get monlor.vsftpd.enable` == 1 ] && $SCR/vsftpd restart
+	MEO -red51 "Stopped!"
+	[ `uci get monlor.vsftpd.enable` == 1 ] && $SCR/vsftpd restart
 fi
 
 MEO -bla1t "***************************************************"
 
 if [ `ps | grep -E 'ss-redir|ssg-redir' | grep -v grep | wc -l'` != 0 ]; then
-    id=`uci get monlor.ss.id`
-    ssgid=`uci get monlor.ss.ssgid` > /dev/null 2>&1
-    ssmode=`uci get monlor.$id.ss_mode`
-    [ ! -f $ssgid ] && ssgmode=`uci get monlor.$ssgid.ssg_mode`
-    if [ `uci get monlor.ss.ssgena` == 0 ]; then
-	ssg_id=""
-	ssg_mode=""
-    else
-        ssg_id=" $ssgid"
-        ssg_mode=" $ssgmode"
-    fi
-    if [ `ps | grep ss-redir | grep -v grep | wc -l` != 0 ]; then
-    	ss_mode=$ssmode 
-    else
-    	id=""
-    	ss_mode=""
-    	ssg_id="$ssgid"                                                                       
-        ssg_mode="$ssgmode"
-    fi
-    MEO -bla1t 'SS running server: \c'
-    MEO -yel1 "$id$ssg_id"
-    MEO -bla1t "SS running mode: \c"
-    MEO -yel1 "$ss_mode$ssg_mode"
-    MEO -bla1t "***************************************************"
+	id=`uci get monlor.ss.id`
+	ssgid=`uci get monlor.ss.ssgid` > /dev/null 2>&1
+	ssmode=`uci get monlor.$id.ss_mode`
+	[ ! -f $ssgid ] && ssgmode=`uci get monlor.$ssgid.ssg_mode`
+	if [ `uci get monlor.ss.ssgena` == 0 ]; then
+		ssg_id=""
+		ssg_mode=""
+	else
+        	ssg_id=" $ssgid"
+        	ssg_mode=" $ssgmode"
+	fi
+    	if [ `ps | grep ss-redir | grep -v grep | wc -l` != 0 ]; then
+    		ss_mode=$ssmode 
+    	else
+    		id=""
+    		ss_mode=""
+    		ssg_id="$ssgid"                                                                       
+        	ssg_mode="$ssgmode"
+    	fi
+    	MEO -bla1t 'SS running server: \c'
+    	MEO -yel1 "$id$ssg_id"
+    	MEO -bla1t "SS running mode: \c"
+    	MEO -yel1 "$ss_mode$ssg_mode"
+    	MEO -bla1t "***************************************************"
 
 fi
 
 if [ `ps | grep koolproxy | grep -v grep | wc -l` != 0 ]; then
 
-    rules_date=`cat $MPATH/bin/data/rules/koolproxy.txt | sed -n '3p' | awk '{print $3" "$4}'`
-    video_date=`cat $MPATH/bin/data/rules/koolproxy.txt | sed -n '4p' | awk '{print $3" "$4}'`
-    mode=`uci get monlor.koolproxy.mode`
-    MEO -bla1t "Koolproxy running mode: \c"
-    MEO -yel1 "$mode"
-    MEO -bla1t "Koolproxy rule date: \c"
-    MEO -yel1 "$rules_date "
-    MEO -bla1t "Koolproxy video date: \c"
-    MEO -yel1 "$video_date"
-    MEO -bla1t "***************************************************"
+    	rules_date=`cat $MPATH/bin/data/rules/koolproxy.txt | sed -n '3p' | awk '{print $3" "$4}'`
+    	video_date=`cat $MPATH/bin/data/rules/koolproxy.txt | sed -n '4p' | awk '{print $3" "$4}'`
+    	mode=`uci get monlor.koolproxy.mode`
+    	MEO -bla1t "Koolproxy running mode: \c"
+    	MEO -yel1 "$mode"
+    	MEO -bla1t "Koolproxy rule date: \c"
+    	MEO -yel1 "$rules_date "
+    	MEO -bla1t "Koolproxy video date: \c"
+    	MEO -yel1 "$video_date"
+    	MEO -bla1t "***************************************************"
     
 fi
 
-#rm -rf /userdisk/data/TDDOWNLOAD 
-#cat /etc/samba/smb.conf | grep -A 7 "XiaoMi" | grep Chaco > /dev/null 2>&1
-#if [ $? -ne 0 ]; then
-#	sed -i '49,54s/\/userdisk\/data/\/userdisk\/data\/Chaco/' /etc/samba/smb.conf
-#fi
+if [ `uci get monlor.tools.myset` -eq 1 ]; then
+    	rm -rf /userdisk/data/TDDOWNLOAD 
+    	cat /etc/samba/smb.conf | grep -A 7 "XiaoMi" | grep Chaco > /dev/null 2>&1
+    	if [ $? -ne 0 ]; then
+		sed -i '49,54s/\/userdisk\/data/\/userdisk\/data\/Chaco/' /etc/samba/smb.conf
+    	fi
+fi
 
 [ "$1" == "ping" ] && $MPATH/script/ssconf ping && curl -sLo /tmp/version https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/conf/version 
 

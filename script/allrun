@@ -28,18 +28,17 @@ start() {
     [ `uci get monlor.fastdick.enable` == 1 ] && $SCR/fastdick start
     [ `uci get monlor.vsftpd.enable` == 1 ] && $SCR/vsftpd start
 
-    #rm -rf /userdisk/data/TDDOWNLOAD
-    rm -rf $MPATH/log/frpc.* > /dev/null 2>&1
-    mount -o remount,rw /                                                
-   
-    #mount samba
-    #[ `cat /etc/samba/smb.conf | grep -A 7 "XiaoMi" | grep Chaco | wc -l` == 0 ] && sed -i '49,54s/\/userdisk\/data/\/userdisk\/data\/Chaco/' /etc/samba/smb.conf 
-    #[ `mount | grep Chaco/Download | wc -l` == 0 ] && mount -o blind /userdisk/data/下载 /userdisk/data/Chaco/Download
+    if [ `uci get monlor.tools.myset` -eq 1 ]; then                                    
+    	rm -rf /userdisk/data/TDDOWNLOAD
+    	#mount samba
+    	[ `cat /etc/samba/smb.conf | grep -A 7 "XiaoMi" | grep Chaco | wc -l` == 0 ] && sed -i '49,54s/\/userdisk\/data/\/userdisk\/data\/Chaco/' /etc/samba/smb.conf 
+    	[ `mount | grep Chaco/Download | wc -l` == 0 ] && mount -o blind /userdisk/data/下载 /userdisk/data/Chaco/Download
     
-    #mount ftp
-    #if [ `uci get monlor.vsftpd.enable` -eq 1 ];then
-    #	[ `mount | grep /tmp/ftp | wc -l` -eq 0 ] && mount -o blind /userdisk/data/Chaco/Share/ftp /var/ftp
-    #fi
+    	#mount ftp
+    	if [ `uci get monlor.vsftpd.enable` -eq 1 ];then
+    		[ `mount | grep /tmp/ftp | wc -l` -eq 0 ] && mount -o blind /userdisk/data/Chaco/Share/ftp /var/ftp
+    	fi
+    fi
 
     #entware mount
     if [ -d $MPATH/opt ]; then 
@@ -122,7 +121,7 @@ install() {
     #fi
 
     [ -c $MPATH ] && MEO -red1t "Please input install place ...  " && exit
-    
+    mount -o remount,rw /  
     MEO -bla1t "Checking monlor file ... \c"
     if [ -d $MPATH ]; then
     	MEO gre1 "Done!" 
@@ -201,6 +200,7 @@ install() {
 	uci set monlor.vsftpd.enable=0
 	uci set monlor.tools=config
 	uci set monlor.tools.version=2.0
+	uci set monlor.tools.myset=0
         uci set monlor.tools.mpath="$MPATH"
         uci commit monlor
 
