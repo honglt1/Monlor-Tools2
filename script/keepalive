@@ -40,7 +40,8 @@ ss_ver=`uci get monlor.ss.version || echo none` > /dev/null 2>&1
 MEO -bla1t "Checking ss(version:$ss_ver) ... \c"
 ps | grep -E 'ss-redir|ssg-redir' | grep -v grep | grep -v {ss} > /dev/null 2>&1
 if [ $? -eq 0 ]; then
-    [ `version ss now` == `version ss new` ] && MEO -gre1 "Running!" || MEO -gre1 "Running!Ⓝ"
+    MEO -gre1 "Running!"
+    [ `version ss now` == `version ss new` ] && MEO "\c" || MEO -sbl1 "Ⓝ"
 else
     MEO -red51 "Stopped!"
     [ `uci get monlor.ss.enable` == 1 ] && $SCR/ss restart
