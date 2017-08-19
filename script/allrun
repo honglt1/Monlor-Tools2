@@ -64,8 +64,10 @@ start() {
 
 enable() {
 
-    curl -sLo /tmp/version https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/conf/version
-    cp /tmp/version $MPATH/conf
+    curl -sLo /tmp/version1 https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/conf/version
+    monlor_ver=`cat /tmp/version1 | head -n 1`
+    sed -i "1s/.*/$monlor_ver/" $MPATH/conf/version
+    mv /tmp/version1 /tmp/version
     $MPATH/script/update allrun
 
 }
