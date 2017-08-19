@@ -8,8 +8,8 @@ clear
 
 version () {
 	case $2 in
-		now) echo `cat $MPATH/conf/version | awk '/\$1/{print$2}'`;;
-		new) echo `cat /tmp/version | awk '/\$1/{print$2}'`;;
+		now) echo `cat $MPATH/conf/version | grep $1 | awk '{print$2}'`;;
+		new) echo `cat /tmp/version | grep $1 | awk '{print$2}'`;;
 	esac
 }
 
