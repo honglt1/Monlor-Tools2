@@ -15,278 +15,279 @@ CRON=/var/spool/cron/crontabs/root
 . $MPATH/script/mecho > /dev/null 2>&1
 start() {
 
-    rm -rf /tmp/monlor.log $MPATH/log/*
-    [ `uci get monlor.ss.enable` == 1 ] && $SCR/ss start
-    [ `uci get monlor.koolproxy.enable` == 1 ] && $SCR/koolproxy start
-    [ `uci get monlor.frpc.enable` == 1 ] && $SCR/frpc start
-    [ `uci get monlor.ngrok.enable` == 1 ] && $SCR/ngrok start
-    [ `uci get monlor.tinyproxy.enable` == 1 ] && $SCR/tinyproxy start
-    [ `uci get monlor.kms.enable` == 1 ] && $SCR/kms start
-    [ `uci get monlor.aria2.enable` == 1 ] && $SCR/aria2 start
-    [ `uci get monlor.nginx.enable` == 1 ] && $SCR/nginx start
-    [ `uci get monlor.webshell.enable` == 1 ] && $SCR/webshell start
-    [ `uci get monlor.fastdick.enable` == 1 ] && $SCR/fastdick start
-    [ `uci get monlor.vsftpd.enable` == 1 ] && $SCR/vsftpd start
+        rm -rf /tmp/monlor.log $MPATH/log/*
+        [ `uci get monlor.ss.enable` == 1 ] && $SCR/ss start
+        [ `uci get monlor.koolproxy.enable` == 1 ] && $SCR/koolproxy start
+        [ `uci get monlor.frpc.enable` == 1 ] && $SCR/frpc start
+        [ `uci get monlor.ngrok.enable` == 1 ] && $SCR/ngrok start
+        [ `uci get monlor.tinyproxy.enable` == 1 ] && $SCR/tinyproxy start
+        [ `uci get monlor.kms.enable` == 1 ] && $SCR/kms start
+        [ `uci get monlor.aria2.enable` == 1 ] && $SCR/aria2 start
+        [ `uci get monlor.nginx.enable` == 1 ] && $SCR/nginx start
+        [ `uci get monlor.webshell.enable` == 1 ] && $SCR/webshell start
+        [ `uci get monlor.fastdick.enable` == 1 ] && $SCR/fastdick start
+        [ `uci get monlor.vsftpd.enable` == 1 ] && $SCR/vsftpd start
 
-    if [ `uci get monlor.tools.myset` -eq 1 ]; then                                    
-    	rm -rf /userdisk/data/TDDOWNLOAD
-    	#mount samba
-    	[ `cat /etc/samba/smb.conf | grep -A 7 "XiaoMi" | grep Chaco | wc -l` == 0 ] && sed -i '49,54s/\/userdisk\/data/\/userdisk\/data\/Chaco/' /etc/samba/smb.conf 
-    	[ `mount | grep Chaco/Download | wc -l` == 0 ] && mount -o blind /userdisk/data/下载 /userdisk/data/Chaco/Download
-    
-    	#mount ftp
-    	if [ `uci get monlor.vsftpd.enable` -eq 1 ];then
-    		[ `mount | grep /tmp/ftp | wc -l` -eq 0 ] && mount -o blind /userdisk/data/Chaco/Share/ftp /var/ftp
-    	fi
-    fi
+        if [ `uci get monlor.tools.myset` -eq 1 ]; then                                    
+            	rm -rf /userdisk/data/TDDOWNLOAD
+            	#mount samba
+            	[ `cat /etc/samba/smb.conf | grep -A 7 "XiaoMi" | grep Chaco | wc -l` == 0 ] && sed -i '49,54s/\/userdisk\/data/\/userdisk\/data\/Chaco/' /etc/samba/smb.conf 
+            	[ `mount | grep Chaco/Download | wc -l` == 0 ] && mount -o blind /userdisk/data/下载 /userdisk/data/Chaco/Download
+            
+            	#mount ftp
+            	if [ `uci get monlor.vsftpd.enable` -eq 1 ];then
+            		[ `mount | grep /tmp/ftp | wc -l` -eq 0 ] && mount -o blind /userdisk/data/Chaco/Share/ftp /var/ftp
+            	fi
+        fi
+	   curl -sLo /tmp/version https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/conf/version
 
-    #entware mount
-    if [ -d $MPATH/opt ]; then 
-    	umount -lf /opt 
-    	mount -o blind $MPATH/opt /opt
-    	/opt/etc/init.d/rc.unslung start 
-    	cat /etc/profile | grep opt > /dev/null 2>&1
-    	if [ $? -ne 0 ] ;then 
-        	sed -i '/PS1/a export LD_LIBRARY_PATH=\/usr\/lib:\/lib:\/opt\/lib' /etc/profile                                                 
-		sed -i 's/\/usr\/sbin/\/usr\/sbin:\/opt\/bin:\/opt\/sbin/' /etc/profile                                                         
-		source /etc/profile > /dev/null 2>&1                                                                                                            
-	fi
-    fi
-    
-    #update rules
-    #$MPATH/script/addweb
+        #entware mount
+        if [ -d $MPATH/opt ]; then 
+            	umount -lf /opt 
+            	mount -o blind $MPATH/opt /opt
+            	/opt/etc/init.d/rc.unslung start 
+            	cat /etc/profile | grep opt > /dev/null 2>&1
+            	if [ $? -ne 0 ] ;then 
+                	sed -i '/PS1/a export LD_LIBRARY_PATH=\/usr\/lib:\/lib:\/opt\/lib' /etc/profile                                                 
+        		sed -i 's/\/usr\/sbin/\/usr\/sbin:\/opt\/bin:\/opt\/sbin/' /etc/profile                                                         
+        		source /etc/profile > /dev/null 2>&1                                                                                                            
+    		fi
+        fi
+        
+        #update rules
+        #$MPATH/script/addweb
 
-    #open ssh port 
-    [ `iptables -S | grep monlor-ssh | wc -l` -eq 0 ] && iptables -I INPUT -p tcp --dport 22 -j ACCEPT -m comment --comment "monlor-ssh"
+        #open ssh port 
+        [ `iptables -S | grep monlor-ssh | wc -l` -eq 0 ] && iptables -I INPUT -p tcp --dport 22 -j ACCEPT -m comment --comment "monlor-ssh"
 
 }
 
 enable() {
 
-    curl -sLo /tmp/version https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/conf/version
-    monlor_ver=`cat /tmp/version | head -n 1`
-    sed -i "1s/.*/$monlor_ver/" $MPATH/conf/version
-    $MPATH/script/update allrun
+        curl -sLo /tmp/version https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/conf/version
+        monlor_ver=`cat /tmp/version | head -n 1`
+        sed -i "1s/.*/$monlor_ver/" $MPATH/conf/version
+        $MPATH/script/update allrun
 
 }
 
 update() {
 
-    curl -sLo /tmp/version https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/conf/version
-    cp /tmp/version $MPATH/conf
-    enable
-    [ `uci get monlor.ss.enable` == 1 ] && $SCR/ss enable
-    [ `uci get monlor.koolproxy.enable` == 1 ] && $SCR/koolproxy enable
-    [ `uci get monlor.frpc.enable` == 1 ] && $SCR/frpc enable
-    [ `uci get monlor.ngrok.enable` == 1 ] && $SCR/ngrok enable
-    [ `uci get monlor.tinyproxy.enable` == 1 ] && $SCR/tinyproxy enable
-    [ `uci get monlor.kms.enable` == 1 ] && $SCR/kms enable
-    [ `uci get monlor.aria2.enable` == 1 ] && $SCR/aria2 enable
-    [ `uci get monlor.nginx.enable` == 1 ] && $SCR/nginx enable
-    [ `uci get monlor.webshell.enable` == 1 ] && $SCR/webshell enable
-    [ `uci get monlor.fastdick.enable` == 1 ] && $SCR/fastdick enable
-    [ `uci get monlor.vsftpd.enable` == 1 ] && $SCR/vsftpd enable
+        curl -sLo /tmp/version https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/conf/version
+        cp /tmp/version $MPATH/conf
+        enable
+        [ `uci get monlor.ss.enable` == 1 ] && $SCR/ss enable
+        [ `uci get monlor.koolproxy.enable` == 1 ] && $SCR/koolproxy enable
+        [ `uci get monlor.frpc.enable` == 1 ] && $SCR/frpc enable
+        [ `uci get monlor.ngrok.enable` == 1 ] && $SCR/ngrok enable
+        [ `uci get monlor.tinyproxy.enable` == 1 ] && $SCR/tinyproxy enable
+        [ `uci get monlor.kms.enable` == 1 ] && $SCR/kms enable
+        [ `uci get monlor.aria2.enable` == 1 ] && $SCR/aria2 enable
+        [ `uci get monlor.nginx.enable` == 1 ] && $SCR/nginx enable
+        [ `uci get monlor.webshell.enable` == 1 ] && $SCR/webshell enable
+        [ `uci get monlor.fastdick.enable` == 1 ] && $SCR/fastdick enable
+        [ `uci get monlor.vsftpd.enable` == 1 ] && $SCR/vsftpd enable
 
 }
 
 stop() {
     
-    $SCR/ss stop
-    $SCR/koolproxy stop
-    $SCR/frpc stop
-    $SCR/ngrok stop
-    $SCR/tinyproxy stop
-    $SCR/kms stop
-    $SCR/aria2 stop
-    $SCR/nginx stop
-    $SCR/webshell stop
-    $SCR/fastdick stop
-    $SCR/vsftpd stop
+        $SCR/ss stop
+        $SCR/koolproxy stop
+        $SCR/frpc stop
+        $SCR/ngrok stop
+        $SCR/tinyproxy stop
+        $SCR/kms stop
+        $SCR/aria2 stop
+        $SCR/nginx stop
+        $SCR/webshell stop
+        $SCR/fastdick stop
+        $SCR/vsftpd stop
     
 }
 
 install() {
 
-    #MEO -bla1t "Install node ... "
-    #if [ -d /data/usr/bin/node-0.10.28 ]; then
-    #	echo "already installed" 
-    #else
-    #	unzip $MPATH/bin/node.zip -d /data/usr/bin/ > /dev/null 2>&1
-    #	mount -o remount,rw /
-    #	ln -s /data/usr/bin/node-0.10.28/bin/node /usr/bin/node
-    #	ln -s /data/usr/bin/node-0.10.28/bin/npm /usr/bin/npm
-    #	chmod 777 /usr/bin/node
-    #	chmod 777 /usr/bin/npm
-    #	echo "Done!"
-    #fi
+        #MEO -bla1t "Install node ... "
+        #if [ -d /data/usr/bin/node-0.10.28 ]; then
+            	#echo "already installed" 
+        #else
+            	#unzip $MPATH/bin/node.zip -d /data/usr/bin/ > /dev/null 2>&1
+            	#mount -o remount,rw /
+            	#ln -s /data/usr/bin/node-0.10.28/bin/node /usr/bin/node
+            	#ln -s /data/usr/bin/node-0.10.28/bin/npm /usr/bin/npm
+            	#chmod 777 /usr/bin/node
+            	#chmod 777 /usr/bin/npm
+            	#echo "Done!"
+        #fi
 
-    [ -c $MPATH ] && MEO -red1t "Please input install place ...  " && exit
-    mount -o remount,rw /  
-    MEO -bla1t "Checking monlor file ... \c"
-    if [ -d $MPATH ]; then
-    	MEO gre1 "Done!" 
-    else
-    	MEO red1 "Not Found!"
-    	exit
-    fi
+        [ -c $MPATH ] && MEO -red1t "Please input install place ...  " && exit
+        mount -o remount,rw /  
+        MEO -bla1t "Checking monlor file ... \c"
+        if [ -d $MPATH ]; then
+        	   MEO gre1 "Done!" 
+        else
+        	   MEO red1 "Not Found!"
+        	   exit
+        fi
 
-    MEO -bla1t 'Checking crontab ... \c'
-    cat $CRON | grep allrun > /dev/null 2>&1
-    if [ $? -ne 0 ]; then
-         MEO -pur1 'Add crontab ... \c'
-         echo "*/20 * * * * $MPATH/script/keepalive ping" >> $CRON
-         echo "0 4 * * * $MPATH/script/allrun start" >> $CRON
-    fi
-    MEO -gre1 'Done!'
-    
-    MEO -bla1t 'Checking profile ... \c'
-    cat /etc/profile | grep $MPATH/script > /dev/null 2>&1
-    if [ $? -ne 0 ]; then
-        MEO -pur1 'Add profile ... \c'
-        sed -i "s#/usr/sbin#/usr/sbin:"$MPATH"/script#g" /etc/profile
-    fi
-    cat /etc/profile | grep keepalive > /dev/null 2>&1
-    if [ $? -ne 0 ]; then
-    	sed -i "/banner/a\\$MPATH/script/keepalive" /etc/profile
-	sed -i "/banner/d" /etc/profile
-    fi
-    MEO -gre1 "Done!"
+        MEO -bla1t 'Checking crontab ... \c'
+        cat $CRON | grep allrun > /dev/null 2>&1
+        if [ $? -ne 0 ]; then
+                 MEO -pur1 'Add crontab ... \c'
+                 echo "*/20 * * * * $MPATH/script/keepalive ping" >> $CRON
+                 echo "0 4 * * * $MPATH/script/allrun start" >> $CRON
+        fi
+        MEO -gre1 'Done!'
+        
+        MEO -bla1t 'Checking profile ... \c'
+        cat /etc/profile | grep $MPATH/script > /dev/null 2>&1
+        if [ $? -ne 0 ]; then
+                MEO -pur1 'Add profile ... \c'
+                sed -i "s#/usr/sbin#/usr/sbin:"$MPATH"/script#g" /etc/profile
+        fi
+        cat /etc/profile | grep keepalive > /dev/null 2>&1
+        if [ $? -ne 0 ]; then
+        	   sed -i "/banner/a\\$MPATH/script/keepalive" /etc/profile
+    	       sed -i "/banner/d" /etc/profile
+        fi
+        MEO -gre1 "Done!"
 
-    MEO -bla1t 'Checking powerboot ... \c'
-    cat /etc/firewall.user | grep allrun > /dev/null 2>&1
-    if [ $? -ne 0 ]; then
-        MEO -pur1 'Add firewall ... \c'
-	#uci set firewall.monlor=include
-	#uci set firewall.monlor.path="$MPATH/script/allrun start"
-	#uci set firewall.monlor.reload=1
-	echo "$MPATH/script/allrun install $MPATH" >> /etc/firewall.user
-    fi
-    MEO -gre1 "Done!"
-     
-    MEO -bla1t 'Checking nginx file ... \c' 
-    if [ ! -d /userdisk/router/ ]; then
-	MEO -pur1 'Add nginxfile ... \c'
-    	mkdir -p /userdisk/router/nginx/temp
-    	mkdir -p /userdisk/router/nginx/logs
-    fi
-    MEO -gre1 "Done!"
-    
-    MEO -bla1t 'Checking uci ... \c'
-    if [ ! -f /etc/config/monlor ]; then
-        #cp $MPATH/conf/monlor /etc/config
-	MEO -pur1 "Add uci ... \c"
-	touch /etc/config/monlor
-	uci set monlor.ss=config
-	uci set monlor.ss.enable=0
-	uci set monlor.koolproxy=config
-	uci set monlor.koolproxy.enable=0
-	uci set monlor.frpc=config
-	uci set monlor.frpc.enable=0
-	uci set monlor.ngrok=config
-	uci set monlor.ngrok.enable=0
-	uci set monlor.kms=config
-	uci set monlor.kms.enable=0
-	uci set monlor.tinyproxy=config
-	uci set monlor.tinyproxy.enable=0
-	uci set monlor.aria2=config 
-	uci set monlor.aria2.enable=0
-	uci set monlor.nginx=config
-	uci set monlor.nginx.enable=0
-	uci set monlor.webshell=config
-	uci set monlor.webshell.enable=0
-	uci set monlor.fastdick=config
-	uci set monlor.fastdick.enable=0
-	uci set monlor.vsftpd=config
-	uci set monlor.vsftpd.enable=0
-	uci set monlor.tools=config
-	uci set monlor.tools.version=2.0
-	uci set monlor.tools.myset=0
-        uci set monlor.tools.mpath="$MPATH"
-        uci commit monlor
+        MEO -bla1t 'Checking powerboot ... \c'
+        cat /etc/firewall.user | grep allrun > /dev/null 2>&1
+        if [ $? -ne 0 ]; then
+                MEO -pur1 'Add firewall ... \c'
+            	#uci set firewall.monlor=include
+            	#uci set firewall.monlor.path="$MPATH/script/allrun start"
+            	#uci set firewall.monlor.reload=1
+            	echo "$MPATH/script/allrun install $MPATH" >> /etc/firewall.user
+        fi
+        MEO -gre1 "Done!"
+         
+        MEO -bla1t 'Checking nginx file ... \c' 
+        if [ ! -d /userdisk/router/ ]; then
+        	    MEO -pur1 'Add nginxfile ... \c'
+            	mkdir -p /userdisk/router/nginx/temp
+            	mkdir -p /userdisk/router/nginx/logs
+        fi
+        MEO -gre1 "Done!"
+        
+        MEO -bla1t 'Checking uci ... \c'
+        if [ ! -f /etc/config/monlor ]; then
+                #cp $MPATH/conf/monlor /etc/config
+            	MEO -pur1 "Add uci ... \c"
+            	touch /etc/config/monlor
+            	uci set monlor.ss=config
+            	uci set monlor.ss.enable=0
+            	uci set monlor.koolproxy=config
+            	uci set monlor.koolproxy.enable=0
+            	uci set monlor.frpc=config
+            	uci set monlor.frpc.enable=0
+            	uci set monlor.ngrok=config
+            	uci set monlor.ngrok.enable=0
+            	uci set monlor.kms=config
+            	uci set monlor.kms.enable=0
+            	uci set monlor.tinyproxy=config
+            	uci set monlor.tinyproxy.enable=0
+            	uci set monlor.aria2=config 
+            	uci set monlor.aria2.enable=0
+            	uci set monlor.nginx=config
+            	uci set monlor.nginx.enable=0
+            	uci set monlor.webshell=config
+            	uci set monlor.webshell.enable=0
+            	uci set monlor.fastdick=config
+            	uci set monlor.fastdick.enable=0
+            	uci set monlor.vsftpd=config
+            	uci set monlor.vsftpd.enable=0
+            	uci set monlor.tools=config
+            	uci set monlor.tools.version=2.0
+            	uci set monlor.tools.myset=0
+                uci set monlor.tools.mpath="$MPATH"
+                uci commit monlor
 
-    fi
-    MEO -gre1 "Done!"
-    
-    MEO -bla1t 'Checking log ... \c'
-    if [ ! -d $LOG ]; then
-        mkdir $LOG > /dev/null 2>&1
-    fi
-    MEO -gre1 "Done!"
-    
-    if [ -f /tmp/monlor_backup.tar.gz ]; then
-	MEO -blu1t "Found backup file, Recover?(y/n) \c"
-	read ans
-	[ "$ans" == "y" ] && recover
-    fi
+        fi
+        MEO -gre1 "Done!"
+        
+        MEO -bla1t 'Checking log ... \c'
+        if [ ! -d $LOG ]; then
+                mkdir $LOG > /dev/null 2>&1
+        fi
+        MEO -gre1 "Done!"
+        
+        if [ -f /tmp/monlor_backup.tar.gz ]; then
+            	MEO -blu1t "Found backup file, Recover?(y/n) \c"
+            	read ans
+            	[ "$ans" == "y" ] && recover
+        fi
 
-    start
+        start
  
 }
 
 uninstall() {
-    
-    stop
+        
+        stop
 
-    MEO -bla1t 'Delete crontab added ... \c'
-    sed -i "\/script\/keepalive/d" $CRON
-    sed -i "\/script\/allrun start/d" $CRON
-    MEO -gre1 "Done!"
-    
-    MEO -bla1t 'Delete profile added ... \c'
-    sed -i "s#:$MPATH/script##g" /etc/profile
-    sed -i "/keepalive/d" /etc/profile
-    sed -i 's/:\/opt\/bin:\/opt\/sbin//' /etc/profile
-    sed -i '/LD_LIBRARY_PATH/d' /etc/profile
-    sed -i "/\/bin\/sh/a[ -f /etc/banner ] && cat /etc/banner" /etc/profile
-    MEO -gre1 "Done!"
-    
-    MEO -bla1t 'Delete firewall added ... \c'
-    #uci del firewall.monlor > /dev/null 2>&1
-    sed -i '/allrun/d' /etc/firewall.user
-    MEO -gre1 "Done!"
-    
-    MEO -bla1t 'Delete nginx file ... \c'
-    rm -rf /userdisk/router
-    MEO -gre1 "Done!"
-    
-    MEO -bla1t 'Delete uci file ... \c'
-    cp /etc/config/monlor $MPATH/conf > /dev/null 2>*1
-    rm -rf /etc/config/monlor
-    uci commit
-    MEO -gre1 "Done!"
-    
-    MEO -bla1t 'Delete Entware file ... \c'
-    [ `mount | grep opt | wc -l` != "0" ] && umount -lf /opt 
-    rm -rf $MPATH/opt
-    MEO -gre1 "Done!"
+        MEO -bla1t 'Delete crontab added ... \c'
+        sed -i "\/script\/keepalive/d" $CRON
+        sed -i "\/script\/allrun start/d" $CRON
+        MEO -gre1 "Done!"
+        
+        MEO -bla1t 'Delete profile added ... \c'
+        sed -i "s#:$MPATH/script##g" /etc/profile
+        sed -i "/keepalive/d" /etc/profile
+        sed -i 's/:\/opt\/bin:\/opt\/sbin//' /etc/profile
+        sed -i '/LD_LIBRARY_PATH/d' /etc/profile
+        sed -i "/\/bin\/sh/a[ -f /etc/banner ] && cat /etc/banner" /etc/profile
+        MEO -gre1 "Done!"
+        
+        MEO -bla1t 'Delete firewall added ... \c'
+        #uci del firewall.monlor > /dev/null 2>&1
+        sed -i '/allrun/d' /etc/firewall.user
+        MEO -gre1 "Done!"
+        
+        MEO -bla1t 'Delete nginx file ... \c'
+        rm -rf /userdisk/router
+        MEO -gre1 "Done!"
+        
+        MEO -bla1t 'Delete uci file ... \c'
+        cp /etc/config/monlor $MPATH/conf > /dev/null 2>*1
+        rm -rf /etc/config/monlor
+        uci commit
+        MEO -gre1 "Done!"
+        
+        MEO -bla1t 'Delete Entware file ... \c'
+        [ `mount | grep opt | wc -l` != "0" ] && umount -lf /opt 
+        rm -rf $MPATH/opt
+        MEO -gre1 "Done!"
 
-    MEO -bla1t 'Delete log ... \c'
-    rm -rf $LOG
-    MEO -gre1 "Done!"
-    
-    #Delete web
-    umount -lf /usr/lib/lua/luci > /dev/null 2>&1
-    umount -lf /www/xiaoqiang/web > /dev/null 2>&1
-    rm -rf /tmp/mountfiles
+        MEO -bla1t 'Delete log ... \c'
+        rm -rf $LOG
+        MEO -gre1 "Done!"
+        
+        #Delete web
+        umount -lf /usr/lib/lua/luci > /dev/null 2>&1
+        umount -lf /www/xiaoqiang/web > /dev/null 2>&1
+        rm -rf /tmp/mountfiles
 
-    #close ssh port 
-    #iptables -D INPUT -p tcp --dport 22 -j ACCEPT > /dev/null 2>&1
-    
+        #close ssh port 
+        #iptables -D INPUT -p tcp --dport 22 -j ACCEPT > /dev/null 2>&1
+        
 }
 
 addweb () {
 
-	MEO -bla1t "Add monlor web ... \c"
-	$SCR/addweb
-	MEO -gre1 "Done!"
+    	MEO -bla1t "Add monlor web ... \c"
+    	$SCR/addweb
+    	MEO -gre1 "Done!"
 
 }
 
 delweb () {
 
-	MEO -bla1t "Del monlor web ... \c"
-	umount -l /usr/lib/lua/luci                                       
-	umount -l /www/xiaoqiang/web                                      
+    	MEO -bla1t "Del monlor web ... \c"
+    	umount -l /usr/lib/lua/luci                                       
+    	umount -l /www/xiaoqiang/web                                      
         rm -rf /tmp/mountfiles 	
         MEO -gre1 "Done!"
 
@@ -294,14 +295,14 @@ delweb () {
 
 backup () {
 
-	MEO -bla1t "Backup monlor config ... \c"
+	    MEO -bla1t "Backup monlor config ... \c"
         [ -f /tmp/monlor_backup.tar.gz ] && mv /tmp/monlor_backup.tar.gz /tmp/monlor_backup.tar.gz.bak
         mkdir -p /tmp/monlor_backup/koolproxy                               
         uci show monlor | grep -v monlor.tools | sed -e 's/^/uci set /g' > /tmp/monlor_backup/monlor_config
         cp -rf $MPATH/bin/data/private /tmp/monlor_backup/koolproxy                 
         cp -rf $MPATH/bin/data/certs /tmp/monlor_backup/koolproxy     
-	mkdir -p /tmp/monlor_backup/config
-	cd $MPATH/conf/ && cp kp* ngrok* frplist* custom* ssc* nginxlist fastdick* /tmp/monlor_backup/config
+	    mkdir -p /tmp/monlor_backup/config
+	    cd $MPATH/conf/ && cp kp* ngrok* frplist* custom* ssc* nginxlist fastdick* /tmp/monlor_backup/config
         cd /tmp && tar -zcvf ./monlor_backup.tar.gz ./monlor_backup > /dev/null 2>&1
         rm -rf /tmp/monlor_backup                                           
         MEO -gre1 "Done! > /tmp/monlor_backup.tar.gz"  
@@ -310,35 +311,35 @@ backup () {
 recover () {
 
 	MEO -bla1t "Recover monlor config ... \c"                                   
-        if [ -f /tmp/monlor_backup.tar.gz ]; then                                   
-                tar zxvf /tmp/monlor_backup.tar.gz -C /tmp > /dev/null 2>&1 || "MEO -red1 "Failed!" && exit"                      
-                chmod +x /tmp/monlor_backup/monlor_config                           
-                touch /etc/config/monlor > /dev/null 2>&1                           
-                /tmp/monlor_backup/monlor_config                                    
-                uci commit monlor                                                   
-                cp -rf /tmp/monlor_backup/koolproxy/private $MPATH/bin/data/        
-                cp -rf /tmp/monlor_backup/koolproxy/certs $MPATH/bin/data    
-		cp -rf /tmp/monlor_backup/config/* $MPATH/conf  
+	if [ -f /tmp/monlor_backup.tar.gz ]; then                                   
+            	tar zxvf /tmp/monlor_backup.tar.gz -C /tmp > /dev/null 2>&1 || "MEO -red1 "Failed!" && exit"                      
+            	chmod +x /tmp/monlor_backup/monlor_config                           
+            	touch /etc/config/monlor > /dev/null 2>&1                           
+            	/tmp/monlor_backup/monlor_config                                    
+            	uci commit monlor                                                   
+            	cp -rf /tmp/monlor_backup/koolproxy/private $MPATH/bin/data/        
+            	cp -rf /tmp/monlor_backup/koolproxy/certs $MPATH/bin/data    
+        	cp -rf /tmp/monlor_backup/config/* $MPATH/conf  
 		rm -rf /tmp/monlor_backup     
-                MEO -gre1 "Done!"                                                   
-        else                                                                        
-                MEO -red1 "Failed!(can't find /tmp/monlor_backup.tar.gz)"           
-                exit                                                        
-        fi   
+            	MEO -gre1 "Done!"                                                   
+    	else                                                                        
+            	MEO -red1 "Failed!(can't find /tmp/monlor_backup.tar.gz)"           
+            	exit                                                        
+    	fi   
 
 }
 
 case $1 in
-    start) start;;
-    stop) stop;;
-    restart) restart;;
-    install) install;;
-    uninstall) uninstall;;
-    enable) enable;;
-    update) update;;
-    disable) disable;;
-    backup) backup;;
-    recover) recover;;
-    addweb) addweb;;
-    *) MEO "Usage: $0 {start|stop|enable|update|install|uninstall|addweb|delweb|backup|recover}";;
+    	start) start;;
+	stop) stop;;
+    	restart) restart;;
+    	install) install;;
+    	uninstall) uninstall;;
+    	enable) enable;;
+    	update) update;;
+    	disable) disable;;
+    	backup) backup;;
+    	recover) recover;;
+    	addweb) addweb;;
+    	*) MEO "Usage: $0 {start|stop|enable|update|install|uninstall|addweb|delweb|backup|recover}";;
 esac
