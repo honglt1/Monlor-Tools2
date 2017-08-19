@@ -39,7 +39,7 @@ addrules () {
 	iptables -t nat -N KOOLPROXY_HTTPS
 	iptables -t nat -A KOOLPROXY_HTTPS -p tcp -m multiport --dport 80,443 -j REDIRECT --to-ports 3000
 	#no kp	
-	iptables -t nat -A KOOLPROXY -m mac --mac-source 54:EE:75:7D:13:37 -j RETURN
+	#iptables -t nat -A KOOLPROXY -m mac --mac-source xx:xx:xx:xx:xx:xx -j RETURN
 	#kp https
 	cat $MPATH/conf/kpcontrol.conf | while read line
 	do
