@@ -216,9 +216,8 @@ start() {
 	fi
 	
   	#ss_mode=$(uci get $appname.$id.ss_mode)
-	#iptablenu=`iptables -nvL PREROUTING -t nat |sed 1,2d | sed -n '/KOOLPROXY/='`
-	#[ -z "$iptablenu" ] && iptablenu=1
-	iptablenu=1
+	iptablenu=`iptables -nvL PREROUTING -t nat |sed 1,2d | sed -n '/KOOLPROXY/='`
+	[ -z "$iptablenu" ] && iptablenu=1
     	[ "$ss_mode" == "gfwlist" ] || [ "$ss_mode" == "wholemode" ] || [ "$ss_mode" == "whitelist" ] && iptables -t nat -I PREROUTING $iptablenu -p tcp -m multiport --dports 80,443 -j SHADOWSOCKS
 	
 	#[ "$ss_mode" == "gfwlist" ] && iptables -t nat -I PREROUTING 2 -p tcp -m set --match-set gfwlist dst -j SHADOWSOCKS
