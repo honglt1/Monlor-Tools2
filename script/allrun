@@ -298,7 +298,8 @@ backup () {
         mkdir -p /tmp/monlor_backup/koolproxy                               
         uci show monlor | grep -v monlor.tools | sed -e 's/^/uci set /g' > /tmp/monlor_backup/monlor_config
         cp -rf $MPATH/bin/data/private /tmp/monlor_backup/koolproxy                 
-        cp -rf $MPATH/bin/data/certs /tmp/monlor_backup/koolproxy     
+        cp -rf $MPATH/bin/data/certs /tmp/monlor_backup/koolproxy  
+	cp -rf $MPATH/bin/data/rules/user.txt /tmp/monlor_backup/koolproxy
 	mkdir -p /tmp/monlor_backup/config
 	cd $MPATH/conf/ && cp kp* ngrok* frplist* custom* ssc* nginxlist fastdick* /tmp/monlor_backup/config
         cd /tmp && tar -zcvf ./monlor_backup.tar.gz ./monlor_backup > /dev/null 2>&1
@@ -315,8 +316,9 @@ recover () {
             	touch /etc/config/monlor > /dev/null 2>&1                           
             	/tmp/monlor_backup/monlor_config                                    
             	uci commit monlor                                                   
-            	cp -rf /tmp/monlor_backup/koolproxy/private $MPATH/bin/data/        
-            	cp -rf /tmp/monlor_backup/koolproxy/certs $MPATH/bin/data    
+            	cp -rf /tmp/monlor_backup/koolproxy/private $MPATH/bin/data        
+            	cp -rf /tmp/monlor_backup/koolproxy/certs $MPATH/bin/data  
+		cp -rf /tmp/monlor_backup/koolproxy/user.txt $MPATH/bin/data/rules  
         	cp -rf /tmp/monlor_backup/config/* $MPATH/conf  
 		rm -rf /tmp/monlor_backup     
             	MEO -gre1 "Done!"                                                   
