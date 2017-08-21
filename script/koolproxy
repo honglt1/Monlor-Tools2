@@ -52,7 +52,7 @@ addrules () {
 	
 	#iptablenu=$(iptables -t nat -L PREROUTING | awk '/SHADOWSOCKS/{print NR}')
 	iptablenu=`iptables -nvL PREROUTING -t nat |sed 1,2d | sed -n '/SHADOWSOCKS/='`
-	[ ! -f $iptablenu ] && iptablenu=`expr $iptablenu + 1` || iptablenu=1
+	[ ! -z $iptablenu ] && iptablenu=`expr $iptablenu + 1` || iptablenu=1
 	
 	[ "$mode" == "video" ] || [ "$mode" == "whole" ] && iptables -t nat -I PREROUTING $iptablenu -p tcp -j KOOLPROXY
 	[ "$mode" == "black" ] && iptables -t nat -I PREROUTING $iptablenu -p tcp -m set --match-set black_koolproxy dst -j KOOLPROXY
