@@ -388,6 +388,7 @@ status() {
 restart() 
 {
 	stop
+	[ -z `uci show monlor | grep monlor.*.ss | grep -v monlor.ss` ] && MEO -red1t "No ss server!"
 	uci set monlor.$appname.version=`$APPPATH -h | awk '/shadowsocks-libev/{print$2}'`
 	
 	if [ "$1" ]; then                                                    
