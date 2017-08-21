@@ -126,7 +126,7 @@ addrules() {
 start() {
 
 	[ ! -x $APPPATH ] && MEO -red1t "SS not installed" && exit
-	[ -z `uci show monlor | grep monlor.*.ss | grep -v monlor.ss` ] && MEO -red1t "No ss server!" && exit 
+	[ `uci show monlor | grep monlor.*.ss | grep -v monlor.ss | wc -l` -eq 0 ] && MEO -red1t "No ss server!" && exit 
 	uci set monlor.$appname.enable=1
 	uci commit monlor
 	id=$(uci get monlor.$appname.id)
@@ -319,7 +319,7 @@ ss_wholemode() {
 stop() {
 	
 	[ ! -x $APPPATH ] && MEO -red1t "SS not installed" && exit
-	[ -z `uci show monlor | grep monlor.*.ss | grep -v monlor.ss` ] && MEO -red1t "No ss server!" && exit
+	[ `uci show monlor | grep monlor.*.ss | grep -v monlor.ss | wc -l` -eq 0 ] && MEO -red1t "No ss server!" && exit
 	uci set monlor.$appname.enable=0
 	uci commit monlor
     	MEO -bla1t "Stopping $appname service ... \c"

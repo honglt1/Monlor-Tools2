@@ -64,7 +64,7 @@ add() {
 	 $MPATH/script/ss_ping
 	 rm -rf /tmp/ping_tmp
 	 MEO "************************************"
-	 $MPATH/script/ssconf show | grep -w -A 6 $ssname
+	 $MPATH/script/ssconf show | grep -w -A 7 $ssname
 	 MEO "************************************"
 	 MEO -blu1 "Add ss config sucess!" 
 	 MEO "************************************"
