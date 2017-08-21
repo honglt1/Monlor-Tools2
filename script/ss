@@ -216,14 +216,9 @@ start() {
 		esac
 	fi
 	
-  	iptablenu=$(iptables -t nat -L PREROUTING | awk '/KOOLPROXY/{print NR}')
-	if [ '$iptablenu' != '' ];then
-		iptablenu=`expr $iptablenu - 2`
-	else
-		iptablenu=2
-	fi
-    	[ "$ss_mode" == "wholemode" ] || [ "$ss_mode" == "whitelist" ] && iptables -t nat -I PREROUTING $iptablenu -p tcp -j SHADOWSOCKS
-	[ "$ss_mode" == "gfwlist" ] && iptables -t nat -I PREROUTING 2 -p tcp -j SHADOWSOCKS
+  	iptablenu=`iptables -nvL PREROUTING -t nat |sed 1,2d | sed -n '/KOOLPROXY/='`
+	[ -z "$iptablenu" ] && iptablenu=1
+    	[ "$ss_mode" == "gfwlist" ] || [ "$ss_mode" == "wholemode" ] || [ "$ss_mode" == "whitelist" ] && iptables -t nat -I PREROUTING $iptablenu -p tcp -m multiport --dports 80,443 -j SHADOWSOCKS
 	
 	/etc/init.d/dnsmasq restart
 
