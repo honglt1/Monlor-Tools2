@@ -37,7 +37,7 @@ MEO -bla1t "***************************************************"
 MEO -bla1t "Checking CPU tempreture ... \c"
 MEO -gre1 "`cat /proc/dmu/temperature | awk '{printf$4}' | cut -b 1-2`°C"
 
-if [ ! -f $MPATH/bin/ss-redir ]; then
+if [ -x $MPATH/bin/ss-redir ]; then
 	ss_ver=`uci get monlor.ss.version || echo none` > /dev/null 2>&1
 	MEO -bla1t "Checking ss(version:$ss_ver) ... \c"
 	ps | grep -E 'ss-redir|ssg-redir' | grep -v grep | grep -v {ss} > /dev/null 2>&1
@@ -50,7 +50,7 @@ if [ ! -f $MPATH/bin/ss-redir ]; then
 	fi
 fi
 
-if [ ! -f $MPATH/bin/koolproxy ]; then
+if [ -x $MPATH/bin/koolproxy ]; then
 	kp_ver=`uci get monlor.koolproxy.version || echo none` > /dev/null 2>&1
 	MEO -bla1t "Checking koolproxy(version:$kp_ver) ... \c"
 	ps | grep koolproxy | grep -v grep > /dev/null 2>&1
@@ -63,7 +63,7 @@ if [ ! -f $MPATH/bin/koolproxy ]; then
 	fi
 fi
 
-if [ ! -f $MPATH/bin/frpc ]; then
+if [ -x $MPATH/bin/frpc ]; then
 	frpc_ver=`uci get monlor.frpc.version || echo none` > /dev/null 2>&1 
 	MEO -bla1t "Checking frpc(version:$frpc_ver) ... \c"
 	ps | grep frpc | grep -v grep | grep -v {frpc} > /dev/null 2>&1
@@ -76,7 +76,7 @@ if [ ! -f $MPATH/bin/frpc ]; then
 	fi
 fi
 
-if [ ! -f $MPATH/bin/ngrok ]; then
+if [ -x $MPATH/bin/ngrok ]; then
 	ngrok_ver=`uci get monlor.ngrok.version || echo none` > /dev/null 2>&1
 	MEO -bla1t "Checking ngrok(version:$ngrok_ver) ... \c"
 	ps | grep ngrok | grep -v grep > /dev/null 2>&1
@@ -89,7 +89,7 @@ if [ ! -f $MPATH/bin/ngrok ]; then
 	fi
 fi
 
-if [ ! -f $MPATH/bin/tinyproxy ]; then
+if [ -x $MPATH/bin/tinyproxy ]; then
 	tinyproxy_ver=`uci get monlor.tinyproxy.version || echo none` > /dev/null 2>&1
 	MEO -bla1t "Checking tinyproxy(version:$tinyproxy_ver) ... \c"
 	ps | grep tinyproxy | grep -v grep > /dev/null 2>&1
@@ -102,7 +102,7 @@ if [ ! -f $MPATH/bin/tinyproxy ]; then
 	fi
 fi
 
-if [ ! -f $MPATH/bin/kms ]; then
+if [ -x $MPATH/bin/kms ]; then
 	kms_ver=`uci get monlor.kms.version || echo none` > /dev/null 2>&1
 	MEO -bla1t "Checking kms(version:$kms_ver) ... \c"
 	ps | grep kms | grep -v grep | grep -v {kms} > /dev/null 2>&1
@@ -115,7 +115,7 @@ if [ ! -f $MPATH/bin/kms ]; then
 	fi
 fi
 
-if [ ! -f $MPATH/bin/aria2 ]; then
+if [ -x $MPATH/bin/aria2 ]; then
 	aria2_ver=`uci get monlor.aria2.version || echo none` > /dev/null 2>&1
 	MEO -bla1t "Checking aria2(version:$aria2_ver) ... \c"
 	ps | grep aria2 | grep -v grep | grep -v {aira2} > /dev/null 2>&1
@@ -128,7 +128,7 @@ if [ ! -f $MPATH/bin/aria2 ]; then
 	fi
 fi
 
-if [ ! -f $MPATH/bin/nginx ]; then
+if [ -x $MPATH/bin/nginx ]; then
 	nginx_ver=`uci get monlor.nginx.version || echo none` > /dev/null 2>&1
 	MEO -bla1t "Checking nginx(version:$nginx_ver) ... \c"
 	ps | grep "nginx: worker process" | grep -v grep | grep -v sysapihttpd > /dev/null 2>&1
@@ -141,7 +141,7 @@ if [ ! -f $MPATH/bin/nginx ]; then
 	fi
 fi
 
-if [ ! -f $MPATH/bin/webshell ]; then
+if [ -x $MPATH/bin/webshell ]; then
 	webshell_ver=`uci get monlor.webshell.version || echo none` > /dev/null 2>&1
 	MEO -bla1t "Checking webshell(version:$webshell_ver) ... \c"
 	ps | grep webshell | grep -v grep | grep -v {webshell} > /dev/null 2>&1
@@ -154,7 +154,7 @@ if [ ! -f $MPATH/bin/webshell ]; then
 	fi
 fi
 
-if [ ! -f $MPATH/bin/fastdick ]; then
+if [ -x $MPATH/bin/fastdick ]; then
 	fastdick_ver=`uci get monlor.fastdick.version || echo none` > /dev/null 2>&1
 	MEO -bla1t "Checking fastdick(version:$fastdick_ver) ... \c"
 	ps | grep fastdick | grep -v grep > /dev/null 2>&1
@@ -167,7 +167,7 @@ if [ ! -f $MPATH/bin/fastdick ]; then
 	fi
 fi
 
-if [ ! -f $MPATH/bin/vsftpd ]; then
+if [ -x $MPATH/bin/vsftpd ]; then
 	vsftpd_ver=`uci get monlor.vsftpd.version || echo none` > /dev/null 2>&1
 	MEO -bla1t "Checking vsftpd(version:$vsftpd_ver) ... \c"
 	ps | grep vsftpd | grep -v grep | grep -v {vsftpd} > /dev/null 2>&1
