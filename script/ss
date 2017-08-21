@@ -453,6 +453,8 @@ disable() {
 	stop
 	MEO -bla1t "Delete $appname files ... \c"
 	rm -rf $APPPATH $SSGBIN $DNSPATH $gfwlist $chnroute $MPATH/script/ss*
+	uci show monlor | grep "monlor.*.ss" | grep -v "monlor.ss" | sed -e 's/^/uci del /g' > /tmp/ss_backup
+	chmod +x /tmp/ss_backup && /tmp/ss_backup
 	MEO -gre1 "Done!"
 
 }
