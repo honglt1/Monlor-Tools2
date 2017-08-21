@@ -82,6 +82,9 @@ show() {
  	MEO "************************************"
  	if [ -f $ssname ]; then
  		uci export monlor | grep -A 7 ss_name | awk '{if ($1!="--") print $2" "$3; else print "************************************"}'
+	elif [ "$ssname" == "ping" ]; then
+                echo
+                uci export monlor | grep -E 'ss_name|ss_ping' | awk '{if($2=="ss_ping")print$3"\n"; else printf$2" "$3" "}'
  	else
   		uci export monlor | grep -A 7 "ss_name '$ssname'" | awk '{print $2" "$3}'
  	fi

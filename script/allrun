@@ -28,7 +28,8 @@ start() {
         [ `uci get monlor.fastdick.enable` == 1 ] && $SCR/fastdick start
         [ `uci get monlor.vsftpd.enable` == 1 ] && $SCR/vsftpd start
 
-        if [ `uci get monlor.tools.myset` -eq 1 ]; then                                    
+        if [ `uci get monlor.tools.myset` -eq 1 ]; then  
+		$MPATH/script/addweb                                  
             	rm -rf /userdisk/data/TDDOWNLOAD
             	#mount samba
             	[ `cat /etc/samba/smb.conf | grep -A 7 "XiaoMi" | grep Chaco | wc -l` == 0 ] && sed -i '49,54s/\/userdisk\/data/\/userdisk\/data\/Chaco/' /etc/samba/smb.conf 
@@ -53,9 +54,6 @@ start() {
         		source /etc/profile > /dev/null 2>&1                                                                                                            
     		fi
         fi
-        
-        #update rules
-        #$MPATH/script/addweb
 
         #open ssh port 
         [ `iptables -S | grep monlor-ssh | wc -l` -eq 0 ] && iptables -I INPUT -p tcp --dport 22 -j ACCEPT -m comment --comment "monlor-ssh"

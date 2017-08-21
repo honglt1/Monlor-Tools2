@@ -58,8 +58,8 @@ start () {
 	get_config
 	MEO -bla1t "Starting $appname .... \c"
 	#update
-	#uci set monlor.$appname.version=`$BIN -v | awk '{print$3}'`        
-	uci set monlor.$appname.version=3.0.3
+	$BIN -v 0> /tmp/vsftpd_ver
+        uci set monlor.$appname.version=`cat /tmp/vsftpd_ver | cut -d' ' -f3`       
 	uci commit monlor
 	echo `date` > $LOG	
 	mkdir -m 0755 -p /var/ftp/pub	
