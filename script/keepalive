@@ -24,14 +24,14 @@ else
 fi
 MEO -blat "Monlor tools当前版本:\c"
 MEO -gre1 "$now_ver\c"
-MEO -bla1 "  最新版本:\c"
+MEO -bla "  最新版本:\c"
 if [ "$now_ver" == "$latest_ver" -o "$latest_ver" == "none" ]; then	
 	MEO -gre1 "$latest_ver" 
 else
 	MEO -pur1 "$latest_ver"
         MEO -blat "运行\c"
         MEO -pur1 " allrun enable \c"
-        MEO -bla1 "去获取最新版!"
+        MEO -bla "去获取最新版!"
 fi
 MEO -blat "***************************************************"
 MEO -blat "检查CPU当前温度 ... \c"
