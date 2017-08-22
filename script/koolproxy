@@ -199,7 +199,7 @@ stop () {
 	uci set monlor.$appname.enable=0 && uci commit monlor
 	remove_ipset_conf && restart_dnsmasq
 	flush_nat
-	ps  | grep koolproxy | grep -v grep | grep -v {koolproxy} | grep -v restart | awk '{print $1}' | xargs kill -9
+	ps  | grep $BIN | grep -v grep | grep -v {koolproxy} | grep -v restart | awk '{print $1}' | xargs kill -9
 }
 
 restart () {
