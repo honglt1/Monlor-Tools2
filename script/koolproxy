@@ -15,9 +15,10 @@ koolproxy_policy=`uci get monlor.$appname.mode`
 
 start_koolproxy () {
 	MEO -bla1t "开启koolproxy主进程..."
+	EXT_ARG=""
 	[ "$koolproxy_policy" == "1" ] && MEO -bla1t "Koolproxy启动为全局模式！"
 	[ "$koolproxy_policy" == "2" ] && MEO -bla1t "Koolproxy启动为黑名单模式！"
-	[ "$koolproxy_policy" == "3" ] && EXT_ARG="-e" || EXT_ARG="" && MEO -bla1t "Koolproxy启动为视频模式！"
+	[ "$koolproxy_policy" == "3" ] && EXT_ARG="-e" && MEO -bla1t "Koolproxy启动为视频模式！"
 	cd $MPATH/bin && ./koolproxy $EXT_ARG -d
 }
 
