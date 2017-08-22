@@ -177,7 +177,7 @@ detect_cert () {
 }
 
 start () {
-	[ ! -x $APPPATH ] && MEO -red1t "Koolproxy not installed" && exit
+	[ ! -x $APPPATH ] && MEO -red1t "Koolproxy没有安装，输入koolproxy enable安装！" && exit
 	uci set monlor.$appname.enable=1 && uci commit monlor
 	App_enable=$(uci get monlor.koolproxy.enable)
 	AreadyRunning=$(ps | grep 'koolproxy' | grep -v grep | wc -l)
@@ -195,7 +195,7 @@ start () {
 }
 
 stop () {
-	[ ! -x $APPPATH ] && MEO -red1t "Koolproxy not installed" && exit
+	[ ! -x $APPPATH ] && MEO -red1t "Koolproxy没有安装，输入koolproxy enable安装！" && exit
 	uci set monlor.$appname.enable=0 && uci commit monlor
 	remove_ipset_conf && restart_dnsmasq
 	flush_nat
