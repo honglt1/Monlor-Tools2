@@ -22,160 +22,160 @@ if [ -f /tmp/version ]; then
 else
 	latest_ver=none
 fi
-MEO -bla1t "Monlor tools version:\c"
+MEO -bla1t "Monlor tools当前版本:\c"
 MEO -gre1 "$now_ver\c"
-MEO -bla1 "  latest version:\c"
+MEO -bla1 "  最新版本:\c"
 if [ "$now_ver" == "$latest_ver" -o "$latest_ver" == "none" ]; then	
 	MEO -gre1 "$latest_ver" 
 else
 	MEO -pur1 "$latest_ver"
-        MEO -bla1t "Run\c"
+        MEO -bla1t "运行\c"
         MEO -pur1 " allrun enable \c"
-        MEO -bla1 "to get new version!"
+        MEO -bla1 "去获取最新版!"
 fi
 MEO -bla1t "***************************************************"
-MEO -bla1t "Checking CPU tempreture ... \c"
+MEO -bla1t "检查CPU当前温度 ... \c"
 MEO -gre1 "`cat /proc/dmu/temperature | awk '{printf$4}' | cut -b 1-2`°C"
 
 if [ -x $MPATH/bin/ss-redir ]; then
 	ss_ver=`uci get monlor.ss.version || echo none` > /dev/null 2>&1
-	MEO -bla1t "Checking ss(version:$ss_ver) ... \c"
+	MEO -bla1t "检查SS[$ss_ver]运行状态 ... \c"
 	ps | grep -E 'ss-redir|ssg-redir' | grep -v grep | grep -v {ss} > /dev/null 2>&1
 	if [ $? -eq 0 ]; then
-		MEO -gre1 "Running!\c"
+		MEO -gre1 "运行中！\c"
 		[ `version ss now` == `version ss new` ] && MEO || MEO -sbl1 "Ⓝ"
 	else
-		MEO -red51 "Stopped!"
+		MEO -red51 "已停止！"
 		[ `uci get monlor.ss.enable` == 1 ] && $SCR/ss restart
 	fi
 fi
 
 if [ -x $MPATH/bin/koolproxy ]; then
 	kp_ver=`uci get monlor.koolproxy.version || echo none` > /dev/null 2>&1
-	MEO -bla1t "Checking koolproxy(version:$kp_ver) ... \c"
+	MEO -bla1t "检查Koolproxy[$kp_ver]运行状态 ... \c"
 	ps | grep koolproxy | grep -v grep > /dev/null 2>&1
 	if [ $? -eq 0 ]; then
-		MEO -gre1 "Running!\c"
+		MEO -gre1 "运行中！\c"
 		[ `version koolproxy now` == `version koolproxy new` ] && MEO || MEO -sbl1 "Ⓝ"
 	else
-		MEO -red51 "Stopped!"
+		MEO -red51 "已停止！"
 		[ `uci get monlor.koolproxy.enable` == 1 ] && $SCR/koolproxy restart
 	fi
 fi
 
 if [ -x $MPATH/bin/frpc ]; then
 	frpc_ver=`uci get monlor.frpc.version || echo none` > /dev/null 2>&1 
-	MEO -bla1t "Checking frpc(version:$frpc_ver) ... \c"
+	MEO -bla1t "检查Frpc[$frpc_ver]运行状态 ... \c"
 	ps | grep frpc | grep -v grep | grep -v {frpc} > /dev/null 2>&1
 	if [ $? -eq 0 ]; then 
-		MEO -gre1 "Running!\c"
+		MEO -gre1 "运行中！\c"
 		[ `version frpc now` == `version frpc new` ] && MEO || MEO -sbl1 "Ⓝ"
 	else
-		MEO -red51 "Stopped!"
+		MEO -red51 "已停止！"
 		[ `uci get monlor.frpc.enable` == 1 ] && $SCR/frpc restart
 	fi
 fi
 
 if [ -x $MPATH/bin/ngrok ]; then
 	ngrok_ver=`uci get monlor.ngrok.version || echo none` > /dev/null 2>&1
-	MEO -bla1t "Checking ngrok(version:$ngrok_ver) ... \c"
+	MEO -bla1t "检查Ngrok[$ngrok_ver]运行状态 ... \c"
 	ps | grep ngrok | grep -v grep > /dev/null 2>&1
 	if [ $? -eq 0 ]; then
-		MEO -gre1 "Running!\c"
+		MEO -gre1 "运行中！\c"
 		[ `version ngrok now` == `version ngrok new` ] && MEO || MEO -sbl1 "Ⓝ"
 	else
-		MEO -red51 "Stopped!"
+		MEO -red51 "已停止！"
 		[ `uci get monlor.ngrok.enable` == 1 ] && $SCR/ngrok restart
 	fi
 fi
 
 if [ -x $MPATH/bin/tinyproxy ]; then
 	tinyproxy_ver=`uci get monlor.tinyproxy.version || echo none` > /dev/null 2>&1
-	MEO -bla1t "Checking tinyproxy(version:$tinyproxy_ver) ... \c"
+	MEO -bla1t "检查Tinyproxy[$tinyproxy_ver]运行状态 ... \c"
 	ps | grep tinyproxy | grep -v grep > /dev/null 2>&1
 	if [ $? -eq 0 ]; then 
-		MEO -gre1 "Running!\c"
+		MEO -gre1 "运行中！\c"
 		[ `version tinyproxy now` == `version tinyproxy new` ] && MEO || MEO -sbl1 "Ⓝ"
 	else
-		MEO -red51 "Stopped!"
+		MEO -red51 "已停止！"
 		[ `uci get monlor.tinyproxy.enable` == 1 ] && $SCR/tinyproxy restart
 	fi
 fi
 
 if [ -x $MPATH/bin/kms ]; then
 	kms_ver=`uci get monlor.kms.version || echo none` > /dev/null 2>&1
-	MEO -bla1t "Checking kms(version:$kms_ver) ... \c"
+	MEO -bla1t "检查Kms[$kms_ver]运行状态 ... \c"
 	ps | grep kms | grep -v grep | grep -v {kms} > /dev/null 2>&1
 	if [ $? -eq 0 ]; then 
-		MEO -gre1 "Running!\c"
+		MEO -gre1 "运行中！\c"
 		[ `version kms now` == `version kms new` ] && MEO || MEO -sbl1 "Ⓝ"
 	else
-		MEO -red51 "Stopped!"
+		MEO -red51 "已停止！"
 		[ `uci get monlor.kms.enable` == 1 ] && $SCR/kms restart
 	fi
 fi
 
 if [ -x $MPATH/bin/aria2 ]; then
 	aria2_ver=`uci get monlor.aria2.version || echo none` > /dev/null 2>&1
-	MEO -bla1t "Checking aria2(version:$aria2_ver) ... \c"
+	MEO -bla1t "检查Aria2[$aria2_ver]运行状态 ... \c"
 	ps | grep aria2 | grep -v grep | grep -v {aira2} > /dev/null 2>&1
 	if [ $? -eq 0 ]; then 
-		MEO -gre1 "Running!\c"
+		MEO -gre1 "运行中！\c"
 		[ `version aria2 now` == `version aria2 new` ] && MEO || MEO -sbl1 "Ⓝ"
 	else
-		MEO -red51 "Stopped!"
+		MEO -red51 "已停止！"
 		[ `uci get monlor.aria2.enable` == 1 ] && $SCR/aria2 restart
 	fi
 fi
 
 if [ -x $MPATH/bin/nginx ]; then
 	nginx_ver=`uci get monlor.nginx.version || echo none` > /dev/null 2>&1
-	MEO -bla1t "Checking nginx(version:$nginx_ver) ... \c"
+	MEO -bla1t "检查Nginx[$nginx_ver]运行状态 ... \c"
 	ps | grep "nginx: worker process" | grep -v grep | grep -v sysapihttpd > /dev/null 2>&1
 	if [ $? -eq 0 ]; then 
-		MEO -gre1 "Running!\c"
+		MEO -gre1 "运行中！\c"
 		[ `version nginx now` == `version nginx new` ] && MEO || MEO -sbl1 "Ⓝ"
 	else
-		MEO -red51 "Stopped!"
+		MEO -red51 "已停止！"
 		[ `uci get monlor.nginx.enable` == 1 ] && $SCR/nginx restart
 	fi
 fi
 
 if [ -x $MPATH/bin/webshell ]; then
 	webshell_ver=`uci get monlor.webshell.version || echo none` > /dev/null 2>&1
-	MEO -bla1t "Checking webshell(version:$webshell_ver) ... \c"
+	MEO -bla1t "检查Webshell[$webshell_ver]运行状态 ... \c"
 	ps | grep webshell | grep -v grep | grep -v {webshell} > /dev/null 2>&1
 	if [ $? -eq 0 ]; then
-		MEO -gre1 "Running!\c"
+		MEO -gre1 "运行中！\c"
 		[ `version webshell now` == `version webshell new` ] && MEO || MEO -sbl1 "Ⓝ"
 	else
-		MEO -red51 "Stopped!"
+		MEO -red51 "已停止！"
 		[ `uci get monlor.webshell.enable` == 1 ] && $SCR/webshell restart
 	fi
 fi
 
 if [ -x $MPATH/bin/fastdick ]; then
 	fastdick_ver=`uci get monlor.fastdick.version || echo none` > /dev/null 2>&1
-	MEO -bla1t "Checking fastdick(version:$fastdick_ver) ... \c"
+	MEO -bla1t "检查Fastdick[$fastdick_ver]运行状态 ... \c"
 	ps | grep fastdick | grep -v grep > /dev/null 2>&1
 	if [ $? -eq 0 ]; then
-		MEO -gre1 "Running!\c"
+		MEO -gre1 "运行中！\c"
 		[ `version fastdick now` == `version fastdick new` ] && MEO || MEO -sbl1 "Ⓝ"
 	else
-		MEO -red51 "Stopped!"
+		MEO -red51 "已停止！"
 		[ `uci get monlor.fastdick.enable` == 1 ] && $SCR/fastdick restart
 	fi
 fi
 
 if [ -x $MPATH/bin/vsftpd ]; then
 	vsftpd_ver=`uci get monlor.vsftpd.version || echo none` > /dev/null 2>&1
-	MEO -bla1t "Checking vsftpd(version:$vsftpd_ver) ... \c"
+	MEO -bla1t "检查vsftpd[$vsftpd_ver]运行状态 ... \c"
 	ps | grep vsftpd | grep -v grep | grep -v {vsftpd} > /dev/null 2>&1
 	if [ $? -eq 0 ]; then
-		MEO -gre1 "Running!\c"
+		MEO -gre1 "运行中！\c"
 		[ `version vsftpd now` == `version vsftpd new` ] && MEO || MEO -sbl1 "Ⓝ"
 	else
-		MEO -red51 "Stopped!"
+		MEO -red51 "已停止！"
 		[ `uci get monlor.vsftpd.enable` == 1 ] && $SCR/vsftpd restart
 	fi
 fi
@@ -186,7 +186,12 @@ if [ `ps | grep -E 'ss-redir|ssg-redir' | grep -v grep | wc -l'` != 0 ]; then
 	id=`uci get monlor.ss.id`
 	ssgid=`uci get monlor.ss.ssgid` > /dev/null 2>&1
 	ssmode=`uci get monlor.$id.ss_mode`
+	[ "$ssmode" == "gfwlist" ] && ssmode="黑名单模式"
+	[ "$ssmode" == "whitelist" ] && ssmode="白名单模式"
+	[ "$ssmode" == "wholemode" ] && ssmode="全局模式"
 	[ ! -f $ssgid ] && ssgmode=`uci get monlor.$ssgid.ssg_mode`
+	[ "ssgmode" == "cngame" ] && ssgmode="国内游戏加速"
+	[ "ssgmode" == "frgame" ] && ssgmode="国外游戏加速"
 	if [ `uci get monlor.ss.ssgena` == 0 ]; then
 		ssg_id=""
 		ssg_mode=""
@@ -202,9 +207,9 @@ if [ `ps | grep -E 'ss-redir|ssg-redir' | grep -v grep | wc -l'` != 0 ]; then
     		ssg_id="$ssgid"                                                                       
         	ssg_mode="$ssgmode"
     	fi
-    	MEO -bla1t 'SS running server: \c'
+    	MEO -bla1t 'SS运行服务器: \c'
     	MEO -yel1 "$id$ssg_id"
-    	MEO -bla1t "SS running mode: \c"
+    	MEO -bla1t "SS运行模式: \c"
     	MEO -yel1 "$ss_mode$ssg_mode"
     	MEO -bla1t "***************************************************"
 
@@ -215,11 +220,11 @@ if [ `ps | grep koolproxy | grep -v grep | wc -l` != 0 ]; then
     	rules_date=`cat $MPATH/bin/data/rules/koolproxy.txt | sed -n '3p' | awk '{print $3" "$4}'`
     	video_date=`cat $MPATH/bin/data/rules/koolproxy.txt | sed -n '4p' | awk '{print $3" "$4}'`
     	mode=`uci get monlor.koolproxy.mode`
-    	MEO -bla1t "Koolproxy running mode: \c"
+    	MEO -bla1t "Koolproxy运行模式: \c"
     	MEO -yel1 "$mode"
-    	MEO -bla1t "Koolproxy rule date: \c"
+    	MEO -bla1t "Koolproxy静态规则更新日期: \c"
     	MEO -yel1 "$rules_date "
-    	MEO -bla1t "Koolproxy video date: \c"
+    	MEO -bla1t "Koolproxy视频规则更新日期: \c"
     	MEO -yel1 "$video_date"
     	MEO -bla1t "***************************************************"
     

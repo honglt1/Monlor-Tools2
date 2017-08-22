@@ -186,6 +186,7 @@ start () {
 		MEO -pur1t "Koolproxy is aleady running"
 		exit
 	fi
+	uci set monlor.$appname.version=`$BIN -v`
 	detect_cert
 	start_koolproxy
 	add_ipset_conf && restart_dnsmasq
