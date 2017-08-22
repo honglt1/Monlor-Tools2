@@ -14,7 +14,7 @@ version () {
 	esac
 }
 
-MEO -bla1t "***************************************************"
+MEO -blat "***************************************************"
 now_ver=`version monlor now`
 if [ -f /tmp/version ]; then
 	latest_ver=`version monlor new`
@@ -22,24 +22,24 @@ if [ -f /tmp/version ]; then
 else
 	latest_ver=none
 fi
-MEO -bla1t "Monlor tools当前版本:\c"
+MEO -blat "Monlor tools当前版本:\c"
 MEO -gre1 "$now_ver\c"
 MEO -bla1 "  最新版本:\c"
 if [ "$now_ver" == "$latest_ver" -o "$latest_ver" == "none" ]; then	
 	MEO -gre1 "$latest_ver" 
 else
 	MEO -pur1 "$latest_ver"
-        MEO -bla1t "运行\c"
+        MEO -blat "运行\c"
         MEO -pur1 " allrun enable \c"
         MEO -bla1 "去获取最新版!"
 fi
-MEO -bla1t "***************************************************"
-MEO -bla1t "检查CPU当前温度 ... \c"
+MEO -blat "***************************************************"
+MEO -blat "检查CPU当前温度 ... \c"
 MEO -gre1 "`cat /proc/dmu/temperature | awk '{printf$4}' | cut -b 1-2`°C"
 
 if [ -x $MPATH/bin/ss-redir ]; then
 	ss_ver=`uci get monlor.ss.version || echo none` > /dev/null 2>&1
-	MEO -bla1t "检查SS[$ss_ver]运行状态 ... \c"
+	MEO -blat "检查SS[$ss_ver]运行状态 ... \c"
 	ps | grep -E 'ss-redir|ssg-redir' | grep -v grep | grep -v {ss} > /dev/null 2>&1
 	if [ $? -eq 0 ]; then
 		MEO -gre1 "运行中！\c"
@@ -52,7 +52,7 @@ fi
 
 if [ -x $MPATH/bin/koolproxy ]; then
 	kp_ver=`uci get monlor.koolproxy.version || echo none` > /dev/null 2>&1
-	MEO -bla1t "检查Koolproxy[$kp_ver]运行状态 ... \c"
+	MEO -blat "检查Koolproxy[$kp_ver]运行状态 ... \c"
 	ps | grep koolproxy | grep -v grep > /dev/null 2>&1
 	if [ $? -eq 0 ]; then
 		MEO -gre1 "运行中！\c"
@@ -65,7 +65,7 @@ fi
 
 if [ -x $MPATH/bin/frpc ]; then
 	frpc_ver=`uci get monlor.frpc.version || echo none` > /dev/null 2>&1 
-	MEO -bla1t "检查Frpc[$frpc_ver]运行状态 ... \c"
+	MEO -blat "检查Frpc[$frpc_ver]运行状态 ... \c"
 	ps | grep frpc | grep -v grep | grep -v {frpc} > /dev/null 2>&1
 	if [ $? -eq 0 ]; then 
 		MEO -gre1 "运行中！\c"
@@ -78,7 +78,7 @@ fi
 
 if [ -x $MPATH/bin/ngrok ]; then
 	ngrok_ver=`uci get monlor.ngrok.version || echo none` > /dev/null 2>&1
-	MEO -bla1t "检查Ngrok[$ngrok_ver]运行状态 ... \c"
+	MEO -blat "检查Ngrok[$ngrok_ver]运行状态 ... \c"
 	ps | grep ngrok | grep -v grep > /dev/null 2>&1
 	if [ $? -eq 0 ]; then
 		MEO -gre1 "运行中！\c"
@@ -91,7 +91,7 @@ fi
 
 if [ -x $MPATH/bin/tinyproxy ]; then
 	tinyproxy_ver=`uci get monlor.tinyproxy.version || echo none` > /dev/null 2>&1
-	MEO -bla1t "检查Tinyproxy[$tinyproxy_ver]运行状态 ... \c"
+	MEO -blat "检查Tinyproxy[$tinyproxy_ver]运行状态 ... \c"
 	ps | grep tinyproxy | grep -v grep > /dev/null 2>&1
 	if [ $? -eq 0 ]; then 
 		MEO -gre1 "运行中！\c"
@@ -104,7 +104,7 @@ fi
 
 if [ -x $MPATH/bin/kms ]; then
 	kms_ver=`uci get monlor.kms.version || echo none` > /dev/null 2>&1
-	MEO -bla1t "检查Kms[$kms_ver]运行状态 ... \c"
+	MEO -blat "检查Kms[$kms_ver]运行状态 ... \c"
 	ps | grep kms | grep -v grep | grep -v {kms} > /dev/null 2>&1
 	if [ $? -eq 0 ]; then 
 		MEO -gre1 "运行中！\c"
@@ -117,7 +117,7 @@ fi
 
 if [ -x $MPATH/bin/aria2 ]; then
 	aria2_ver=`uci get monlor.aria2.version || echo none` > /dev/null 2>&1
-	MEO -bla1t "检查Aria2[$aria2_ver]运行状态 ... \c"
+	MEO -blat "检查Aria2[$aria2_ver]运行状态 ... \c"
 	ps | grep aria2 | grep -v grep | grep -v {aira2} > /dev/null 2>&1
 	if [ $? -eq 0 ]; then 
 		MEO -gre1 "运行中！\c"
@@ -130,7 +130,7 @@ fi
 
 if [ -x $MPATH/bin/nginx ]; then
 	nginx_ver=`uci get monlor.nginx.version || echo none` > /dev/null 2>&1
-	MEO -bla1t "检查Nginx[$nginx_ver]运行状态 ... \c"
+	MEO -blat "检查Nginx[$nginx_ver]运行状态 ... \c"
 	ps | grep "nginx: worker process" | grep -v grep | grep -v sysapihttpd > /dev/null 2>&1
 	if [ $? -eq 0 ]; then 
 		MEO -gre1 "运行中！\c"
@@ -143,7 +143,7 @@ fi
 
 if [ -x $MPATH/bin/webshell ]; then
 	webshell_ver=`uci get monlor.webshell.version || echo none` > /dev/null 2>&1
-	MEO -bla1t "检查Webshell[$webshell_ver]运行状态 ... \c"
+	MEO -blat "检查Webshell[$webshell_ver]运行状态 ... \c"
 	ps | grep webshell | grep -v grep | grep -v {webshell} > /dev/null 2>&1
 	if [ $? -eq 0 ]; then
 		MEO -gre1 "运行中！\c"
@@ -156,7 +156,7 @@ fi
 
 if [ -x $MPATH/bin/fastdick ]; then
 	fastdick_ver=`uci get monlor.fastdick.version || echo none` > /dev/null 2>&1
-	MEO -bla1t "检查Fastdick[$fastdick_ver]运行状态 ... \c"
+	MEO -blat "检查Fastdick[$fastdick_ver]运行状态 ... \c"
 	ps | grep fastdick | grep -v grep > /dev/null 2>&1
 	if [ $? -eq 0 ]; then
 		MEO -gre1 "运行中！\c"
@@ -169,7 +169,7 @@ fi
 
 if [ -x $MPATH/bin/vsftpd ]; then
 	vsftpd_ver=`uci get monlor.vsftpd.version || echo none` > /dev/null 2>&1
-	MEO -bla1t "检查vsftpd[$vsftpd_ver]运行状态 ... \c"
+	MEO -blat "检查vsftpd[$vsftpd_ver]运行状态 ... \c"
 	ps | grep vsftpd | grep -v grep | grep -v {vsftpd} > /dev/null 2>&1
 	if [ $? -eq 0 ]; then
 		MEO -gre1 "运行中！\c"
@@ -180,7 +180,7 @@ if [ -x $MPATH/bin/vsftpd ]; then
 	fi
 fi
 
-MEO -bla1t "***************************************************"
+MEO -blat "***************************************************"
 
 if [ `ps | grep -E 'ss-redir|ssg-redir' | grep -v grep | wc -l'` != 0 ]; then
 	id=`uci get monlor.ss.id`
@@ -207,11 +207,11 @@ if [ `ps | grep -E 'ss-redir|ssg-redir' | grep -v grep | wc -l'` != 0 ]; then
     		ssg_id="$ssgid"                                                                       
         	ssg_mode="$ssgmode"
     	fi
-    	MEO -bla1t 'SS运行服务器: \c'
+    	MEO -blat 'SS运行服务器: \c'
     	MEO -yel1 "\t$id$ssg_id"
-    	MEO -bla1t "SS运行模式: \c"
+    	MEO -blat "SS运行模式: \c"
     	MEO -yel1 "\t$ss_mode$ssg_mode"
-    	MEO -bla1t "***************************************************"
+    	MEO -blat "***************************************************"
 
 fi
 
@@ -223,13 +223,13 @@ if [ `ps | grep koolproxy | grep -v grep | wc -l` != 0 ]; then
 	[ "$mode" == "1" ] && mode="全局模式"
 	[ "$mode" == "2" ] && mode="黑名单模式"
 	[ "$mode" == "3" ] && mode="视频模式"
-    	MEO -bla1t "Koolproxy运行模式: \c"
+    	MEO -blat "Koolproxy运行模式: \c"
     	MEO -yel1 "$mode"
-    	MEO -bla1t "Koolproxy静态规则更新日期: \c"
+    	MEO -blat "Koolproxy静态规则更新日期: \c"
     	MEO -yel1 "$rules_date "
-    	MEO -bla1t "Koolproxy视频规则更新日期: \c"
+    	MEO -blat "Koolproxy视频规则更新日期: \c"
     	MEO -yel1 "$video_date"
-    	MEO -bla1t "***************************************************"
+    	MEO -blat "***************************************************"
     
 fi
 
