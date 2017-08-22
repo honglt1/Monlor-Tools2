@@ -190,14 +190,14 @@ if [ `ps | grep -E 'ss-redir|ssg-redir' | grep -v grep | wc -l'` != 0 ]; then
 	[ "$ssmode" == "whitelist" ] && ssmode="白名单模式"
 	[ "$ssmode" == "wholemode" ] && ssmode="全局模式"
 	[ ! -f $ssgid ] && ssgmode=`uci get monlor.$ssgid.ssg_mode`
-	[ "ssgmode" == "cngame" ] && ssgmode="国内游戏加速"
-	[ "ssgmode" == "frgame" ] && ssgmode="国外游戏加速"
+	[ "$ssgmode" == "cngame" ] && ssgmode="国内游戏加速"
+	[ "$ssgmode" == "frgame" ] && ssgmode="国外游戏加速"
 	if [ `uci get monlor.ss.ssgena` == 0 ]; then
 		ssg_id=""
 		ssg_mode=""
 	else
-        	ssg_id=" $ssgid"
-        	ssg_mode=" $ssgmode"
+        	ssg_id="\t$ssgid"
+        	ssg_mode="\t$ssgmode"
 	fi
     	if [ `ps | grep ss-redir | grep -v grep | wc -l` != 0 ]; then
     		ss_mode=$ssmode 
@@ -208,9 +208,9 @@ if [ `ps | grep -E 'ss-redir|ssg-redir' | grep -v grep | wc -l'` != 0 ]; then
         	ssg_mode="$ssgmode"
     	fi
     	MEO -bla1t 'SS运行服务器: \c'
-    	MEO -yel1 "$id$ssg_id"
+    	MEO -yel1 "\t$id$ssg_id"
     	MEO -bla1t "SS运行模式: \c"
-    	MEO -yel1 "$ss_mode$ssg_mode"
+    	MEO -yel1 \t"$ss_mode$ssg_mode"
     	MEO -bla1t "***************************************************"
 
 fi
