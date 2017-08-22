@@ -237,7 +237,7 @@ start() {
 	fi
 	
   	iptablenu=$(iptables -t nat -L PREROUTING | awk '/KOOLPROXY/{print NR}')
-	if [ '$iptablenu' != '' ];then
+	if [ ! -z "$iptablenu" ];then
 		iptablenu=`expr $iptablenu - 2`
 	else
 		iptablenu=2
@@ -294,7 +294,7 @@ ss_cngame() {
 
 	MEO -bla1t "添加国内游戏iptables规则..."
 	
-	iptables -t mangle -A SHADOWSOCK -p udp -m set ! --match-set customize_white dst -j TPROXY --on-port 1085 --tproxy-mark 0x01/0x01         
+	iptables -t mangle -A SHADOWSOCKS -p udp -m set ! --match-set customize_white dst -j TPROXY --on-port 1085 --tproxy-mark 0x01/0x01         
 
 }
 
@@ -303,7 +303,7 @@ ss_frgame() {
 	MEO -bla1t "添加国外游戏iptables规则..."
 
 	[ $ss_mode != "whitelist" ] && sed -e "s/^/-A nogfwnet &/g" -e "1 i\-N nogfwnet hash:net" $chnroute | ipset -R -!
-	iptables -t mangle -A SHADOWSOCK -p udp -m set ! --match-set nogfwnet dst -j TPROXY --on-port 1085 --tproxy-mark 0x01/0x01
+	iptables -t mangle -A SHADOWSOCKS -p udp -m set ! --match-set nogfwnet dst -j TPROXY --on-port 1085 --tproxy-mark 0x01/0x01
 
 }
 

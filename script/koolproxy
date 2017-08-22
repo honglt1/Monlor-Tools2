@@ -126,6 +126,8 @@ lan_acess_control () {
 		MEO -bla1t "加载ACL规则：【$proxy_name】【$mac】模式为：$(get_mode_name $proxy_mode)"
 		iptables -t nat -A KOOLPROXY $(factor $mac "-m mac --mac-source") -p tcp $(get_jump_mode $proxy_mode) $(get_action_chain $proxy_mode)
 	done
+	koolproxy_acl_default_mode=$(uci get monlor.koolproxy.koolproxy_acl_default_mode)
+	[ -z "$koolproxy_acl_default_mode" ] && (koolproxy_acl_default_mode=1;uci set monlor.koolproxy.koolproxy_acl_default_mode=1;uci commit monlor)
 	MEO -bla1t "加载ACL规则：其余主机模式为：$(get_mode_name $koolproxy_acl_default_mode)"
 }
 
@@ -145,8 +147,6 @@ load_nat(){
 	# 局域网控制
 	lan_acess_control
 	# 剩余流量转发到缺省规则定义的链中
-	koolproxy_acl_default_mode=$(uci get monlor.koolproxy.koolproxy_acl_default_mode)
-	[ -z "$koolproxy_acl_default_mode" ] && (koolproxy_acl_default_mode=1;uci set monlor.koolproxy.koolproxy_acl_default_mode=1;uci commit monlor)
 	iptables -t nat -A KOOLPROXY -p tcp -j $(get_action_chain $koolproxy_acl_default_mode)
 	# 重定所有流量到 KOOLPROXY
 	# 全局模式和视频模式
