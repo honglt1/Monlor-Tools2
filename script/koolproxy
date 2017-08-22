@@ -179,9 +179,7 @@ detect_cert () {
 start () {
 	[ ! -x $APPPATH ] && MEO -red1t "Koolproxy没有安装，输入koolproxy enable安装！" && exit
 	uci set monlor.$appname.enable=1 && uci commit monlor
-	App_enable=$(uci get monlor.koolproxy.enable)
-	AreadyRunning=$(ps | grep 'koolproxy' | grep -v grep | wc -l)
-	if [ "$AreadyRunning" != '0'  ];then
+	if [ `ps | grep $BIN | grep -v grep | wc -l` -ne 0 ];then
 		MEO -pur1t "Koolproxy is aleady running"
 		exit
 	fi
@@ -199,7 +197,7 @@ stop () {
 	uci set monlor.$appname.enable=0 && uci commit monlor
 	remove_ipset_conf && restart_dnsmasq
 	flush_nat
-	ps  | grep $BIN | grep -v grep | grep -v {koolproxy} | grep -v restart | awk '{print $1}' | xargs kill -9
+	ps  | grep $BIN | grep -v grep | grep -v {koolproxy} | grep -v restart | awk '{print $1}' | xargs kill -9 > /dev/null 2>&1
 }
 
 restart () {
