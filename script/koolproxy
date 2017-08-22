@@ -15,12 +15,14 @@ koolproxy_policy=`uci get monlor.$appname.mode`
 
 start_koolproxy () {
 	MEO -bla1t "开启koolproxy主进程..."
-	[ "$koolproxy_policy" == "3" ] && EXT_ARG="-e" || EXT_ARG=""
+	[ "$koolproxy_policy" == "1" ] && MEO -bla1t "Koolproxy启动为全局模式！"
+	[ "$koolproxy_policy" == "2" ] && MEO -bla1t "Koolproxy启动为黑名单模式！"
+	[ "$koolproxy_policy" == "3" ] && EXT_ARG="-e" || EXT_ARG="" && MEO -bla1t "Koolproxy启动为视频模式！"
 	cd $MPATH/bin && ./koolproxy $EXT_ARG -d
 }
 
 add_ipset_conf () {
-	if [ "koolproxy_policy" == "2" ]; then
+	if [ "$koolproxy_policy" == "2" ]; then
 		MEO -bla1t "添加黑名单软链接..."
 		rm -rf /tmp/etc/dnsmasq.d/koolproxy_ipset.conf
 		ln -sf $MPATH/bin/data/koolproxy_ipset.conf /tmp/etc/dnsmasq.d/koolproxy_ipset.conf
@@ -123,12 +125,12 @@ lan_acess_control () {
 		mac=$line
 		proxy_name=$(cat $MPATH/conf/kpcontrol.conf | grep $line | awk -F ',' '{print $3}')
 		proxy_mode=$(cat $MPATH/conf/kpcontrol.conf | grep $line | awk -F ',' '{print $4}')
-		MEO -bla1t "加载ACL规则：【$proxy_name】【$mac】模式为：$(get_mode_name $proxy_mode)"
+		MEO -bla1t "加载ACL规则:[$proxy_name][$mac]模式为:$(get_mode_name $proxy_mode)"
 		iptables -t nat -A KOOLPROXY $(factor $mac "-m mac --mac-source") -p tcp $(get_jump_mode $proxy_mode) $(get_action_chain $proxy_mode)
 	done
 	koolproxy_acl_default_mode=$(uci get monlor.koolproxy.koolproxy_acl_default_mode)
 	[ -z "$koolproxy_acl_default_mode" ] && (koolproxy_acl_default_mode=1;uci set monlor.koolproxy.koolproxy_acl_default_mode=1;uci commit monlor)
-	MEO -bla1t "加载ACL规则：其余主机模式为：$(get_mode_name $koolproxy_acl_default_mode)"
+	MEO -bla1t "加载ACL规则:其余主机模式为:$(get_mode_name $koolproxy_acl_default_mode)"
 }
 
 load_nat(){
