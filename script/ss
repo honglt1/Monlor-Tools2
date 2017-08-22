@@ -66,8 +66,9 @@ dnsconfig() {
     	MEO -bla1t "开启dns2socks进程..."
     	DNS_SERVER=$(uci get monlor.$appname.dns_server)
     	DNS_SERVER_PORT=$(uci get monlor.$appname.dns_port)
-    	[ -z "DNS_SERVER" ] && DNS_SERVER=8.8.8.8
-    	[ -z "DNS_SERVER_PORT" ] && DNS_SERVER_PORT=53
+    	[ -z "DNS_SERVER" ] && (DNS_SERVER=8.8.8.8;uci set monlor.$appname.DNS_SERVER=8.8.8.8)
+    	[ -z "DNS_SERVER_PORT" ] && (DNS_SERVER_PORT=53;uci set monlor.$appname.DNS_SERVER_PORT=53)
+	uci commit monlor
     	service_start $DNSPATH 127.0.0.1:1082 $DNS_SERVER:$DNS_SERVER_PORT 127.0.0.1:15353 
     	if [ $? -eq 0 ];then
         	MEO -red1 "启动失败！"
@@ -320,7 +321,7 @@ stop() {
 	[ `uci show monlor | grep monlor.*.ss | grep -v monlor.ss | wc -l` -eq 0 ] && MEO -red1t "No ss server!" && exit
 	uci set monlor.$appname.enable=0
 	uci commit monlor
-    	MEO -bla1t "关闭ss进程... \c"
+    	MEO -bla1t "关闭ss进程..."
     	killall ss-redir > /dev/null 2>&1
 	killall ssg-redir > /dev/null 2>&1
 	killall ss-local > /dev/null 2>&1
