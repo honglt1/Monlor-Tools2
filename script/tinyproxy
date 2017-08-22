@@ -29,6 +29,7 @@ start () {
 	echo `date` > $LOG	
 	MEO -bla1t "Starting $appname ... \c"
 	
+	[ -f $CONF ] && curl -sLo $CONF https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/conf/tinyproxy.conf
 	iptables -I INPUT -p tcp --dport 8888 -m comment --comment "monlor-tinyproxy" -j ACCEPT
 	service_start $BIN -c $CONF 
 	if [ $? -eq 0 ]; then

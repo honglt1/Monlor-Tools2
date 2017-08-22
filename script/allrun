@@ -341,5 +341,6 @@ case $1 in
     	backup) backup;;
     	recover) recover;;
     	addweb) addweb;;
+	delweb) delweb;;
     	*) MEO "Usage: $0 {start|stop|enable|update|install|uninstall|addweb|delweb|backup|recover}";;
 esac
