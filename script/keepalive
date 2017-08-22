@@ -196,7 +196,7 @@ if [ `ps | grep -E 'ss-redir|ssg-redir' | grep -v grep | wc -l'` != 0 ]; then
 		ssg_id=""
 		ssg_mode=""
 	else
-        	ssg_id="\t$ssgid"
+        	ssg_id="\t\t$ssgid"
         	ssg_mode="\t$ssgmode"
 	fi
     	if [ `ps | grep ss-redir | grep -v grep | wc -l` != 0 ]; then
@@ -210,7 +210,7 @@ if [ `ps | grep -E 'ss-redir|ssg-redir' | grep -v grep | wc -l'` != 0 ]; then
     	MEO -bla1t 'SS运行服务器: \c'
     	MEO -yel1 "\t$id$ssg_id"
     	MEO -bla1t "SS运行模式: \c"
-    	MEO -yel1 \t"$ss_mode$ssg_mode"
+    	MEO -yel1 "\t$ss_mode$ssg_mode"
     	MEO -bla1t "***************************************************"
 
 fi
@@ -220,6 +220,9 @@ if [ `ps | grep koolproxy | grep -v grep | wc -l` != 0 ]; then
     	rules_date=`cat $MPATH/bin/data/rules/koolproxy.txt | sed -n '3p' | awk '{print $3" "$4}'`
     	video_date=`cat $MPATH/bin/data/rules/koolproxy.txt | sed -n '4p' | awk '{print $3" "$4}'`
     	mode=`uci get monlor.koolproxy.mode`
+	[ "$mode" == "1" ] && mode="全局模式"
+	[ "$mode" == "2" ] && mode="黑名单模式"
+	[ "$mode" == "3" ] && mode="视频模式"
     	MEO -bla1t "Koolproxy运行模式: \c"
     	MEO -yel1 "$mode"
     	MEO -bla1t "Koolproxy静态规则更新日期: \c"
