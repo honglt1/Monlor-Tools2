@@ -21,8 +21,8 @@ DNSCONF=$MPATH/conf/dns2socks.conf
 SSGCONF=$MPATH/conf/ssg.conf
 chnroute=$MPATH/conf/chnroute.conf
 gfwlist=$MPATH/conf/gfwlist.conf
-custom_black=$MPATH/conf/custom_black.conf
-custom_white=$MPATH/conf/custom_white.conf
+customize_black=$MPATH/conf/customize_black.conf
+customize_white=$MPATH/conf/customize_white.conf
 APPPATH=$MPATH/bin/ss-redir
 SSGBIN=$MPATH/bin/ssg-redir
 LOCALPATH=$MPATH/bin/ss-local
@@ -31,6 +31,7 @@ appname=ss
 
 get_config() {
     
+	MEO -bla1t "创建ss节点配置文件..."
 	local_ip=0.0.0.0
 	id=`uci get monlor.$appname.id`
 	ss_name=`uci get monlor.$id.ss_name`
@@ -62,70 +63,102 @@ dnsconfig() {
 	service_start $LOCALPATH -c $DNSCONF
 	killall $DNSPATH > /dev/null 2>&1
 	iptables -t nat -D PREROUTING -s $lanip/24 -p udp --dport 53 -j DNAT --to $redip > /dev/null 2>&1
-    	MEO -bla1t "Starting dns process ... \c"
-    	#DNS_SERVER=$(uci get monlor.$appname.dns_server)
-    	#DNS_SERVER_PORT=$(uci get monlor.$appname.dns_port)
-    	DNS_SERVER=8.8.8.8
-    	DNS_SERVER_PORT=53
+    	MEO -bla1t "开启dns2socks进程..."
+    	DNS_SERVER=$(uci get monlor.$appname.dns_server)
+    	DNS_SERVER_PORT=$(uci get monlor.$appname.dns_port)
+    	[ -z "DNS_SERVER" ] && DNS_SERVER=8.8.8.8
+    	[ -z "DNS_SERVER_PORT" ] && DNS_SERVER_PORT=53
     	service_start $DNSPATH 127.0.0.1:1082 $DNS_SERVER:$DNS_SERVER_PORT 127.0.0.1:15353 
     	if [ $? -eq 0 ];then
-    		MEO -gre1 "Done!"
-    	else 
-        	MEO -red1 "Failed!"
+        	MEO -red1 "启动失败！"
         	exit
     	fi
     
 }
 
-addrules() {
+get_mode_name() {
+	case "$1" in
+		0)
+			echo "不走代理"
+		;;
+		1)
+			echo "科学上网"
+		;;
+	esac
+}
+
+get_jump_mode(){
+	case "$1" in
+		0)
+			echo "-j"
+		;;
+		*)
+			echo "-g"
+		;;
+	esac
+}
+
+get_action_chain() {
+	case "$1" in
+		0)
+			echo "RETURN"
+		;;
+		1)
+			echo "SHADOWSOCK"
+		;;
+	esac
+}
+
+load_nat() {
 
 	#?~H~[建CHAIN
-        MEO -bla1t "Add iptables rules... \c"
+        MEO -bla1t "加载iptables的nat规则..."
         iptables -t nat -N SHADOWSOCKS
         iptables -t nat -A SHADOWSOCKS -d 0.0.0.0/8 -j RETURN
         iptables -t nat -A SHADOWSOCKS -d $lanip/24 -j RETURN
         iptables -t nat -A SHADOWSOCKS -d $wanip/16 -j RETURN
         iptables -t nat -A SHADOWSOCKS -d $ss_server -j RETURN
-        #iptables -t nat -A SHADOWSOCKS -d $ssg_server -j RETURN 
+        [ `uci get monlor.ss.ssgena` == 1 ] && iptables -t nat -A SHADOWSOCKS -d $ssg_server -j RETURN 
 
         iptables -t nat -N SHADOWSOCK
 
         #lan access control
 	[ ! -f $MPATH/conf/sscontrol.conf ] && touch $MPATH/conf/sscontrol.conf
-        cat $MPATH/conf/sscontrol.conf | while read line
+        cat $MPATH/conf/sscontrol.conf | awk -F ',' '{print $1}' | while read line
         do
-        	#mac=`cat /tmp/dhcp.leases | grep -i $line | awk '{print $2}'`
-        	line=`echo $line | awk '{print$2}'`
-        	[ -z $line ] || [[ ${line:0:1} == "#" ]] && break
-        	#iptables -t nat -A SHADOWSOCKS -s $line -p tcp -m multiport --dports 80,443 -j SHADOWSOCK
-        	iptables -t nat -A SHADOWSOCKS -m mac --mac-source $line -p tcp -j SHADOWSOCK
+        	mac=$line
+		proxy_name=$(cat $MPATH/conf/sscontrol.conf | grep $line | awk -F ',' '{print $3}')
+        	proxy_mode=$(cat $MPATH/conf/sscontrol.conf | grep $line | awk -F ',' '{print $4}')
+		MEO -bla1t "加载ACL规则：【$proxy_name】【$mac】模式为：$(get_mode_name $proxy_mode)"
+        	iptables -t nat -A SHADOWSOCKS  -m mac --mac-source $mac $(get_jump_mode $proxy_mode) $(get_action_chain $proxy_mode)
         done
-        #default = all ss
-        #iptables -t nat -A SHADOWSOCKS -p tcp -j SHADOWSOCK
-        iptables -t nat -A SHADOWSOCKS -p tcp -j RETURN
-        
-	[ ! -f $custom_black ] && touch $custom_black
-	[ ! -f $custom_white ] && touch $custom_white
 
-        cat $custom_black | while read line                                                                   
+        #default alc mode
+        ss_acl_default_mode=$(uci get monlor.ss.ss_acl_default_mode)
+	[ -z "$ss_acl_default_mode" ] && ( ss_acl_default_mode=1;uci set monlor.ss.ss_acl_default_mode=1;uci commit monlor)
+	MEO -bla1t "加载ACL规则：其余主机模式为：$(get_mode_name $ss_acl_default_mode)"
+        iptables -t nat -A SHADOWSOCKS -p tcp -j $(get_action_chain $ss_acl_default_mode)
+        
+	[ ! -f $customize_black ] && touch $customize_black
+	[ ! -f $customize_white ] && touch $customize_white
+
+        cat $customize_black | while read line                                                                   
         do                                                                                              
-        	echo "server=/.$line/127.0.0.1#15353" >> /etc/dnsmasq.d/custom_black.conf  
-                echo "ipset=/.$line/custom_black" >> /etc/dnsmasq.d/custom_black.conf                     
-        done                          
-        cat $custom_white | while read line
+        	echo "server=/.$line/127.0.0.1#15353" >> /etc/dnsmasq.d/customize_black.conf  
+                echo "ipset=/.$line/customize_black" >> /etc/dnsmasq.d/customize_black.conf                     
+        done
+        cat $customize_white | while read line
         do
-        	echo "ipset=/.$line/custom_white" >> /etc/dnsmasq.d/custom_white.conf
-        	#echo "ipset=/.$line/nogfwnet" >> /etc/dnsmasq.d/custom_white.conf
+        	echo "ipset=/.$line/customize_white" >> /etc/dnsmasq.d/customize_white.conf
         done                                                                  
-        ipset -N custom_black iphash -!  
-        ipset -N custom_white iphash -!
-        MEO -gre1 "Done!"	
+        ipset -N customize_black iphash -!  
+        ipset -N customize_white iphash -!	
 
 }
 
 start() {
 
-	[ ! -x $APPPATH ] && MEO -red1t "SS not installed" && exit
+	[ ! -x $APPPATH ] && MEO -red1t "SS没有安装，输入ss enable安装！" && exit
 	[ `uci show monlor | grep monlor.*.ss | grep -v monlor.ss | wc -l` -eq 0 ] && MEO -red1t "No ss server!" && exit 
 	uci set monlor.$appname.enable=1
 	uci commit monlor
@@ -134,7 +167,7 @@ start() {
 
 	AreadyRunning=$(ps | grep -E 'ss-redir|ssg-redir' | grep -v grep | wc -l)
 	if [ "$AreadyRunning" != '0'  ];then
-		MEO -pur1t "SS is aleady running"
+		MEO -pur1t "SS已经在运行！"
 		exit
 	fi
 
@@ -142,57 +175,47 @@ start() {
     	
     	dnsconfig                                                                                                                            
     	                                                                                                                                             
-	addrules
+	load_nat
     	
-    	MEO -bla1t "Starting ss($id) service ... \c"
+    	MEO -bla1t "启动ss进程($id)..."
     	case $ss_mode in
         "gfwlist")
             	service_start $APPPATH -b 0.0.0.0 -c $CONFIG   
-            	if [ $? -eq 0 ]; then
-                	MEO -gre1 "Done!"
-            	else    
-                	MEO -red1 "Failed!"
+            	if [ $? -ne 0 ]; then
+                	MEO -red1t "启动失败！"
                 	exit
             	fi
             	ss_gfwlist
             	;;
         "whitelist")
         	service_start $APPPATH -b 0.0.0.0 -c $CONFIG
-        	if [ $? -eq 0 ]; then                                           
-                        MEO -gre1 "Done!"                         
-                else                                                            
-                        MEO -red1 "Failed!"                       
+        	if [ $? -ne 0 ]; then                                                                                                  
+                        MEO -red1t "启动失败！"                       
                         exit                                
 	        fi
 	        ss_whitelist
 	        ;;
         "wholemode")
             	service_start $APPPATH -b 0.0.0.0 -c $CONFIG 
-            	if [ $? -eq 0 ]; then
-                	MEO -gre1 "Done!"
-            	else    
-                	MEO -red1 "Failed!"
+            	if [ $? -ne 0 ]; then
+                	MEO -red1t "启动失败！"
                 	exit
             	fi
             	ss_wholemode
             	;;
     	"empty")
-    		MEO -red1 "Failed!"
-    		#MEO -red1t "server mode error, exit ... "
-    		#exit
+    		MEO -red1 "未启动ss进程！"
     	esac
 
 	if [ `uci get monlor.$appname.ssgena` == 1 ]; then
 		ssgid=`uci get monlor.$appname.ssgid`               
                 ssg_mode=`uci get monlor.$ssgid.ssg_mode`
-		MEO -bla1t "Starting ssg($ssgid) service ... \c"
+		MEO -bla1t "启动ss游戏进程($ssgid)..."
 		case $ssg_mode in
 		"cngame")
 			service_start $SSGBIN -b 0.0.0.0 -u -c $SSGCONF
-                	if [ $? -eq 0 ]; then
-                       		MEO -gre1 "Done!"
-                	else
-                       	 	MEO -red1 "Failed!"
+                	if [ $? -ne 0 ]; then
+                       	 	MEO -red1t "启动失败！"
                         	exit
                 	fi
                 	ss_addudp	
@@ -200,25 +223,25 @@ start() {
 			;;
 		"frgame") 
 			service_start $SSGBIN -b 0.0.0.0 -u -c $SSGCONF
-			if [ $? -eq 0 ]; then
-				MEO -gre1 "Done!"
-			else
-				MEO -red1 "Failed!"
+			if [ $? -ne 0 ]; then
+				MEO -red1t "启动失败"
 				exit
 			fi
 			ss_addudp
 			ss_frgame
 			;;
 		"empty")
-			MEO -red1 "Failed!"
-			#echo "server mode error, exit ... \c"
-			#exit
+			MEO -red1t "未启动ss游戏进程！"
 		esac
 	fi
 	
-  	iptablenu=`iptables -nvL PREROUTING -t nat |sed 1,2d | sed -n '/KOOLPROXY/='`
-	[ -z "$iptablenu" ] && iptablenu=1
-    	[ "$ss_mode" == "gfwlist" ] || [ "$ss_mode" == "wholemode" ] || [ "$ss_mode" == "whitelist" ] && iptables -t nat -I PREROUTING $iptablenu -p tcp -m multiport --dports 80,443 -j SHADOWSOCKS
+  	iptablenu=$(iptables -t nat -L PREROUTING | awk '/KOOLPROXY/{print NR}')
+	if [ '$iptablenu' != '' ];then
+		iptablenu=`expr $iptablenu - 2`
+	else
+		iptablenu=2
+	fi
+    	[ "$ss_mode" == "gfwlist" ] || [ "$ss_mode" == "wholemode" ] || [ "$ss_mode" == "whitelist" ] && iptables -t nat -I PREROUTING $iptablenu -p tcp -j SHADOWSOCKS
 	
 	/etc/init.d/dnsmasq restart
 
@@ -227,31 +250,30 @@ start() {
 
 ss_gfwlist() {
 
-    	MEO -bla1t "Add gfwlist iptables ... \c"
-    	cat $gfwlist $custom_black | while read line                                             
+    	MEO -bla1t "添加国外黑名单规则..."
+    	cat $gfwlist $customize_black | while read line                                             
 	do                                                                         
 		echo "server=/.$line/127.0.0.1#15353" >> /etc/dnsmasq.d/gfwlist_ipset.conf
 		echo "ipset=/.$line/gfwlist" >> /etc/dnsmasq.d/gfwlist_ipset.conf  
 	done    
     	ipset -N gfwlist iphash -!
 	iptables -t nat -A SHADOWSOCK -p tcp -m set --match-set gfwlist dst -j REDIRECT --to-port 1081
-	iptables -t nat -A SHADOWSOCK -p tcp -m set ! --match-set custom_white dst -j REDIRECT --to-port 1081 
-    	MEO -gre1 "Done!"
+	iptables -t nat -A SHADOWSOCK -p tcp -m set ! --match-set customize_white dst -j REDIRECT --to-port 1081 
 
 }
 
 ss_whitelist() {
 
-	MEO -bla1t "Add whitelist iptables ... \c"                                    
+	MEO -bla1t "添加国外白名单规则..."                                    
 	sed -e "s/^/-A nogfwnet &/g" -e "1 i\-N nogfwnet hash:net" $chnroute | ipset -R -!
-	iptables -t nat -A SHADOWSOCK -p tcp -m set --match-set custom_black dst -j REDIRECT --to-ports 1081
+	iptables -t nat -A SHADOWSOCK -p tcp -m set --match-set customize_black dst -j REDIRECT --to-ports 1081
 	iptables -t nat -A SHADOWSOCK -p tcp -m set ! --match-set nogfwnet dst -j REDIRECT --to-ports 1081 
-	MEO -gre1 "Done!"
 }
 
 ss_addudp() {
 
-	iptables -t nat -A PREROUTING -s $lanip/24 -p udp --dport 53 -j DNAT --to $lanip
+	MEO -bla1t "添加iptables的udp规则..."
+	#iptables -t nat -A PREROUTING -s $lanip/24 -p udp --dport 53 -j DNAT --to $lanip
         ip rule add fwmark 0x01/0x01 table 300
         ip route add local 0.0.0.0/0 dev lo table 300
         iptables -t mangle -N SHADOWSOCKS
@@ -260,79 +282,57 @@ ss_addudp() {
         iptables -t mangle -A SHADOWSOCKS -d $lanip/16 -j RETURN
         iptables -t mangle -A SHADOWSOCKS -d $wanip/16 -j RETURN
         iptables -t mangle -A SHADOWSOCKS -d $ss_server -j RETURN
-        #iptables -t mangle -A SHADOWSOCKS -d $ssg_server -j RETURN
-	iptables -t mangle -N SHADOWSOCK
-        #lan control
-	cat $MPATH/conf/sscontrol.conf | while read line
-	do
-		#mac=`cat /tmp/dhcp.leases | grep -i $line | awk '{print $3}'`
-		line=`echo $line | awk '{print$2}'`     
-                [ -z $line ] || [[ ${line:0:1} == "#" ]] && break
-        	#iptables -t mangle -A SHADOWSOCKS -s $line -j SHADOWSOCK
-		iptables -t mangle -A SHADOWSOCKS -m mac --mac-source $line -j SHADOWSOCK
-	done
-	iptables -t mangle -A SHADOWSOCKS -j RETURN
-        iptables -t mangle -A PREROUTING -p udp -j SHADOWSOCKS	
+        [ `uci get monlor.ss.ssgena` == 1 ] && iptables -t mangle -A SHADOWSOCKS -d $ssg_server -j RETURN
+	iptables -t mangle -A PREROUTING -p udp -j SHADOWSOCKS
 
+	chmod -x /opt/filetunnel/stunserver > /dev/null 2>&1
+	killall -9 stunserver > /dev/null 2>&1
 }
 
 ss_cngame() {
 
-	MEO -bla1t "Add cngame iptables ... \c"
+	MEO -bla1t "添加国内游戏iptables规则..."
 	
-	iptables -t mangle -A SHADOWSOCK -p udp -m set ! --match-set custom_white dst -j TPROXY --on-port 1085 --tproxy-mark 0x01/0x0 
-
-	MEO -gre1 "Done!"                
-	
-	chmod -x /opt/filetunnel/stunserver > /dev/null 2>&1
-	killall -9 stunserver > /dev/null 2>&1
+	iptables -t mangle -A SHADOWSOCK -p udp -m set ! --match-set customize_white dst -j TPROXY --on-port 1085 --tproxy-mark 0x01/0x01         
 
 }
 
 ss_frgame() {
 
-	MEO -bla1t "Add frgame iptables ... \c"
+	MEO -bla1t "添加国外游戏iptables规则..."
 
 	[ $ss_mode != "whitelist" ] && sed -e "s/^/-A nogfwnet &/g" -e "1 i\-N nogfwnet hash:net" $chnroute | ipset -R -!
 	iptables -t mangle -A SHADOWSOCK -p udp -m set ! --match-set nogfwnet dst -j TPROXY --on-port 1085 --tproxy-mark 0x01/0x01
-	#iptables -t mangle -A SHADOWSOCK -p udp -j TPROXY --on-port 1085 --tproxy-mark 0x01/0x01 
-
-    	MEO -gre1 "Done!"
-    
-    	chmod -x /opt/filetunnel/stunserver > /dev/null 2>&1
-	killall -9 stunserver > /dev/null 2>&1
 
 }
 
 ss_wholemode() {
 
-    	MEO -bla1t "Add wholemode iptables ... \c"
+    	MEO -bla1t "添加全局模式iptables规则..."
     	iptables -t nat -A SHADOWSOCK -p tcp -j REDIRECT --to-ports 1081
-    	MEO -gre1 "Done!"
 
 }
 
 
 stop() {
 	
-	[ ! -x $APPPATH ] && MEO -red1t "SS not installed" && exit
+	[ ! -x $APPPATH ] && MEO -red1t "SS没有安装，输入ss enable安装！" && exit
 	[ `uci show monlor | grep monlor.*.ss | grep -v monlor.ss | wc -l` -eq 0 ] && MEO -red1t "No ss server!" && exit
 	uci set monlor.$appname.enable=0
 	uci commit monlor
-    	MEO -bla1t "Stopping $appname service ... \c"
+    	MEO -bla1t "关闭ss进程... \c"
     	killall ss-redir > /dev/null 2>&1
 	killall ssg-redir > /dev/null 2>&1
 	killall ss-local > /dev/null 2>&1
     	killall $DNSPATH > /dev/null 2>&1
     	#ps | grep dns2socks | grep -v grep | xargs kill -9 > /dev/null 2>&1
-    	MEO -gre1 "Done!"
     	stop_ss_rules
 
 }
 
 stop_ss_rules() {
 
-    	MEO -bla1t "Delete iptables rules ... \c"
+    	MEO -bla1t "清除iptables规则..."
     	cd /tmp
     	iptables -t nat -S | grep -E 'SHADOWSOCK|SHADOWSOCKS'| sed 's/-A/iptables -t nat -D/g'|sed 1,2d > clean.sh && chmod 777 clean.sh && ./clean.sh && rm clean.sh
 	iptables -t mangle -S | grep -E 'SHADOWSOCK|SHADOWSOCKS'| sed 's/-A/iptables -t mangle -D/g'|sed 1,2d > clean.sh && chmod 777 clean.sh && ./clean.sh && rm clean.sh
@@ -349,17 +349,16 @@ stop_ss_rules() {
 	iptables -t nat -X SHADOWSOCKS &> /dev/null
 	ipset destroy nogfwnet &> /dev/null
 	ipset destroy gfwlist &> /dev/null
-	ipset destroy custom_black &> /dev/null
-	ipset destroy custom_white &> /dev/null
+	ipset destroy customize_black &> /dev/null
+	ipset destroy customize_white &> /dev/null
     	iptables -t nat -D PREROUTING -s $lanip/24 -p udp --dport 53 -j DNAT --to $redip > /dev/null 2>&1
     	/etc/init.d/dnsmasq restart
-    	MEO -gre1 "Done!"
     	chmod +x /opt/filetunnel/stunserver > /dev/null 2>&1
 	rm -rf $CONFIG
 	rm -rf $DNSCONF
 	rm -rf $SSGCONF
 	rm -rf /etc/dnsmasq.d/gfwlist_ipset.conf > /dev/null 2>&1
-	rm -rf /etc/dnsmasq.d/custom_*.conf > /dev/null 2>&1
+	rm -rf /etc/dnsmasq.d/customize_*.conf > /dev/null 2>&1
 }
 
 
@@ -395,7 +394,7 @@ restart()
 			uci set monlor.$appname.id=$1   
 			uci set monlor.$appname.ssgid=" "
 		else
-			MEO -red1t "Server name error, exit ... "
+			MEO -red1t "服务器名输入错误..."
 			exit
 		fi
 	else
@@ -423,7 +422,7 @@ restart()
 			uci set monlor.$appname.ssgid=$2
 			uci set monlor.$appname.ssgena=1
 		else
-			MEO -red1t "Server name error, exit ... "
+			MEO -red1t "服务器名输入错误..."
 			exit
 		fi
 	elif [ "$1" ]; then
@@ -445,11 +444,10 @@ disable() {
 	uci set monlor.$appname.enable=0
 	uci commit monlor
 	stop
-	MEO -bla1t "Delete $appname files ... \c"
+	MEO -bla1t "删除$appname文件..."
 	rm -rf $APPPATH $SSGBIN $DNSPATH $gfwlist $chnroute $MPATH/script/ss*
 	uci show monlor | grep "monlor.*.ss" | grep -v "monlor.ss" | sed -e 's/^/uci del /g' > /tmp/ss_backup
 	chmod +x /tmp/ss_backup && /tmp/ss_backup
-	MEO -gre1 "Done!"
 
 }
 
