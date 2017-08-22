@@ -19,7 +19,7 @@ start_koolproxy () {
 	[ "$koolproxy_policy" == "1" ] && MEO -bla1t "Koolproxy启动为全局模式！"
 	[ "$koolproxy_policy" == "2" ] && MEO -bla1t "Koolproxy启动为黑名单模式！"
 	[ "$koolproxy_policy" == "3" ] && EXT_ARG="-e" && MEO -bla1t "Koolproxy启动为视频模式！"
-	cd $MPATH/bin && ./koolproxy $EXT_ARG -d
+	$MPATH/bin/koolproxy $EXT_ARG -d
 }
 
 add_ipset_conf () {
