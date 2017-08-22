@@ -130,7 +130,7 @@ load_nat() {
         	mac=$line
 		proxy_name=$(cat $MPATH/conf/sscontrol.conf | grep $line | awk -F ',' '{print $3}')
         	proxy_mode=$(cat $MPATH/conf/sscontrol.conf | grep $line | awk -F ',' '{print $4}')
-		MEO -bla1t "加载ACL规则:[$proxy_name][$mac]模式为:$(get_mode_name $proxy_mode)"
+		MEO -bla1t "加载ACL规则:[$proxy_name]模式为:$(get_mode_name $proxy_mode)"
         	iptables -t nat -A SHADOWSOCKS  -m mac --mac-source $mac $(get_jump_mode $proxy_mode) $(get_action_chain $proxy_mode)
         done
 
