@@ -11,7 +11,7 @@ if [ "$1" != "allrun" ]; then
 		uci commit monlor
 	fi
 fi
-MEO -bla1t "Update $1 files ... \c"
+MEO -bla1t "正在更新$1文件..."
 ping -4 baidu.com -c 4 -w 10 -q > /dev/null 2>&1
 if [ $? -ne 0 ]; then
 	MEO -red1 "Failed!(bad network)"
@@ -26,5 +26,4 @@ cp $MPATH/conf/$1.conf $MPATH/conf/*list $MPATH/backup > /dev/null 2>&1
 unzip -o /tmp/$1.zip -d $MPATH > /dev/null 2>&1
 chmod -R +x $MPATH
 rm -rf /tmp/$1.zip /tmp/md5info
-MEO -gre1 "Done!"
 
