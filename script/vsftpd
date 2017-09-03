@@ -15,6 +15,7 @@ get_config() {
 	
 	[ `uci show monlor.$appname | grep root_enable | wc -l` -eq 0 ] && uci set monlor.$appname.root_enable=1
 	[ `uci show monlor.$appname | grep anon_enable | wc -l` -eq 0 ] && uci set monlor.$appname.anon_enable=1
+	[ `uci show monlor.$appname | grep anon_root | wc -l` -eq 0 ] && uci set monlor.$appname.anon_root=/var/ftp && mkdir -p /var/ftp/pub
 	[ `uci show monlor.$appname | grep write_enable | wc -l` -eq 0 ] && uci set monlor.$appname.write_enable=1
 	[ `uci show monlor.$appname | grep chroot | wc -l` -eq 0 ] && uci set monlor.$appname.chroot=1
 	[ `uci show monlor.$appname | grep log_enable | wc -l` -eq 0 ] && uci set monlor.$appname.log_enable=0
@@ -23,24 +24,15 @@ get_config() {
 	[ `uci get monlor.$appname.root_enable` = "1" ] && echo "root" >> /etc/vsftpd.users || touch /etc/vsftpd.users 
 	[ ! -f $MPATH/conf/ftpuser.conf ] && touch $MPATH/conf/ftpuser.conf 
 	cat $MPATH/conf/ftpuser.conf >> /etc/vsftpd.users
-	if [ `uci get monlor.$appname.anon_enable` = "1" ]; then 
-		anon_enable=YES 
-		mkdir -p /var/ftp/pub > /dev/null 2>&1
-		sed -i '/ftp/d' /etc/passwd
-		sed -i '/ftp/d' /etc/shadow
-		echo "ftp:*:10086:10086:ftp:/var/ftp:/bin/false" >> /etc/passwd
-		echo "ftp:*:0:0:99999:7:::" >> /etc/shadow
-		echo -e "123456\n123456" | passwd ftp > /dev/null 2>&1
-	else
-		anon_enable=NO 
-	fi
+	[ `uci get monlor.$appname.anon_enable` = "1" ] && anon_enable=YES || anon_enable=NO
 	[ `uci get monlor.$appname.write_enable` = "1" ] && write_enable=YES || write_enable=NO
 	[ `uci get monlor.$appname.chroot` = "1" ] && chroot=YES || chroot=NO
 	[ `uci get monlor.$appname.log_enable` = "1" ] && xferlog_enable=YES || xferlog_enable=NO
 	[ -f `uci get monlor.$appname.ftp_port` ] && ftp_port=21
+	anon_root=`uci get monlor.$appname.anon_root`
 	cp -rf $CONF /etc/vsftpd.conf
 	mkdir -p /var/run/vsftpd
-	echo -e 'anonymous_enable='$anon_enable'\nchroot_local_user='$chroot'\nlisten_port='$ftp_port'\nwrite_enable='$write_enable'\nxferlog_enable='$xferlog_enable'\n' >> /etc/vsftpd.conf
+	echo -e 'anonymous_enable='$anon_enable'\nanon_root='$anon_root'\nchroot_local_user='$chroot'\nlisten_port='$ftp_port'\nwrite_enable='$write_enable'\nxferlog_enable='$xferlog_enable'\n' >> /etc/vsftpd.conf
 	MEO -gre1 "Done!"	
 
 }
