@@ -31,7 +31,7 @@ start() {
         if [ `uci get monlor.tools.myset` -eq 1 ]; then  
 		$MPATH/script/addweb                                  
 		mount -o blind /userdisk/data/代码/opt/ /opt/
-		wanip=`curl -s ip.cn`
+		wanip=`curl -s ip.cn | cut -b 13-27`
 		iptables -t nat -A PREROUTING -d "$wanip" -p tcp -m tcp --dport 80 -j REDIRECT --to-ports 8080
 		iptables -t nat -A PREROUTING -d "$wanip" -p tcp -m tcp --dport 1127 -j REDIRECT --to-ports 80
 		/etc/init.d/xunlei stop
