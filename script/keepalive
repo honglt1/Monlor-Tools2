@@ -233,14 +233,6 @@ if [ `ps | grep koolproxy | grep -v grep | wc -l` != 0 ]; then
     
 fi
 
-if [ `uci get monlor.tools.myset` -eq 1 ]; then
-    	rm -rf /userdisk/data/TDDOWNLOAD 
-    	cat /etc/samba/smb.conf | grep -A 7 "XiaoMi" | grep Chaco > /dev/null 2>&1
-    	if [ $? -ne 0 ]; then
-		sed -i '49,54s/\/userdisk\/data/\/userdisk\/data\/Chaco/' /etc/samba/smb.conf
-    	fi
-fi
-
 [ "$1" == "ping" ] && $MPATH/script/ssconf ping && curl -sLo /tmp/version https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/conf/version 
 
 MEO

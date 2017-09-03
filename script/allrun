@@ -30,30 +30,15 @@ start() {
 
         if [ `uci get monlor.tools.myset` -eq 1 ]; then  
 		$MPATH/script/addweb                                  
-            	rm -rf /userdisk/data/TDDOWNLOAD
-            	#mount samba
-            	[ `cat /etc/samba/smb.conf | grep -A 7 "XiaoMi" | grep Chaco | wc -l` == 0 ] && sed -i '49,54s/\/userdisk\/data/\/userdisk\/data\/Chaco/' /etc/samba/smb.conf 
-            	[ `mount | grep Chaco/Download | wc -l` == 0 ] && mount -o blind /userdisk/data/下载 /userdisk/data/Chaco/Download
-            
-            	#mount ftp
-            	if [ `uci get monlor.vsftpd.enable` -eq 1 ];then
-            		[ `mount | grep /tmp/ftp | wc -l` -eq 0 ] && mount -o blind /userdisk/data/Chaco/Share/ftp /var/ftp
-            	fi
+		mount -o blind /userdisk/data/代码/opt/ /opt/
+		wanip=`curl -s ip.cn`
+		iptables -t nat -A PREROUTING -d "$wanip" -p tcp -m tcp --dport 80 -j REDIRECT --to-ports 8080
+		iptables -t nat -A PREROUTING -d "$wanip" -p tcp -m tcp --dport 1127 -j REDIRECT --to-ports 80
+		/etc/init.d/xunlei stop
+		mount -o blind /userdisk/data/文档/opt /opt
+		/opt/etc/init.d/rc.unslung start
         fi
-	   curl -sLo /tmp/version https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/conf/version
-
-        #entware mount
-        if [ -d $MPATH/opt ]; then 
-            	umount -lf /opt 
-            	mount -o blind $MPATH/opt /opt
-            	/opt/etc/init.d/rc.unslung start 
-            	cat /etc/profile | grep opt > /dev/null 2>&1
-            	if [ $? -ne 0 ] ;then 
-                	sed -i '/PS1/a export LD_LIBRARY_PATH=\/usr\/lib:\/lib:\/opt\/lib' /etc/profile                                                 
-        		sed -i 's/\/usr\/sbin/\/usr\/sbin:\/opt\/bin:\/opt\/sbin/' /etc/profile                                                         
-        		source /etc/profile > /dev/null 2>&1                                                                                                            
-    		fi
-        fi
+	curl -sLo /tmp/version https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/conf/version
 
         #open ssh port 
         [ `iptables -S | grep monlor-ssh | wc -l` -eq 0 ] && iptables -I INPUT -p tcp --dport 22 -j ACCEPT -m comment --comment "monlor-ssh"
@@ -317,11 +302,10 @@ recover () {
             	/tmp/monlor_backup/monlor_config                                    
             	uci commit monlor                                                   
             	cp -rf /tmp/monlor_backup/koolproxy/private $MPATH/bin/data/        
-            	cp -rf /tmp/monlor_backup/koolproxy/certs $MPATH/bin/data/  
-            	mkdir -p $MPATH/bin/data/rules/
-		        cp -rf /tmp/monlor_backup/koolproxy/user.txt $MPATH/bin/data/rules/  
-        	    cp -rf /tmp/monlor_backup/config/* $MPATH/conf/ 
-		        rm -rf /tmp/monlor_backup     
+            	cp -rf /tmp/monlor_backup/koolproxy/certs $MPATH/bin/data/
+		cp -rf /tmp/monlor_backup/koolproxy/user.txt $MPATH/bin/data/rules/ 
+        	cp -rf /tmp/monlor_backup/config/* $MPATH/conf/
+		rm -rf /tmp/monlor_backup     
             	MEO -gre1 "Done!"                                                   
     	else                                                                        
             	MEO -red1 "Failed!(can't find /tmp/monlor_backup.tar.gz)"           
