@@ -30,10 +30,11 @@ start () {
 	uci set monlor.$appname.version=`$BIN -V | awk -F '[ ,]+' '/vlmcsd/{print$2;exit;}'`        
 	uci commit monlor
 	echo `date` > $LOG	
-	echo -e "srv-host=_vlmcs._tcp,XiaoQiang,1688,0,100\ndomain=lan" > $MPATH/conf/kms.conf
+	echo -e "srv-host=_vlmcs._tcp,XiaoQiang,1688,0,100\ndomain=lan" > /etc/dnsmasq.d/kms.conf
+	/etc/init.d/dnsmasq reload
 	
 	iptables -I INPUT -p tcp --dport 1688 -m comment --comment "monlor-kms" -j ACCEPT
-	service_start $BIN -i $CONF -l $LOG	
+	service_start $BIN -l $LOG	
 	if [ $? -eq 0 ]; then
                 MEO -gre1 "Done!"
         else
