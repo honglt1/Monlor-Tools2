@@ -316,10 +316,10 @@ recover () {
             	touch /etc/config/monlor > /dev/null 2>&1                           
             	/tmp/monlor_backup/monlor_config                                    
             	uci commit monlor                                                   
-            	cp -rf /tmp/monlor_backup/koolproxy/private $MPATH/bin/data        
-            	cp -rf /tmp/monlor_backup/koolproxy/certs $MPATH/bin/data  
-		cp -rf /tmp/monlor_backup/koolproxy/user.txt $MPATH/bin/data/rules  
-        	cp -rf /tmp/monlor_backup/config/* $MPATH/conf  
+            	cp -rf /tmp/monlor_backup/koolproxy/private $MPATH/bin/data/        
+            	cp -rf /tmp/monlor_backup/koolproxy/certs $MPATH/bin/data/  
+		cp -rf /tmp/monlor_backup/koolproxy/user.txt $MPATH/bin/data/rules/  
+        	cp -rf /tmp/monlor_backup/config/* $MPATH/conf/ 
 		rm -rf /tmp/monlor_backup     
             	MEO -gre1 "Done!"                                                   
     	else                                                                        
