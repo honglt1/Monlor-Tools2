@@ -34,7 +34,7 @@ add_ipset_conf () {
 remove_ipset_conf () {
 	if [ -L "/tmp/etc/dnsmasq.d/koolproxy_ipset.conf" ]; then
 		MEO -bla1t "移除黑名单软链接..."
-		rm -rf /tmp/etc/dnsmasq.d/koolproxy_ipset.con
+		rm -rf /tmp/etc/dnsmasq.d/koolproxy_ipset.conf
 	fi
 }
 
