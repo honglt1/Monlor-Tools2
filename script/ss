@@ -400,6 +400,7 @@ restart()
 		fi
 	else
 		MIN=200
+		ss_ping=""
 		uci export monlor | grep ss_name | cut -d"'" -f2 | while read line
 		do
 			ss_ping=`uci get monlor.$line.ss_ping | cut -d. -f1`
