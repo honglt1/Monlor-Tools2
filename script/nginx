@@ -75,7 +75,7 @@ start () {
 stop () {
 
 	[ ! -x $BIN ] && MEO -red1t "Nginx not installed" && exit
-	uci set monlor.$appname.enable=1
+	uci set monlor.$appname.enable=0
 	uci commit monlor
 	MEO -bla1t "Stopping $appname ... \c"
 	service_stop $BIN
