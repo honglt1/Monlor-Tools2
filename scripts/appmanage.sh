@@ -36,9 +36,9 @@ add() {
 	chmod +x -R $monlorpath/apps/$appname
 	#将插件的配置添加到工具箱
 	$monlorpath/apps/$appname/install/uciset.sh
-	#echo >> $monlorpath/scripts/monitor.sh
+	echo >> $monlorpath/scripts/monitor.sh
 	cat $monlorpath/apps/$appname/install/monitor.sh >> $monlorpath/scripts/monitor.sh 
-	result=`cat $monlorconf | grep -i $appname | wc -l`
+	result=`cat $monlorconf | grep -i "【$appname】" | wc -l`
 	if [ "$result" -eq 0 ]; then
 		echo >> $userdisk/.monlor.conf
 		cat $monlorpath/apps/$appname/install/monlor.conf >> $monlorconf
@@ -77,8 +77,8 @@ del() {
 	rm -rf $monlorpath/apps/$appname > /dev/null 2>&1
 	sed -i "/monlor-$appname/d" $monlorpath/scripts/monitor.sh
 	sed -i "/script\/$appname/d" $monlorpath/scripts/dayjob.sh
-	ssline1=$(cat $monlorconf | grep -ni "$appname" | head -1 | cut -d: -f1)
-	ssline2=$(cat $monlorconf | grep -ni "$appname" | tail -1 | cut -d: -f1)
+	ssline1=$(cat $monlorconf | grep -ni "【$appname】" | head -1 | cut -d: -f1)
+	ssline2=$(cat $monlorconf | grep -ni "【$appname】" | tail -1 | cut -d: -f1)
 	sed -i ""$ssline1","$ssline2"d" $monlorconf > /dev/null 2>&1
 
 }
