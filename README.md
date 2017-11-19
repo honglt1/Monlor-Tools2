@@ -4,7 +4,8 @@
 	1. git clone到本地，重命名为monlor，移动到小米路由器/etc/文件夹  
 	2. 运行/etc/monlor/scripts/init.sh初始化插件中心  
 	3. /etc/monlor/scripts/appmanage.sh add /etc/monlor/appstore/shadowsocks.zip安装插件  
-	4. 在/userdisk/data/.monlor.conf里配置插件，请用notepad++编辑配置文件  
+	4. 现在安装插件已经支持在线安装，下载源github，安装命令appmanage.sh add shadowsocks
+	5. 在/userdisk/data/.monlor.conf里配置插件，请用notepad++编辑配置文件  
 # 目录结构：  
 	-/etc  
 		-/monlor  
