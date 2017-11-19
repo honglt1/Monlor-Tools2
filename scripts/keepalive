@@ -1,0 +1,8 @@
+#!/bin/ash
+source base.sh
+
+while(true) 
+do
+	sleep 60
+	$monlorpath/scripts/monitor.sh > /dev/null 2>&1
+done

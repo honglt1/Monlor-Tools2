@@ -9,10 +9,10 @@ if [ "$result" == 0 ]; then
 	sed -i "s#/usr/sbin#/usr/sbin:$monlorpath/scripts#" /etc/profile
 fi
 
-result=$(cat /etc/crontabs/root | grep monitor.sh | wc -l)
-if [ "$result" == "0" ]; then
-	echo "* * * * * $monlorpath/scripts/monitor.sh " >> /etc/crontabs/root
-fi
+#result=$(cat /etc/crontabs/root | grep monitor.sh | wc -l)
+#if [ "$result" == "0" ]; then
+#	echo "* * * * * $monlorpath/scripts/monitor.sh " >> /etc/crontabs/root
+#fi
 
 result=$(cat /etc/crontabs/root | grep dayjob.sh | wc -l)
 if [ "$result" == "0" ]; then
@@ -32,6 +32,11 @@ if [ ! -f "$monlorconf" ]; then
 	cp $monlorpath/config/monlor.conf $monlorconf
 fi
 
+result=$(ps | grep keepalive | grep -v grep | wc -l)
+if [ "$result" == "0" ]; then
+	$monlorpath/scripts/keepalive &
+fi	
+
 xunlei_enable=$(uci get monlor.tools.xunlei)
 if [ "$xunlei_enable" == "1" ]; then
 	[ -f /usr/sbin/xunlei.sh ] && mv /usr/sbin/xunlei.sh /usr/sbin/xunlei.sh.bak
@@ -40,6 +45,8 @@ if [ "$xunlei_enable" == "1" ]; then
 	/etc/init.d/xunlei stop &
 	rm -rf $userdisk/TDDOWNLOAD 
 	rm -rf $userdisk/ThunderDB
+else
+	[ ! -f /usr/sbin/xunlei.sh ] && mv /usr/sbin/xunlei.sh.bak /usr/sbin/xunlei.sh
 fi
 
 $monlorpath/scripts/monitor.sh

@@ -2,7 +2,7 @@
 #copyright by monlor
 source base.sh
 
-addtype=$(echo $2 | grep -E "/|\." | wc -l) 
+addtype=`echo $2 | grep -E "/|\." | wc -l`
 apppath=$(dirname $2) 
 appname=$(basename $2 | cut -d'.' -f1) 
 
@@ -11,11 +11,11 @@ appname=$(basename $2 | cut -d'.' -f1)
 add() {
 
 	[ `checkuci $appname` -eq 0 ] && logsh "【Tools】" "插件【$appname】已经安装！" && exit
-	if [ "$apptype" == "0" ]; then #检查是否安装在线插件
+	if [ "$addtype" == '0' ]; then #检查是否安装在线插件
 		#下载插件
 		logsh "【Tools】" "正在安装在线插件"
 		result=`wget.sh /tmp/$appname.zip $monlorurl/appstore/$appname.zip`
-		if [ "$result" -ne 0 ]; then
+		if [ "$result" != '0' ]; then
 			logsh "【Tools】" "下载【$appname】文件失败！"
 			exit
 		fi
@@ -36,14 +36,16 @@ add() {
 	chmod +x -R $monlorpath/apps/$appname
 	#将插件的配置添加到工具箱
 	$monlorpath/apps/$appname/install/uciset.sh
-	echo >> $monlorpath/scripts/monitor.sh
+	#echo >> $monlorpath/scripts/monitor.sh
 	cat $monlorpath/apps/$appname/install/monitor.sh >> $monlorpath/scripts/monitor.sh 
 	result=`cat $monlorconf | grep -i "【$appname】" | wc -l`
-	if [ "$result" -eq 0 ]; then
-		echo >> $userdisk/.monlor.conf
+	if [ "$result" == '0' ]; then
+		#echo >> $userdisk/.monlor.conf
 		cat $monlorpath/apps/$appname/install/monlor.conf >> $monlorconf
 	fi
 	echo " [ \`uci get monlor.$appname.enable\` -eq 1 ] && $monlorpath/apps/$appname/script/$appname.sh restart" >> $monlorpath/scripts/dayjob.sh
+	install_line=`cat $monlorconf | grep -n install_$appname | cut -d: -f1`
+	sed -i ""$install_line"s/0/1/" $monlorconf
 	#清除临时文件
 	rm -rf $monlorpath/apps/$appname/install/
 	rm -rf /tmp/$appname
@@ -80,6 +82,8 @@ del() {
 	ssline1=$(cat $monlorconf | grep -ni "【$appname】" | head -1 | cut -d: -f1)
 	ssline2=$(cat $monlorconf | grep -ni "【$appname】" | tail -1 | cut -d: -f1)
 	sed -i ""$ssline1","$ssline2"d" $monlorconf > /dev/null 2>&1
+	install_line=`cat $monlorconf | grep -n install_$appname | cut -d: -f1`           
+        sed -i ""$install_line"s/1/0/" $monlorconf 
 
 }
  
@@ -88,4 +92,5 @@ case $1 in
 	add) add ;;
 	upgrade) upgrade ;;
 	del) del ;;
+	*) echo "Usage: $0 {add|upgrade|del}"
 esac
