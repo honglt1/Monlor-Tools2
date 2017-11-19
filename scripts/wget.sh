@@ -9,19 +9,23 @@ wgeturl="$2"
 curl -sLo $monlorpath/config/md5.txt $monlorurl/config/md5.txt
 curl -sLo "$wgetfilepath" "$wgeturl"
 if [ $? -eq 0 ]; then
-	echo 0
+	result1=0
 else
-	echo 1
-	exit
+	result1=1
 fi
 
 local_md5=$(md5sum "$wgetfilepath" | cut -d' ' -f1)
 origin_md5=$(cat $monlorpath/config/md5.txt | grep "$wgetfilename" | cut -d' ' -f4)
 
 if [ "$local_md5" == "$origin_md5" ]; then
-	echo 0
+	result2=0
 else
 	rm -rf $wgetfilepath
-	echo 1
+	result2=1
 fi
 
+if [ "$result1" == '0' -a "$result2" == '0' ]; then
+	echo -n 0
+else
+	echo -n 1
+fi
