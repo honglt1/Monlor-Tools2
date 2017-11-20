@@ -8,7 +8,7 @@ userdisk="/userdisk/data"
 monlorconf="$userdisk/.monlor.conf"
 
 model=$(cat /proc/xiaoqiang/model)
-[ "$model" != "R2D" ] && logger -t "【Tools】" "本工具箱只支持小米路由器R2D!" && exit
+[ "$model" != "R2D" ] && logsh "【Tools】" "本工具箱只支持小米路由器R2D!" && exit
 
 checkuci() {
 	[ ! -z "$1" ] && uciname="$1" || uciname="$scriptname" 

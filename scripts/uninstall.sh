@@ -29,9 +29,7 @@ if [ "$result" != '0' ]; then
 fi
 
 if [ -f "$monlorconf" ]; then
-	logsh "【Tools】" "是否删除工具箱配置文件?[y/n] "
-	read answer
-	[ "$answer" == 'y' ] && rm -rf $monlorconf
+	rm -rf $monlorconf
 fi
 
 result=$(ps | grep keepalive | grep -v grep | wc -l)

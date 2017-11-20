@@ -2,7 +2,7 @@
 #copyright by monlor
 source base.sh
 
-tail -f /tmp/messages > /userdisk/data/.monlor.log    #日志输出给用户
+tail -f /tmp/messages > $userdisk/.monlor.log    #日志输出给用户
 $userdisk/.monlor.conf
 uci commit monlor
 uci show monlor | grep install_ | awk -F "_|=" '{print$2}' | while read line
@@ -20,6 +20,7 @@ do
 done
 if [ `uci get monlor.tools.uninstall` == '1' ]; then
 	$monlorpath/scripts/uninstall.sh
+	exit
 fi
 
 #监控运行状态
