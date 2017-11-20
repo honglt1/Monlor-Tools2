@@ -6,7 +6,7 @@ echo "是否要安装Monlor Tools工具箱? 按任意键继续(Ctrl + C 退出).
 read answer
 mount -o remount,rw /
 echo "下载工具箱文件..."
-curl -Lo /tmp/monlor.zip https://raw.githubusercontent.com/monlor/Monlor-Tools/master/appstore/monlor.zip
+curl -Lo /tmp/monlor.zip https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/appstore/monlor.zip
 [ $? -ne 0 ] && echo "文件下载失败！" && exit
 echo "解压工具箱文件"
 unzip /tmp/monlor.zip -d /etc

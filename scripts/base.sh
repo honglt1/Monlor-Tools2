@@ -1,8 +1,8 @@
 #!/bin/sh
 #copyright by monlor
 
-#monlorurl="https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master"
-monlorurl="https://raw.githubusercontent.com/monlor/Monlor-Tools/master"
+monlorurl="https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master"
+#monlorurl="https://raw.githubusercontent.com/monlor/Monlor-Tools/master"
 monlorpath="/etc/monlor"
 userdisk="/userdisk/data"
 monlorconf="$userdisk/.monlor.conf"
