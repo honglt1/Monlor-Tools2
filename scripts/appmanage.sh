@@ -54,11 +54,20 @@ add() {
 }
 
 upgrade() {
-
+	
 	[ `checkuci $appname` -ne 0 ] && logsh "【Tools】" "【$appname】插件未安装！" && exit
+	#检查更新
+	curl -sLo /tmp/version.txt $monlorurl/config/version.txt 
+	[ $? -ne 0 ] && logsh "【Tools】" "检查更新失败！" && exit
+	newver=$(cat /tmp/version.txt | grep $appname | cut -d, -f2)
+	oldver=$(cat $monlorpath/config/version.txt | grep $appname | cut -d, -f2)
+	[ "$newver" == "oldver" ] && logsh "【Tools】" "$appname已经是最新版！" && exit
+	logsh "【Tools】" "正在更新$appname插件... "
+	losh "【Tools】" "删除旧文件"
+	uci del monlor.$appname > /dev/null 2>&1
+	uci commit monlor
 	rm -rf $monlorpath/apps/$appname
 	sed -i "/monlor-$appname/d" $monlorpath/scripts/monitor.sh
-	#sed -i "/monlor-$appname/d" $userdisk/.monlor.conf
 	sed -i "/script\/$appname/d" $monlorpath/scripts/dayjob.sh
 	add $appname
 	$monlorpath/apps/$appname/script/$appname.sh restart
@@ -67,7 +76,7 @@ upgrade() {
 del() {
 
 	if [ `checkuci $appname` -ne 0 ]; then
-		echo -n "【$appname】插件未安装！继续卸载？(y/n) "
+		echo -n "【$appname】插件未安装！继续卸载？[y/n] "
 		read answer
 		[ "$answer" == "n" ] && exit
 	fi
