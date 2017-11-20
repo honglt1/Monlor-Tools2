@@ -13,10 +13,10 @@ done
 
 logsh "【Tools】" "删除所有工具箱文件"
 
-result=$(cat /etc/profile | grep monlor | wc -l)
-if [ "$result" != 0 ]; then
-	sed -i "s#:$monlorpath/scripts##" /etc/profile
-fi
+#result=$(cat /etc/profile | grep monlor | wc -l)
+#if [ "$result" != 0 ]; then
+#	sed -i "s#:$monlorpath/scripts##" /etc/profile
+#fi
 
 result=$(cat /etc/crontabs/root | grep dayjob.sh | wc -l)
 if [ "$result" != '0' ]; then

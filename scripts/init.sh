@@ -2,12 +2,13 @@
 #copyright by monlor
 source /etc/monlor/scripts/base.sh
 
+export PATH=$PATH:/etc/monlor/scripts   #添加环境变量
 mount -o remount,rw /
 
-result=$(cat /etc/profile | grep monlor | wc -l)
-if [ "$result" == 0 ]; then
-	sed -i "s#/usr/sbin#/usr/sbin:$monlorpath/scripts#" /etc/profile
-fi
+#result=$(cat /etc/profile | grep monlor | wc -l)
+#if [ "$result" == 0 ]; then
+#	sed -i "s#/usr/sbin#/usr/sbin:$monlorpath/scripts#" /etc/profile
+#fi
 
 #result=$(cat /etc/crontabs/root | grep monitor.sh | wc -l)
 #if [ "$result" == '0' ]; then
