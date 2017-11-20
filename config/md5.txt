@@ -1,4 +1,5 @@
 MD5 (aria2.zip) = 2d136ac59b1ab860789509140ec6362c
+MD5 (entware.zip) = 002c78f33c2e969712157edd7b3c5d13
 MD5 (frpc.zip) = fa8b9d23d2a543826914fee3151afa5a
 MD5 (kms.zip) = bddc71378d7069fe0870fc89223f1b97
 MD5 (koolproxy.zip) = fa58f23bf132b6575cbcabdb640bb891

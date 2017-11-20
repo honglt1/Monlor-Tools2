@@ -4,5 +4,8 @@ source base.sh
 while(true) 
 do
 	sleep 60
-	$monlorpath/scripts/monitor.sh > /dev/null 2>&1
+	result=$(ps | grep monitor.sh | wc -l)
+	if [ "$result" == '0' ]; then
+		$monlorpath/scripts/monitor.sh > /dev/null 2>&1
+	fi
 done
