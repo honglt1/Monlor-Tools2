@@ -2,7 +2,8 @@
 #copyright by monlor
 source base.sh
 
-tail -f /tmp/messages > $userdisk/.monlor.log    #日志输出给用户
+result=$(ps | grep monlor.log | wc -l)
+[ "$result" == '0' ] && tail -f /tmp/messages > $userdisk/.monlor.log &   #日志输出给用户
 $userdisk/.monlor.conf
 uci commit monlor
 uci show monlor | grep install_ | awk -F "_|=" '{print$2}' | while read line
@@ -18,7 +19,8 @@ do
 		appmanage.sh del $line
 	fi
 done
-if [ `uci get monlor.tools.uninstall` == '1' ]; then
+result=$(uci -q get monlor.tools.uninstall)
+if [ "$result" == '1' ]; then
 	$monlorpath/scripts/uninstall.sh
 	exit
 fi

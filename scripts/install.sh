@@ -2,7 +2,7 @@
 #copyright by monlor
 
 clear
-echo "是否要安装Monlor Tools工具箱? 按任意键继续(Ctrl + C 退出)."
+echo -n "是否要安装Monlor Tools工具箱? 按任意键继续(Ctrl + C 退出)."
 read answer
 mount -o remount,rw /
 echo "下载工具箱文件..."

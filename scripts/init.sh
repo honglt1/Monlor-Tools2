@@ -1,14 +1,12 @@
 #!/bin/ash
 #copyright by monlor
 source /etc/monlor/scripts/base.sh
-
-export PATH=$PATH:/etc/monlor/scripts   #添加环境变量
 mount -o remount,rw /
 
-#result=$(cat /etc/profile | grep monlor | wc -l)
-#if [ "$result" == 0 ]; then
-#	sed -i "s#/usr/sbin#/usr/sbin:$monlorpath/scripts#" /etc/profile
-#fi
+result=$(cat /etc/profile | grep monlor | wc -l)
+if [ "$result" == 0 ]; then
+	sed -i "s#/usr/sbin#/usr/sbin:$monlorpath/scripts#" /etc/profile
+fi
 
 #result=$(cat /etc/crontabs/root | grep monitor.sh | wc -l)
 #if [ "$result" == '0' ]; then
@@ -31,6 +29,7 @@ fi
 
 if [ ! -f "$monlorconf" ]; then
 	cp $monlorpath/config/monlor.conf $monlorconf
+	chmod +x $monlorconf
 fi
 
 result=$(ps | grep keepalive | grep -v grep | wc -l)
@@ -53,9 +52,9 @@ fi
 
 ssh_enable=$(uci get monlor.tools.ssh_enable)
 if [ "$ssh_enable" == '1' ]; then
-	iptables -I INPUT -p tcp --dport 22 -m comment --comment "monlor-ssh" -j ACCEPT
+	iptables -I INPUT -p tcp --dport 22 -m comment --comment "monlor-ssh" -j ACCEPT > /dev/null 2>&1
 else 
-	iptables -D INPUT -p tcp --dport 22 -m comment --comment "monlor-ssh" -j ACCEPT
+	iptables -D INPUT -p tcp --dport 22 -m comment --comment "monlor-ssh" -j ACCEPT > /dev/null 2>&1
 fi
 
 $monlorpath/scripts/monitor.sh
