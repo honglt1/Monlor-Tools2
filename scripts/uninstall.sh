@@ -1,9 +1,9 @@
 #!/bin/ash
 #copyright by monlor
-source base.sh
+source /etc/monlor/scripts/base.sh
 
 logsh "【Tools】" "正在卸载工具箱..."
-
+cd /tmp
 logsh "【Tools】" "停止所有插件"
 
 cat $monlorpath/config/version.txt | grep -v monlor | cut -d, -f1 | while read line

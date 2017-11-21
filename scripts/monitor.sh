@@ -2,7 +2,7 @@
 #copyright by monlor
 source base.sh
 
-result=$(ps | grep monlor.log | wc -l)
+result=$(ps | grep messages | grep -v grep | wc -l)
 [ "$result" == '0' ] && tail -f /tmp/messages > $userdisk/.monlor.log &   #日志输出给用户
 $userdisk/.monlor.conf
 uci commit monlor
