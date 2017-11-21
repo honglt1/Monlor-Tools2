@@ -3,12 +3,13 @@
 source /etc/monlor/scripts/base.sh
 
 logsh "【Tools】" "正在卸载工具箱..."
-cd /tmp
+
 logsh "【Tools】" "停止所有插件"
 
 cat $monlorpath/config/version.txt | grep -v monlor | cut -d, -f1 | while read line
 do
-	[ `checkuci $line` == 0 ] && $monlorpath/apps/$line/scripts/$line.sh stop
+	result=$(uci -q get monlor.$line.enable)
+	[ "$result" == '1' ] && $monlorpath/apps/$line/script/$line.sh stop
 done
 
 logsh "【Tools】" "删除所有工具箱文件"
