@@ -1,5 +1,5 @@
 2d136ac59b1ab860789509140ec6362c  appstore/aria2.zip
-df2c1376100e16feaf1b40718c7abdcf  appstore/entware.zip
+2e9d515f3bb74d6c899c38d3a5f21273  appstore/entware.zip
 fa8b9d23d2a543826914fee3151afa5a  appstore/frpc.zip
 bddc71378d7069fe0870fc89223f1b97  appstore/kms.zip
 dd89239397c84111212065c3644470ae  appstore/koolproxy.zip
