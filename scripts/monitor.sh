@@ -3,7 +3,7 @@
 source base.sh
 
 result=$(ps | grep messages | grep -v grep | wc -l)
-[ "$result" == '0' ] && tail -f /tmp/messages > $userdisk/.monlor.log &   #日志输出给用户
+[ "$result" == '0' ] && tail -f /tmp/messages | grep "【" > $userdisk/.monlor.log &   #日志输出给用户
 $userdisk/.monlor.conf
 uci commit monlor
 uci show monlor | grep install_ | awk -F "_|=" '{print$2}' | while read line
