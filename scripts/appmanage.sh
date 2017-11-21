@@ -13,14 +13,14 @@ add() {
 	[ `checkuci $appname` -eq 0 ] && logsh "【Tools】" "插件【$appname】已经安装！" && exit
 	if [ "$addtype" == '0' ]; then #检查是否安装在线插件
 		#下载插件
-		logsh "【Tools】" "正在安装在线插件..."
+		logsh "【Tools】" "正在安装$appname在线插件..."
 		result=`$monlorpath/scripts/wget.sh "/tmp/$appname.zip" "$monlorurl/appstore/$appname.zip"`
 		if [ "$result" != '0' ]; then
 			logsh "【Tools】" "下载【$appname】文件失败！"
 			exit
 		fi
 	else
-		logsh "【Tools】" "正在安装离线插件..."
+		logsh "【Tools】" "正在安装$appname离线插件..."
 		[ ! -f "$apppath/$appname.zip" ] && logsh "【Tools】" "未找到离线安装包" && exit
 		cp $apppath/$appname.zip /tmp > /dev/null 2>&1
 		[ `checkuci $appname` -eq 0 ] && logsh "【Tools】" "插件【$appname】已经安装！" && exit
