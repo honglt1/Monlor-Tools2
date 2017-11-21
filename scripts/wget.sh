@@ -15,7 +15,7 @@ else
 fi
 
 local_md5=$(md5sum "$wgetfilepath" | cut -d' ' -f1)
-origin_md5=$(cat $monlorpath/config/md5.txt | grep "$wgetfilename" | cut -d' ' -f4)
+origin_md5=$(cat $monlorpath/config/md5.txt | grep "$wgetfilename" | cut -d' ' -f1)
 
 if [ "$local_md5" == "$origin_md5" ]; then
 	result2=0

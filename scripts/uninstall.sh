@@ -34,7 +34,7 @@ fi
 
 result=$(ps | grep keepalive | grep -v grep | wc -l)
 if [ "$result" != '0' ]; then
-	killall keepalive
+	killall keepalive.sh
 fi
 
 xunlei_enable=$(uci get monlor.tools.xunlei)

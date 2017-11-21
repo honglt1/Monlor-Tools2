@@ -35,7 +35,7 @@ fi
 
 result=$(ps | grep keepalive | grep -v grep | wc -l)
 if [ "$result" == '0' ]; then
-	$monlorpath/scripts/keepalive &
+	$monlorpath/scripts/keepalive.sh &
 fi	
 
 xunlei_enable=$(uci get monlor.tools.xunlei)
