@@ -10,11 +10,11 @@ newver=$(cat /tmp/version.txt)
 oldver=$(cat $monlorpath/config/version.txt)
 [ "$newver" == "oldver" ] && logsh "【Tools】" "工具箱已经是最新版！" && exit
 
+rm -rf /tmp/monlor.zip
+rm -rf /tmp/monlor
 result=$(wget.sh "/tmp/monlor.zip" "$monlorurl/appstore/monlor.zip")
 [ "$result" != '0' ] && losh "【Tools】" "文件下载失败！" && exit
 logsh "【Tools】" "解压工具箱文件"
-rm -rf /tmp/monlor.zip
-rm -rf /tmp/monlor
 unzip /tmp/monlor.zip -d /tmp > /dev/null 2>&1
 [ $? -ne 0 ] && logsh "【Tools】" "文件解压失败！" && exit
 cp -rf /tmp/monlor /etc
@@ -30,6 +30,8 @@ if [ -f $monlorconf ]; then
 	rm -rf /tmp/monlor.conf
 fi
 #删除临时文件
+
 rm -rf /tmp/monlor.zip
 rm -rf /tmp/monlor.conf
 rm -rf /tmp/monlor
+logsh "【Tools】" "工具箱更新完成！"

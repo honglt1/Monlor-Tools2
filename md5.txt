@@ -3,7 +3,7 @@ e4b5736f1b71e6564076e9c70f93c98e  appstore/entware.zip
 6a6e33e2b13deabd060a2d005b55b72f  appstore/frpc.zip
 690ecf54cd44a52de536753a02285c66  appstore/kms.zip
 3f6dbcda215c5731dcd13fb9c57bfad2  appstore/koolproxy.zip
-d71bcb3c5a44d9b66f9e123503aa1765  appstore/monlor.zip
+1b2f70501a2eb68a3cbcfc6e711586ed  appstore/monlor.zip
 a08830f43fe01425a3a7aca1d83d6ffc  appstore/shadowsocks.zip
 4815d537ed95063833e33651d4a38b83  appstore/tinyproxy.zip
 1d91141f34d047775e71fbc0d21ff30c  appstore/vsftpd.zip
