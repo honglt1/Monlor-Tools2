@@ -14,8 +14,8 @@ case "$result" in
 esac
 
 checkuci() {
-	[ ! -z "$1" ] && uciname="$1" || uciname="$scriptname" 
-	uci -q show monlor.$uciname
+	[ -z "$1" ] && echo 1 && exit
+	uci -q show monlor.$uciname > /dev/null 2>&1
 	if [ $? -eq 0 ]; then
 		echo 0
 	else
