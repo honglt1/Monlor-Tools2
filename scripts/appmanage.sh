@@ -35,7 +35,7 @@ add() {
 	if [ "$model" == "arm" ]; then
 		rm -rf /tmp/$appname/bin/*_mips
 	elif [ "$model" == "mips" ]; then
-		ls /tmp/$appname/bin | while read line
+		ls /tmp/$appname/bin | grep -v mips | while read line
 		do
 			mv /tmp/$appname/bin/$line_mips /tmp/$appname/bin/$line
 		done

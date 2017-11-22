@@ -62,7 +62,7 @@ dnsconfig() {
 
 	insmod ipt_REDIRECT 2>/dev/null
 	service_start $LOCALPATH -c $DNSCONF
-	killall $DNSPATH > /dev/null 2>&1
+	killall dns2socks > /dev/null 2>&1
 	iptables -t nat -D PREROUTING -s $lanip/24 -p udp --dport 53 -j DNAT --to $redip > /dev/null 2>&1
 	logsh "【ShadowSocks】" "开启dns2socks进程..."
 	[ -z "DNS_SERVER" ] && (DNS_SERVER=8.8.8.8;uci set monlor.$appname.dns_server=8.8.8.8)
