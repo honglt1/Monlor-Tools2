@@ -4,15 +4,18 @@
 monlorurl="https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master"
 #monlorurl="https://raw.githubusercontent.com/monlor/Monlor-Tools/master"
 monlorpath="/etc/monlor"
-userdisk="/userdisk/data"
+userdisk="||||||"
 monlorconf="$userdisk/.monlor.conf"
 
-model=$(cat /proc/xiaoqiang/model)
-[ "$model" != "R2D" ] && logsh "【Tools】" "本工具箱只支持小米路由器R2D!" && exit
+result=$(cat /proc/xiaoqiang/model)
+case "$result" in
+	"R2D") model="arm" ;;
+	"R3P") model="mips" ;;
+esac
 
 checkuci() {
 	[ ! -z "$1" ] && uciname="$1" || uciname="$scriptname" 
-	uci show monlor.$uciname > /dev/null 2>&1 
+	uci -q show monlor.$uciname
 	if [ $? -eq 0 ]; then
 		echo 0
 	else

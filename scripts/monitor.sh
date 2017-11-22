@@ -2,6 +2,7 @@
 #copyright by monlor
 source base.sh
 
+[ ! -f "$monlorconf" ] && logsh "【Tools】" "找不到配置文件，工具箱异常！" && exit
 result=$(ps | grep messages | grep -v grep | wc -l)
 [ "$result" == '0' ] && tail -f /tmp/messages | grep "【" > $userdisk/.monlor.log &   #日志输出给用户
 $userdisk/.monlor.conf

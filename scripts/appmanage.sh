@@ -32,7 +32,18 @@ add() {
 		exit
 	fi
 	
-	cp -rf /tmp/$appname $monlorpath/apps
+	if [ "$model" == "arm" ]; then
+		rm -rf /tmp/$appname/bin/*_mips
+	elif [ "$model" == "mips" ]; then
+		ls /tmp/$appname/bin | while read line
+		do
+			mv /tmp/$appname/bin/$line_mips /tmp/$appname/bin/$line
+		done
+	else 
+		logsh "【Tools】" "不支持你的路由器！"
+		exit
+	fi
+	mv /tmp/$appname $monlorpath/apps
 	chmod +x -R $monlorpath/apps/$appname
 	#将插件的配置添加到工具箱
 	$monlorpath/apps/$appname/install/uciset.sh
@@ -48,8 +59,8 @@ add() {
 	sed -i ""$install_line"s/0/1/" $monlorconf
 	#清除临时文件
 	rm -rf $monlorpath/apps/$appname/install/
-	rm -rf /tmp/$appname
-	#rm -rf /tmp/$appname.zip
+	# rm -rf /tmp/$appname
+	rm -rf /tmp/$appname.zip
 
 }
 
@@ -88,9 +99,9 @@ del() {
 	rm -rf $monlorpath/apps/$appname > /dev/null 2>&1
 	sed -i "/monlor-$appname/d" $monlorpath/scripts/monitor.sh
 	sed -i "/script\/$appname/d" $monlorpath/scripts/dayjob.sh
-	ssline1=$(cat $monlorconf | grep -ni "【$appname】" | head -1 | cut -d: -f1)
-	ssline2=$(cat $monlorconf | grep -ni "【$appname】" | tail -1 | cut -d: -f1)
-	sed -i ""$ssline1","$ssline2"d" $monlorconf > /dev/null 2>&1
+	# ssline1=$(cat $monlorconf | grep -ni "【$appname】" | head -1 | cut -d: -f1)
+	# ssline2=$(cat $monlorconf | grep -ni "【$appname】" | tail -1 | cut -d: -f1)
+	# sed -i ""$ssline1","$ssline2"d" $monlorconf > /dev/null 2>&1
 	install_line=`cat $monlorconf | grep -n install_$appname | cut -d: -f1`           
         sed -i ""$install_line"s/1/0/" $monlorconf 
 
