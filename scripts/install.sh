@@ -30,10 +30,11 @@ unzip /tmp/monlor.zip -d /tmp > /dev/null 2>&1
 [ $? -ne 0 ] && echo "文件解压失败！" && exit
 mv /tmp/monlor /etc
 chmod -R +x /etc/monlor/scripts/*
+sed -i "s/||||||/$userdisk/" /etc/monlor/scripts/base.sh
 echo "初始化工具箱"
 /etc/monlor/scripts/init.sh
 rm -rf /tmp/monlor.zip
 rm -rf /tmp/monlor
 echo "工具箱安装完成!"
-sed -i "s/||||||/$userdisk/" /etc/monlor/scripts/base.sh
+
 echo "请前往小米路由器$userdisk目录，编辑隐藏文件.monlor.conf配置工具箱."
