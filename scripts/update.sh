@@ -30,7 +30,6 @@ if [ -f $monlorconf ]; then
 	rm -rf /tmp/monlor.conf
 fi
 #删除临时文件
-
 rm -rf /tmp/monlor.zip
 rm -rf /tmp/monlor.conf
 rm -rf /tmp/monlor

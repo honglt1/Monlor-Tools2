@@ -61,6 +61,7 @@ add() {
 	rm -rf $monlorpath/apps/$appname/install/
 	# rm -rf /tmp/$appname
 	rm -rf /tmp/$appname.zip
+	logsh "【Tools】" "插件安装完成"
 
 }
 
@@ -82,6 +83,7 @@ upgrade() {
 	sed -i "/script\/$appname/d" $monlorpath/scripts/dayjob.sh
 	add $appname
 	$monlorpath/apps/$appname/script/$appname.sh restart
+	logsh "【Tools】" "插件更新完成"
 }
 
 del() {
@@ -104,6 +106,7 @@ del() {
 	# sed -i ""$ssline1","$ssline2"d" $monlorconf > /dev/null 2>&1
 	install_line=`cat $monlorconf | grep -n install_$appname | cut -d: -f1`           
         sed -i ""$install_line"s/1/0/" $monlorconf 
+        logsh "【Tools】" "插件卸载完成"
 
 }
  
