@@ -30,8 +30,15 @@ unzip /tmp/monlor.zip -d /tmp > /dev/null 2>&1
 [ $? -ne 0 ] && echo "文件解压失败！" && exit
 mv /tmp/monlor /etc
 chmod -R +x /etc/monlor/scripts/*
-sed -i "s#||||||#$userdisk#" /etc/monlor/scripts/base.sh
 echo "初始化工具箱"
+if [ ! -f "/etc/config/monlor" ]; then
+	touch /etc/config/monlor
+	uci set monlor.tools=config
+	uci set monlor.tools.userdisk="$userdisk"
+	uci set monlor.tools.xunlei=0
+	uci set monlor.tools.ssh_enable=0
+	uci commit monlor
+fi
 /etc/monlor/scripts/init.sh
 rm -rf /tmp/monlor.zip
 rm -rf /tmp/monlor

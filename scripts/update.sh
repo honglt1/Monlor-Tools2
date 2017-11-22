@@ -17,24 +17,24 @@ result=$(wget.sh "/tmp/monlor.zip" "$monlorurl/appstore/monlor.zip")
 logsh "【Tools】" "解压工具箱文件"
 unzip /tmp/monlor.zip -d /tmp > /dev/null 2>&1
 [ $? -ne 0 ] && logsh "【Tools】" "文件解压失败！" && exit
-rm -rf $monlorpath/config
-rm -rf $monlorpath/scripts
+rm -rf $monlorpath/config/*
+rm -rf $monlorpath/scripts/*
 rm -rf /tmp/monlor/apps
-mv /tmp/monlor/* $monlorpath
+cp -rf /tmp/monlor/* $monlorpath
 chmod -R +x $monlorpath/scripts/*
 chmod -R +x $monlorpath/config/*
-sed -i "s#||||||#$userdisk#" $monlorpath/scripts/base.sh
 #更新monlor.conf配置文件
 if [ -f $monlorconf ]; then
-	endline=$(cat $monlorconf | grep -ni "【Tools】" | tail -1 | cut -d: -f1)
-	endline=$(expr $endline + 1)
-	sed -n ''"$endline"',$p' $monlorconf > /tmp/monlor.conf
-	cat $monlorpath/config/monlor.conf > $monlorconf
-	cat /tmp/monlor.conf >> $monlorconf
-	rm -rf /tmp/monlor.conf
+	# endline=$(cat $monlorconf | grep -ni "【Tools】" | tail -1 | cut -d: -f1)
+	# endline=$(expr $endline + 1)
+	# sed -n ''"$endline"',$p' $monlorconf > /tmp/monlor.conf
+	# cat $monlorpath/config/monlor.conf > $monlorconf
+	# cat /tmp/monlor.conf >> $monlorconf
+	# rm -rf /tmp/monlor.conf
+	cp $monlorpath/config/monlor.conf $monlorconf.new
+	chmod +x $monlorconf
 fi
 #删除临时文件
 rm -rf /tmp/monlor.zip
-rm -rf /tmp/monlor.conf
 rm -rf /tmp/monlor
 logsh "【Tools】" "工具箱更新完成！"

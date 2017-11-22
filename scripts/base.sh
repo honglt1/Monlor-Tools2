@@ -4,7 +4,7 @@
 monlorurl="https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master"
 #monlorurl="https://raw.githubusercontent.com/monlor/Monlor-Tools/master"
 monlorpath="$monlorpath"
-userdisk="||||||"
+userdisk=$(uci get monlor.tools.userdisk)
 monlorconf="$userdisk/.monlor.conf"
 
 result=$(cat /proc/xiaoqiang/model)

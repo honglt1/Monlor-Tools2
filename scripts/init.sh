@@ -23,10 +23,6 @@ if [ "$result" == '0' ]; then
 	echo "$monlorpath/scripts/init.sh" > /etc/firewall.user
 fi
 
-if [ ! -f "/etc/config/monlor" ]; then
-	ln -s $monlorpath/config/monlor /etc/config/monlor
-fi
-
 if [ ! -f "$monlorconf" ]; then
 	cp $monlorpath/config/monlor.conf $monlorconf
 	chmod +x $monlorconf
