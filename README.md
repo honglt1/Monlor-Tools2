@@ -16,11 +16,11 @@
 	2. 运行/etc/monlor/scripts/init.sh初始化插件中心，并source /etc/profile
 	3. 在/userdisk/data/.monlor.conf里配置插件，请用notepad++编辑
 
-     	#### 手动安装插件
+#### 	手动安装插件
 	1. 离线安装 appmanage.sh add /tmp/kms.zip安装插件 
 	2. 在线安装，下载源coding.net，安装命令appmanage.sh add kms
 
-	#### 懒人一键安装命令
+#### 	懒人一键安装命令
 	curl -sLo /tmp/install.sh https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/scripts/install.sh && chmod +x /tmp/install.sh && /tmp/install.sh && source /etc/profile
 
 ## 目录结构：  
