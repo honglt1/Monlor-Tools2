@@ -3,7 +3,7 @@ f888b40e7c130b0fcd13ba5e2738c496  appstore/aria2.zip
 72accb0b080039ac3fa6c28e8e4ecfac  appstore/frpc.zip
 f938fff9384907dc17e90e45d879b483  appstore/kms.zip
 0d2b21d635e7d354ef8f2ee035b3400d  appstore/koolproxy.zip
-81a700a6b60d0f2cfde82147e7044b3d  appstore/monlor.zip
+4822d5f4be72dce5a45a6ddf7dcb6033  appstore/monlor.zip
 d69ca1f77e8c486b1ec3efa88ce5af5e  appstore/shadowsocks.zip
 5ab1556a6d72f45ce2e3e01e15d95e5b  appstore/tinyproxy.zip
 da562dd998f6dba064efaf7c01270631  appstore/vsftpd.zip

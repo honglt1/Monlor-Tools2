@@ -17,15 +17,19 @@ result=$(wget.sh "/tmp/monlor.zip" "$monlorurl/appstore/monlor.zip")
 logsh "【Tools】" "解压工具箱文件"
 unzip /tmp/monlor.zip -d /tmp > /dev/null 2>&1
 [ $? -ne 0 ] && logsh "【Tools】" "文件解压失败！" && exit
-cp -rf /tmp/monlor /etc
-chmod -R +x /etc/monlor/scripts/*
-chmod -R +x /etc/monlor/config/*
-sed -i "s#||||||#$userdisk#" /etc/monlor/scripts/base.sh
+rm -rf $monlorpath/config
+rm -rf $monlorpath/scripts
+rm -rf /tmp/monlor/apps
+mv /tmp/monlor/* $monlorpath
+chmod -R +x $monlorpath/scripts/*
+chmod -R +x $monlorpath/config/*
+sed -i "s#||||||#$userdisk#" $monlorpath/scripts/base.sh
 #更新monlor.conf配置文件
 if [ -f $monlorconf ]; then
 	endline=$(cat $monlorconf | grep -ni "【Tools】" | tail -1 | cut -d: -f1)
-	sed -n "/"`expr $endline + 1`",\$/p" $monlorconf > /tmp/monlor.conf
-	cat /etc/monlor/config/monlor.conf > $monlorconf
+	endline=$(expr $endline + 1)
+	sed -n ''"$endline"',$p' $monlorconf > /tmp/monlor.conf
+	cat $monlorpath/config/monlor.conf > $monlorconf
 	cat /tmp/monlor.conf >> $monlorconf
 	rm -rf /tmp/monlor.conf
 fi

@@ -1,6 +1,6 @@
 #!/bin/ash
 #copyright by monlor
-source /etc/monlor/scripts/base.sh
+source $monlorpath/scripts/base.sh
 
 addtype=`echo $2 | grep -E "/|\." | wc -l`
 apppath=$(dirname $2) 
@@ -73,7 +73,7 @@ upgrade() {
 	[ $? -ne 0 ] && logsh "【Tools】" "检查更新失败！" && exit
 	newver=$(cat /tmp/version.txt)
 	oldver=$(cat $monlorpath/apps/$appname/config/version.txt)
-	[ "$newver" == "$oldver" ] && logsh "【Tools】" "$appname已经是最新版！" && exit
+	[ "$newver" == "$oldver" ] && logsh "【Tools】" "【$appname】已经是最新版！" && exit
 	logsh "【Tools】" "正在更新$appname插件... "
 	logsh "【Tools】" "删除旧文件"
 	# uci del monlor.$appname > /dev/null 2>&1
