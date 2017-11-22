@@ -69,7 +69,7 @@ upgrade() {
 	
 	[ `checkuci $appname` -ne 0 ] && logsh "【Tools】" "【$appname】插件未安装！" && exit
 	#检查更新
-	curl -sLo /tmp/version.txt $monlorurl/apps/$appname/config/version.txt 
+	curl -skLo /tmp/version.txt $monlorurl/apps/$appname/config/version.txt 
 	[ $? -ne 0 ] && logsh "【Tools】" "检查更新失败！" && exit
 	newver=$(cat /tmp/version.txt)
 	oldver=$(cat $monlorpath/apps/$appname/config/version.txt)

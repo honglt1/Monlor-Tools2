@@ -6,8 +6,8 @@ wgetfilepath="$1"
 wgetfilename=$(basename $1)
 wgeturl="$2"
 
-curl -sLo /tmp/md5.txt $monlorurl/md5.txt
-curl -sLo "$wgetfilepath" "$wgeturl"
+curl -skLo /tmp/md5.txt $monlorurl/md5.txt
+curl -skLo "$wgetfilepath" "$wgeturl"
 if [ $? -eq 0 ]; then
 	result1=0
 else

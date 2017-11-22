@@ -4,7 +4,7 @@ source base.sh
 
 logsh "【Tools】" "正在更新工具箱程序... "
 #检查更新
-curl -sLo /tmp/version.txt $monlorurl/config/version.txt 
+curl -skLo /tmp/version.txt $monlorurl/config/version.txt 
 [ $? -ne 0 ] && logsh "【Tools】" "检查更新失败！" && exit
 newver=$(cat /tmp/version.txt)
 oldver=$(cat $monlorpath/config/version.txt)

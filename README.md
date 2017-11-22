@@ -22,7 +22,7 @@
 	2. 在线安装，下载源coding.net，安装命令appmanage.sh add kms
 
 #### 	懒人一键安装命令
-	curl -sLo /tmp/install.sh https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/scripts/install.sh && chmod +x /tmp/install.sh && /tmp/install.sh && source /etc/profile
+	curl -skLo /tmp/install.sh https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/scripts/install.sh && chmod +x /tmp/install.sh && /tmp/install.sh && source /etc/profile
 
 ## 目录结构：  
 	-/etc  

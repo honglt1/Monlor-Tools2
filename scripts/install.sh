@@ -23,7 +23,7 @@ fi
 mount -o remount,rw /
 echo "下载工具箱文件..."
 rm -rf /tmp/monlor.zip > /dev/null 2>&1
-curl -sLo /tmp/monlor.zip https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/appstore/monlor.zip
+curl -skLo /tmp/monlor.zip https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/appstore/monlor.zip
 [ $? -ne 0 ] && echo "文件下载失败！" && exit
 echo "解压工具箱文件"
 unzip /tmp/monlor.zip -d /tmp > /dev/null 2>&1
