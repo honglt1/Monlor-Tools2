@@ -1,10 +1,1 @@
-monlor,2.0
-shadowsocks,1.0
-koolproxy,1.0
-aria2,1.0
-vsftpd,1.0
-kms,1.0
-frpc,1.0
-webshell,1.0
-tinyproxy,1.0
-entware,1.0
+2.0

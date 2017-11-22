@@ -25,6 +25,11 @@ if [ "$result" == '1' ]; then
 	$monlorpath/scripts/uninstall.sh
 	exit
 fi
+result=$(uci -q get monlor.tools.update)
+if [ "$result" == '1' ]; then
+	$monlorpath/scripts/update.sh
+	[ $? -ne 0 ] && logsh "【Tools】" "更新失败！" && exit
+fi
 
 #监控运行状态
 

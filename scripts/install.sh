@@ -26,7 +26,7 @@ rm -rf /tmp/monlor.zip > /dev/null 2>&1
 curl -Lo /tmp/monlor.zip https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/appstore/monlor.zip
 [ $? -ne 0 ] && echo "文件下载失败！" && exit
 echo "解压工具箱文件"
-unzip /tmp/monlor.zip -d /tmp
+unzip /tmp/monlor.zip -d /tmp > /dev/null 2>&1
 [ $? -ne 0 ] && echo "文件解压失败！" && exit
 mv /tmp/monlor /etc
 chmod -R +x /etc/monlor/scripts/*
