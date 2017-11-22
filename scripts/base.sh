@@ -3,7 +3,7 @@
 
 monlorurl="https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master"
 #monlorurl="https://raw.githubusercontent.com/monlor/Monlor-Tools/master"
-monlorpath="/etc/monlor"
+monlorpath="$monlorpath"
 userdisk="||||||"
 monlorconf="$userdisk/.monlor.conf"
 

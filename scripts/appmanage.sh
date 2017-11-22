@@ -1,6 +1,6 @@
 #!/bin/ash
 #copyright by monlor
-source $monlorpath/scripts/base.sh
+source /etc/monlor/scripts/base.sh
 
 addtype=`echo $2 | grep -E "/|\." | wc -l`
 apppath=$(dirname $2) 
