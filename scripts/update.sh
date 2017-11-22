@@ -8,7 +8,7 @@ curl -sLo /tmp/version.txt $monlorurl/config/version.txt
 [ $? -ne 0 ] && logsh "【Tools】" "检查更新失败！" && exit
 newver=$(cat /tmp/version.txt)
 oldver=$(cat $monlorpath/config/version.txt)
-[ "$newver" == "oldver" ] && logsh "【Tools】" "工具箱已经是最新版！" && exit
+[ "$newver" == "$oldver" ] && logsh "【Tools】" "工具箱已经是最新版！" && exit
 
 rm -rf /tmp/monlor.zip
 rm -rf /tmp/monlor
