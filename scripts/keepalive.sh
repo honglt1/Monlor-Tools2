@@ -1,5 +1,5 @@
 #!/bin/ash
-source base.sh
+source /etc/monlor/scripts/base.sh
 
 while(true) 
 do

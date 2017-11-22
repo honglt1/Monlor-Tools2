@@ -1,10 +1,10 @@
 #!/bin/ash
 #copyright by monlor
-source base.sh
+source /etc/monlor/scripts/base.sh
 
 [ ! -f "$monlorconf" ] && logsh "【Tools】" "找不到配置文件，工具箱异常！" && exit
-result=$(ps | grep messages | grep -v grep | wc -l)
-[ "$result" == '0' ] && tail -f /tmp/messages | grep "【" > $userdisk/.monlor.log &   #日志输出给用户
+kill -9 $(ps | grep messages | grep -v grep | awk '{print$1}')
+tail -f /tmp/messages | grep "【" > $userdisk/.monlor.log &   #日志输出给用户
 $userdisk/.monlor.conf
 uci commit monlor
 uci show monlor | grep install_ | awk -F "_|=" '{print$2}' | while read line
