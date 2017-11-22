@@ -17,10 +17,11 @@ result=$(wget.sh "/tmp/monlor.zip" "$monlorurl/appstore/monlor.zip")
 logsh "【Tools】" "解压工具箱文件"
 unzip /tmp/monlor.zip -d /tmp > /dev/null 2>&1
 [ $? -ne 0 ] && logsh "【Tools】" "文件解压失败！" && exit
-rm -rf $monlorpath/config/*
-rm -rf $monlorpath/scripts/*
-rm -rf /tmp/monlor/apps
-cp -rf /tmp/monlor/* $monlorpath
+ls /tmp/monlor/scripts | grep -v dayjob | grep -v monitor | while read line
+do
+	cp /tmp/monlor/scripts/$line $monlorpath/scripts
+done
+cp /tmp/monlor/config/* $monlorpath/config
 chmod -R +x $monlorpath/scripts/*
 chmod -R +x $monlorpath/config/*
 #更新monlor.conf配置文件

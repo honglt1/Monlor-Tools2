@@ -1,4 +1,0 @@
-config config 'tools'
-        option xunlei '0'
-	option ssh_enable '0'
-
