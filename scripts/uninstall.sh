@@ -30,7 +30,7 @@ if [ "$result" != '0' ]; then
 fi
 
 if [ -f "$monlorconf" ]; then
-	rm -rf $monlorconf
+	mv $monlorconf $userdisk/monlor.conf
 fi
 
 result=$(ps | grep keepalive | grep -v grep | wc -l)
