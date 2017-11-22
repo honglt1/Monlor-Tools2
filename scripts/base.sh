@@ -15,7 +15,7 @@ esac
 
 checkuci() {
 	[ -z "$1" ] && echo 1 && exit
-	uci -q show monlor.$uciname > /dev/null 2>&1
+	uci -q show monlor.$1 > /dev/null 2>&1
 	if [ $? -eq 0 ]; then
 		echo 0
 	else

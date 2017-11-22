@@ -75,14 +75,15 @@ upgrade() {
 	oldver=$(cat $monlorpath/apps/$appname/config/version.txt)
 	[ "$newver" == "oldver" ] && logsh "【Tools】" "$appname已经是最新版！" && exit
 	logsh "【Tools】" "正在更新$appname插件... "
-	losh "【Tools】" "删除旧文件"
-	uci del monlor.$appname > /dev/null 2>&1
-	uci commit monlor
+	logsh "【Tools】" "删除旧文件"
+	# uci del monlor.$appname > /dev/null 2>&1
+	# uci commit monlor
 	rm -rf $monlorpath/apps/$appname
 	sed -i "/monlor-$appname/d" $monlorpath/scripts/monitor.sh
 	sed -i "/script\/$appname/d" $monlorpath/scripts/dayjob.sh
-	add $appname
-	$monlorpath/apps/$appname/script/$appname.sh restart
+	add $appname > /dev/null 2>&1
+	result=$(uci -q get monlor.$appname.enable)
+        [ "$result" == '1' ] && $monlorpath/apps/$appname/script/$appname.sh restart
 	logsh "【Tools】" "插件更新完成"
 }
 
