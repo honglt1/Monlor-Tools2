@@ -13,15 +13,22 @@ oldver=$(cat $monlorpath/config/version.txt)
 result=$(wget.sh "/tmp/monlor.zip" "$monlorurl/appstore/monlor.zip")
 [ "$result" != '0' ] && losh "【Tools】" "文件下载失败！" && exit
 echo "解压工具箱文件"
+rm -rf /tmp/monlor.zip
+rm -rf /tmp/monlor
 unzip /tmp/monlor.zip -d /tmp > /dev/null 2>&1
 [ $? -ne 0 ] && echo "文件解压失败！" && exit
-mv /tmp/monlor /etc
+cp -rf /tmp/monlor /etc
 chmod -R +x /etc/monlor/scripts/*
 chmod -R +x /etc/monlor/config/*
 #更新monlor.conf配置文件
-endline=$(cat $monlorconf | grep -ni "【Tools】" | tail -1 | cut -d: -f1)
-sed -n "/"`expr $endline + 1`",\$/p" $monlorconf > /tmp/monlor.conf
-cat /etc/monlor/config/monlor.conf > $monlorconf
-cat /tmp/monlor.conf >> $monlorconf
+if [ -f $monlorconf ]; then
+	endline=$(cat $monlorconf | grep -ni "【Tools】" | tail -1 | cut -d: -f1)
+	sed -n "/"`expr $endline + 1`",\$/p" $monlorconf > /tmp/monlor.conf
+	cat /etc/monlor/config/monlor.conf > $monlorconf
+	cat /tmp/monlor.conf >> $monlorconf
+	rm -rf /tmp/monlor.conf
+fi
+#删除临时文件
+rm -rf /tmp/monlor.zip
 rm -rf /tmp/monlor.conf
-
+rm -rf /tmp/monlor
