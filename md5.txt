@@ -1,10 +1,10 @@
-727a7f69185216249ee391873500b518  appstore/aria2.zip
-34f64abfb60275476c68519cf2393426  appstore/entware.zip
-7240210a5885781a856d314b0c2cb5e5  appstore/frpc.zip
-2428e6c8c7219642d9e54e431e75b745  appstore/kms.zip
-7185f0537a374c1651e9d118006aeb43  appstore/koolproxy.zip
-2e0f7027be7b53d1caffb5f73bd34b29  appstore/monlor.zip
-6817125f12256c52c03662ae8e534bb5  appstore/shadowsocks.zip
-d7b90571f28dbf5b81542590d68fcdee  appstore/tinyproxy.zip
-1ed92c673e1e36c58c71bdff6fce9a12  appstore/vsftpd.zip
-311c8df55c7b28d5c3396a9b6c192f82  appstore/webshell.zip
+MD5 (appstore/aria2.tar.gz) = 98fecb293de6074eaf18056741e81e36
+MD5 (appstore/entware.tar.gz) = 7f1f44d9cef4acf828b61ea1baa3e50a
+MD5 (appstore/frpc.tar.gz) = 0bd0920d2d0c3d8986b51eb4b69f80cb
+MD5 (appstore/kms.tar.gz) = 29812619d788eeb1e19ae764ebe8e21d
+MD5 (appstore/koolproxy.tar.gz) = e0cb56617f4899c4b04af8d8033f6250
+MD5 (appstore/monlor.tar.gz) = 292cd8798b8520b266cdd6c4c0f81bfd
+MD5 (appstore/shadowsocks.tar.gz) = 83ea69d723c317f50f4aa74ab2d99fac
+MD5 (appstore/tinyproxy.tar.gz) = a0aab44702a005d0207d00a1664d1eca
+MD5 (appstore/vsftpd.tar.gz) = e4d6676a9ee717f6dcb96e1412305ac0
+MD5 (appstore/webshell.tar.gz) = e15dbd231a2f8c48942f4a22d7e31f6b

@@ -14,19 +14,19 @@ add() {
 	if [ "$addtype" == '0' ]; then #检查是否安装在线插件
 		#下载插件
 		logsh "【Tools】" "正在安装【$appname】在线插件..."
-		result=`$monlorpath/scripts/wget.sh "/tmp/$appname.zip" "$monlorurl/appstore/$appname.zip"`
+		result=`$monlorpath/scripts/wget.sh "/tmp/$appname.tar.gz" "$monlorurl/appstore/$appname.tar.gz"`
 		if [ "$result" != '0' ]; then
 			logsh "【Tools】" "下载【$appname】文件失败！"
 			exit
 		fi
 	else
 		logsh "【Tools】" "正在安装【$appname】离线插件..."
-		[ ! -f "$apppath/$appname.zip" ] && logsh "【Tools】" "未找到离线安装包" && exit
-		cp $apppath/$appname.zip /tmp > /dev/null 2>&1
+		[ ! -f "$apppath/$appname.tar.gz" ] && logsh "【Tools】" "未找到离线安装包" && exit
+		cp $apppath/$appname.tar.gz /tmp > /dev/null 2>&1
 		[ `checkuci $appname` -eq 0 ] && logsh "【Tools】" "插件【$appname】已经安装！" && exit
 	fi
 
-	unzip -o /tmp/$appname.zip -d /tmp > /dev/null 2>&1
+	tar -zxvf /tmp/$appname.tar.gz -C /tmp > /dev/null 2>&1
 	if [ $? -ne 0 ]; then
 		logsh "【Tools】" "解压【$appname】文件失败！" 
 		exit
@@ -60,7 +60,7 @@ add() {
 	#清除临时文件
 	rm -rf $monlorpath/apps/$appname/install/
 	# rm -rf /tmp/$appname
-	rm -rf /tmp/$appname.zip
+	rm -rf /tmp/$appname.tar.gz
 	logsh "【Tools】" "插件安装完成"
 
 }
