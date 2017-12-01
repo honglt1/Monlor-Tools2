@@ -14,7 +14,6 @@
 	配置文件也是一个Shell脚本，请按要求正确的修改配置文件。
 		
 ## 安装方式：  
-
 #### 	手动安装插件
 	1. git clone到本地，解压appstore下的monlor.tar.gz到小米路由器/etc/文件夹  
 	2. 运行/etc/monlor/scripts/init.sh初始化插件中心，并source /etc/profile
@@ -26,20 +25,18 @@
 	curl -skLo /tmp/install.sh https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/scripts/install.sh && chmod +x /tmp/install.sh && /tmp/install.sh && source /etc/profile
 
 ## 目录结构：  
-	-/etc  
-	  -/monlor
- 	    -/apps/        插件安装位置  
-	    -/config/      工具箱配置文件
-	    -/scripts/     工具箱脚本
-	
-	-/tmp
-	  -/messages         系统日志，工具箱日志
-	
-	-/userdisk
-	  -/data/            硬盘目录
-	
-	-/extdisks/
-	  -/sd*/             外接盘目录
+	/
+	|--- /etc  
+	|--- /monlor
+ 	|	|--- /apps/        插件安装位置  
+	|   |--- /config/      工具箱配置文件
+	|   |--- /scripts/     工具箱脚本
+	|--- /tmp
+	| 	|--- /messages         系统日志，工具箱日志
+	|--- /userdisk
+	| 	|--- /data/            硬盘目录
+	|--- /extdisks/
+	| 	|--- /sd*/             外接盘目录
 
 ## 更新内容：  
 	2017-11-22
