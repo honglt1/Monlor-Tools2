@@ -49,7 +49,7 @@ set_config() {
 		fi
 		if [ "$type" == "http" -o "$type" == "https" ]; then
 			domain=`cutsh $line 6`
-			if [ `echo $domain | grep "\." | wc -l` -ne 0 ]; then
+			if [ `echo $domain | grep "\." | wc -l` -eq 0 ]; then
 				echo "subdomain = $domain" >> $CONF
 			else
 				echo "custom_domain = $domain" >> $CONF

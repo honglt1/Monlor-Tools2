@@ -2,6 +2,10 @@
 #copyright by monlor
 source /etc/monlor/scripts/base.sh
 
+clear
+logsh "【Tools】" "即将卸载工具箱，按任意键继续(Ctrl + C 退出)."
+read answer
+
 logsh "【Tools】" "正在卸载工具箱..."
 
 logsh "【Tools】" "停止所有插件"

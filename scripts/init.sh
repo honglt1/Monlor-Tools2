@@ -3,6 +3,12 @@
 source /etc/monlor/scripts/base.sh
 mount -o remount,rw /
 
+result=$(ps | grep "firewall restart" | grep -v grep | wc -l)
+if [ "$result" != '0' ]; then
+	logsh "【Tools】" "检测到防火墙在重启，无需初始化工具箱" 
+	exit
+fi
+
 result=$(cat /etc/profile | grep monlor | wc -l)
 if [ "$result" == 0 ]; then
 	sed -i "s#/usr/sbin#/usr/sbin:$monlorpath/scripts#" /etc/profile

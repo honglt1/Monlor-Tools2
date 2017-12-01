@@ -24,6 +24,12 @@
 #### 	懒人一键安装命令
 	curl -skLo /tmp/install.sh https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/scripts/install.sh && chmod +x /tmp/install.sh && /tmp/install.sh && source /etc/profile
 
+## 工具箱命令：
+	1. 卸载：uninstall.sh
+	2. 更新：update.sh
+	3. 初始化：init.sh 
+	4. 插件管理：appmanage.sh add|upgrade|del appname
+
 ## 目录结构：  
 	/
 	|--- /etc  
