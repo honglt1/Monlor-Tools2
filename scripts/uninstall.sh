@@ -19,9 +19,15 @@ if [ "$result" != 0 ]; then
 	sed -i "s#:$monlorpath/scripts##" /etc/profile
 fi
 
+logsh "【Tools】" "删除定时任务"
 result=$(cat /etc/crontabs/root | grep dayjob.sh | wc -l)
 if [ "$result" != '0' ]; then
 	sed -i "/dayjob.sh/d" /etc/crontabs/root
+fi
+
+result=$(cat /etc/crontabs/root | grep monitor.sh | wc -l)
+if [ "$result" != '0' ]; then
+	sed -i "/monitor.sh/d" /etc/crontabs/root
 fi
 
 result=$(cat /etc/firewall.user | grep init.sh | wc -l) > /dev/null 2>&1
@@ -31,11 +37,6 @@ fi
 
 if [ -f "$monlorconf" ]; then
 	mv $monlorconf $userdisk/monlor.conf
-fi
-
-result=$(ps | grep keepalive | grep -v grep | wc -l)
-if [ "$result" != '0' ]; then
-	killall keepalive.sh
 fi
 
 xunlei_enable=$(uci get monlor.tools.xunlei)

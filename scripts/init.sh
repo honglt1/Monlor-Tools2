@@ -28,11 +28,6 @@ if [ ! -f "$monlorconf" ]; then
 	chmod +x $monlorconf
 fi
 
-result=$(ps | grep keepalive | grep -v grep | wc -l)
-if [ "$result" == '0' ]; then
-	$monlorpath/scripts/keepalive.sh &
-fi	
-
 xunlei_enable=$(uci get monlor.tools.xunlei)
 xunlei_enabled=$(ps | grep -E 'etm|xunlei' | grep -v grep | wc -l)
 if [ "$xunlei_enable" == '1' -a "$xunlei_enabled" != '0' ]; then
