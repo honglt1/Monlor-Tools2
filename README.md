@@ -29,8 +29,8 @@
 	-/etc  
 	  -/monlor
  	    -/apps/        插件安装位置  
-		-/config/      工具箱配置文件
-		-/scripts/     工具箱脚本
+	    -/config/      工具箱配置文件
+	    -/scripts/     工具箱脚本
 	
 	-/tmp
 	  -/messages         系统日志，工具箱日志
