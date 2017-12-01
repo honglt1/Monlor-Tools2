@@ -30,7 +30,7 @@ tar -zxvf /tmp/monlor.tar.gz -C /tmp > /dev/null 2>&1
 [ $? -ne 0 ] && echo "文件解压失败！" && exit
 mv /tmp/monlor /etc
 chmod -R +x /etc/monlor/scripts/*
-echo "初始化工具箱"
+echo "初始化工具箱..."
 if [ ! -f "/etc/config/monlor" ]; then
 	touch /etc/config/monlor
 	uci set monlor.tools=config
