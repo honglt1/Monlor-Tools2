@@ -1,6 +1,6 @@
 #!/bin/ash
 #copyright by monlor
-source base.sh
+source /etc/monlor/scripts/base.sh
 
 logsh "【Tools】" "正在更新工具箱程序... "
 #检查更新

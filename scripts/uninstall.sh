@@ -40,14 +40,8 @@ fi
 
 xunlei_enable=$(uci get monlor.tools.xunlei)
 if [ "$xunlei_enable" == '1' ]; then
-	logsh "【Tools】" "检测到迅雷被关闭，正在开启"
+	logsh "【Tools】" "检测到迅雷被关闭，正在恢复，重启后生效"
 	[ ! -f /usr/sbin/xunlei.sh ] && mv /usr/sbin/xunlei.sh.bak /usr/sbin/xunlei.sh
-	/etc/init.d/xunlei start &
-fi
-
-ssh_enable=$(uci get monlor.tools.ssh_enable)
-if [ "$ssh_enable" == '1' ]; then
-	iptables -D INPUT -p tcp --dport 22 -m comment --comment "monlor-ssh" -j ACCEPT
 fi
 
 rm -rf /userdisk/data/.monlor.log > /dev/null 2>&1

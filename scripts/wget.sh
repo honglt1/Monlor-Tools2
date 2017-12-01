@@ -1,6 +1,6 @@
 #!/bin/ash
 #copyright by monlor
-source base.sh
+source /etc/monlor/scripts/base.sh
 
 wgetfilepath="$1"
 wgetfilename=$(basename $1)

@@ -1,5 +1,5 @@
 #!/bin/ash /etc/rc.common
-source base.sh
+source /etc/monlor/scripts/base.sh
 
 START=95
 SERVICE_USE_PID=1

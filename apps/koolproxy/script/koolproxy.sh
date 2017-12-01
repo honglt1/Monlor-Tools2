@@ -1,5 +1,5 @@
 #!/bin/ash /etc/rc.common
-source base.sh
+source /etc/monlor/scripts/base.sh
 
 START=95                                             
 SERVICE_USE_PID=1                                    
@@ -174,19 +174,18 @@ dns_takeover () {
 
 detect_cert () {
 
-    if [ -d /etc/$appname  ]; then
-        logsh "【$service】" "检测到证书文件，正在恢复..."
-	cp -rf /etc/$appname/private $monlorpath/apps/$appname/bin/data
-	cp -rf /etc/$appname/certs $monlorpath/apps/$appname/bin/data
-    fi
     if [ ! -f $monlorpath/apps/$appname/bin/data/private/ca.key.pem ]; then
-        logsh "【$service】" "检测到首次运行，开始生成$appname证书，用于https过滤！"
-        cd $monlorpath/apps/$appname/bin/data && sh gen_ca.sh
-	if [ $? -eq 0 ]; then
-	    mkdir /etc/$appname
-	    cp -rf $monlorpath/apps/$appname/bin/data/private /etc/$appname
-	    cp -rf $monlorpath/apps/$appname/bin/data/certs /etc/$appname
-	fi
+        if [ -d /etc/$appname  ]; then
+            logsh "【$service】" "检测到证书文件，正在恢复..."
+            cp -rf /etc/$appname/private $monlorpath/apps/$appname/bin/data
+            cp -rf /etc/$appname/certs $monlorpath/apps/$appname/bin/data
+        else
+            logsh "【$service】" "检测到首次运行，开始生成$appname证书，用于https过滤！"
+            cd $monlorpath/apps/$appname/bin/data && sh gen_ca.sh
+            mkdir /etc/$appname
+            cp -rf $monlorpath/apps/$appname/bin/data/private /etc/$appname
+            cp -rf $monlorpath/apps/$appname/bin/data/certs /etc/$appname
+        fi
     fi
 }
 
