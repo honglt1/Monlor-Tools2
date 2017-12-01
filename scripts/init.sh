@@ -3,9 +3,9 @@
 source /etc/monlor/scripts/base.sh
 mount -o remount,rw /
 
-result=$(ps | grep "firewall restart" | grep -v grep | wc -l)
+result=$(ps | grep "{init.sh}" | grep -v grep | wc -l)
 if [ "$result" != '0' ]; then
-	logsh "【Tools】" "检测到防火墙在重启，无需初始化工具箱" 
+	logsh "【Tools】" "检测到init.sh已在运行..." 
 	exit
 fi
 
