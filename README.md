@@ -15,11 +15,12 @@
 		
 ## 安装方式：  
 #### 	手动安装插件
-	1. git clone到本地，解压appstore下的monlor.tar.gz到小米路由器/etc/文件夹  
-	2. 运行/etc/monlor/scripts/init.sh初始化插件中心，并source /etc/profile
-	3. 在/userdisk/data/.monlor.conf里配置插件，请用notepad++编辑
-	4. 离线安装插件，appmanage.sh add /tmp/kms.tar.gz安装插件 
-	5. 在线安装插件，下载源coding.net，安装命令appmanage.sh add kms
+	1. 下载install.sh文件到路由器的/tmp目录
+	2. 执行chmod +x /tmp/install.sh && /tmp/install.sh安装
+	3. 执行source /etc/profile 使环境变量生效
+	4. 在/userdisk/data/.monlor.conf里配置插件，请用notepad++编辑
+	5. 离线安装插件，appmanage.sh add /tmp/kms.tar.gz安装插件 
+	6. 在线安装插件，下载源coding.net，安装命令appmanage.sh add kms
 
 #### 	懒人一键安装命令
 	curl -skLo /tmp/install.sh https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/install.sh && chmod +x /tmp/install.sh && /tmp/install.sh && source /etc/profile
