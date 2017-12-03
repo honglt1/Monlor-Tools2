@@ -1,5 +1,6 @@
 #!/bin/ash
 #copyright by monlor
+logger -p 1 -t "【Tools】" "监测脚本monitor.sh启动..."
 source /etc/monlor/scripts/base.sh
 
 [ ! -f "$monlorconf" ] && logsh "【Tools】" "找不到配置文件，工具箱异常！" && exit

@@ -1,5 +1,6 @@
 #!/bin/ash
 #copyright by monlor
+logger -p 1 -t "【Tools】" "插件管理脚本appmanage.sh启动..."
 source /etc/monlor/scripts/base.sh
 
 addtype=`echo $2 | grep -E "/|\." | wc -l`

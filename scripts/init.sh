@@ -1,5 +1,6 @@
 #!/bin/ash
 #copyright by monlor
+logger -p 1 -t "【Tools】" "初始化脚本init.sh启动..."
 source /etc/monlor/scripts/base.sh
 mount -o remount,rw /
 
