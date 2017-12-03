@@ -8,10 +8,11 @@ userdisk=$(uci get monlor.tools.userdisk)
 monlorconf="$userdisk/.monlor.conf"
 
 result=$(cat /proc/xiaoqiang/model)
-case "$result" in
-	"R2D") model="arm" ;;
-	"R3P") model="mips" ;;
-esac
+if [ "$result" == "R1D" -o "$result" == "R2D" -o "$result" == "R3D"  ]; then
+	model=arm
+elif [ "$result" == "R3" -o "$result" == "R3P" -o "$result" == "R3G" ]; then
+	model=mips
+fi
 
 checkuci() {
 	if [ -z $(uci -q get monlor.$1) ]; then

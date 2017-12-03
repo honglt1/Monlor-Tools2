@@ -5,9 +5,9 @@ clear
 echo -n "是否要安装Monlor Tools工具箱? 按任意键继续(Ctrl + C 退出)."
 read answer
 model=$(cat /proc/xiaoqiang/model)
-if [ "$model" == "R2D" ]; then
+if [ "$model" == "R1D" -o "$model" == "R2D" -o "$model" == "R3D"  ]; then
 	userdisk="/userdisk/data"
-elif [ "$model" == "R3P" ]; then
+elif [ "$model" == "R3" -o "$model" == "R3P" -o "$model" == "R3G" ]; then
 	if [ $(df|grep -Ec '\/extdisks\/sd[a-z][0-9]?') -eq 0 ]; then
 		echo -n "没有检测到外置储存，是否将配置文件将放在/etc目录?[y/n] "
 		read answer

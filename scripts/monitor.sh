@@ -5,7 +5,7 @@ source /etc/monlor/scripts/base.sh
 
 [ ! -f "$monlorconf" ] && logsh "【Tools】" "找不到配置文件，工具箱异常！" && exit
 result=$(ps | grep {monitor.sh} | grep -v grep | wc -l)
-[ "$result" -gt '2' ] && logsh "【Tools】" "检测到monito.sh已在运行" && exit
+[ "$result" -gt '2' ] && logsh "【Tools】" "检测到monitor.sh已在运行" && exit
 
 $userdisk/.monlor.conf
 uci commit monlor
