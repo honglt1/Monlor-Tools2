@@ -3,10 +3,10 @@
 source /etc/monlor/scripts/base.sh
 mount -o remount,rw /
 
-result=$(ps | grep "{init.sh}" | grep -v grep | wc -l)
-if [ "$result" != '0' ]; then
-	logsh "【Tools】" "检测到init.sh已在运行..." 
-	exit
+result=`ps | grep init.sh | grep -v grep | wc -l`
+if [ "$result" -gt '2' ]; then
+        logsh "【Tools】" "检测到init.sh已在运行"
+        exit
 fi
 
 result=$(cat /etc/profile | grep monlor | wc -l)
