@@ -40,19 +40,31 @@ get_config() {
 	ss_server_port=`cutsh $idinfo 3`
 	ss_password=`cutsh $idinfo 4`
 	ss_method=`cutsh $idinfo 5`
+	ssr_protocol=`cutsh $idinfo 6`
+	ssr_obfs=`cutsh $idinfo 7`
+	ssr_enable=$(uci -q get monlor.$appname.ssr_enable)
     
-	echo -e '{\n  "server":"'$ss_server'",\n  "server_port":'$ss_server_port',\n  "local_port":'1081',\n  "local_address":"'$local_ip'",\n  "password":"'$ss_password'",\n  "imeout":600,\n  "method":"'$ss_method'"\n}' > $CONFIG
-	cp $CONFIG $DNSCONF && sed -i 's/1081/1082/g' $DNSCONF
+   	if [ "$ssr_enable" = '1' ];then
+		APPPATH=$monlorpath/apps/$appname/bin/ssr-redir
+		LOCALPATH=$monlorpath/apps/$appname/bin/ssr-local
+		echo -e '{\n  "server":"'$ss_server'",\n  "server_port":'$ss_server_port',\n  "local_port":'1081',\n  "local_address":"'$local_ip'",\n  "password":"'$ss_password'",\n  "timeout":600,\n  "method":"'$ss_method'",\n  "protocol":"'$ssr_protocol'",\n  "obfs":"'$ssr_obfs'"\n}' > $CONFIG
+		cp $CONFIG $DNSCONF && sed -i 's/1081/1082/g' $DNSCONF
+	else
+		echo -e '{\n  "server":"'$ss_server'",\n  "server_port":'$ss_server_port',\n  "local_port":'1081',\n  "local_address":"'$local_ip'",\n  "password":"'$ss_password'",\n  "timeout":600,\n  "method":"'$ss_method'",\n  "protocol":"'$ssr_protocol'",\n  "obfs":"'$ssr_obfs'"\n}' > $CONFIG
+		cp $CONFIG $DNSCONF && sed -i 's/1081/1082/g' $DNSCONF
+	fi
 	
 	if [ `uci get monlor.$appname.ssgena` == 1 ]; then
-	
+		cp $APPPATH $SSGBIN
 		idinfo=`cat $SER_CONF | grep $ssgid`
 	    	ssg_name=`cutsh $idinfo 1`
 	    	ssg_server=`cutsh $idinfo 2`
 	    	ssg_server_port=`cutsh $idinfo 3`
 	    	ssg_password=`cutsh $idinfo 4`
 	    	ssg_method=`cutsh $idinfo 5`
-		echo -e '{\n  "server":"'$ssg_server'",\n  "server_port":'$ssg_server_port',\n  "local_port":'1085',\n  "local_address":"'$local_ip'",\n  "password":"'$ssg_password'",\n  "imeout":600,\n  "method":"'$ssg_method'"\n}' > $SSGCONF
+	    	ssr_protocol=`cutsh $idinfo 6`
+		ssr_obfs=`cutsh $idinfo 7`
+		echo -e '{\n  "server":"'$ss_server'",\n  "server_port":'$ss_server_port',\n  "local_port":'1085',\n  "local_address":"'$local_ip'",\n  "password":"'$ss_password'",\n  "timeout":600,\n  "method":"'$ss_method'",\n  "protocol":"'$ssr_protocol'",\n  "obfs":"'$ssr_obfs'"\n}' > $SSGCONF
 	
 	fi
 
@@ -346,6 +358,7 @@ stop_ss_rules() {
 	rm -rf $CONFIG
 	rm -rf $DNSCONF
 	rm -rf $SSGCONF
+	rm -rf $SSGBIN
 	rm -rf /etc/dnsmasq.d/gfwlist_ipset.conf > /dev/null 2>&1
 	rm -rf /etc/dnsmasq.d/customize_*.conf > /dev/null 2>&1
 	/etc/init.d/dnsmasq restart
