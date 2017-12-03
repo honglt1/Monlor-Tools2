@@ -21,6 +21,11 @@ pack() {
 	md5 appstore/* > md5.txt
 }
 
+localgit() {
+	git add .
+	git commit -m "`date +%Y-%m-%d`"
+}
+
 github() {
 	git remote rm origin
 	git remote add origin https://github.com/monlor/Monlor-Tools.git 
@@ -32,24 +37,21 @@ coding() {
 	git remote add origin https://git.coding.net/monlor/Monlor-Tools.git
 	git push origin master
 }
-git add .
-git commit -m "`date +%Y-%m-%d`"
+
 case $1 in 
 	all) 
 		pack
+		localgit
 		github
 		coding
 		;;
-	push) 
-		if [ "$2" == "github" ]; then
-			github
-		elif [ "$2" == "coding" ]; then
-			coding
-		else
-			github
-			coding
-		fi
-		
+	github)
+		localgit
+		github		
+		;;
+	coding)
+		localgit
+		coding
 		;;
 	pack) 
 		pack
