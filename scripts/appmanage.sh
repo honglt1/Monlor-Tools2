@@ -88,6 +88,7 @@ upgrade() {
 	rm -rf $monlorpath/apps/$appname
 	sed -i "/monlor-$appname/d" $monlorpath/scripts/monitor.sh
 	sed -i "/script\/$appname/d" $monlorpath/scripts/dayjob.sh
+	#安装服务
 	add $appname > /dev/null 2>&1
 	$monlorconf
 	uci commit monlor
