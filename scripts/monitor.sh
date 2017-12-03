@@ -14,11 +14,11 @@ do
 	installed=$(checkuci $line)    #0表示uci存在，已安装
 	if [ "$install" == '1' ] && [ "$installed" == '1' ]; then
 		logsh "【Tools】" "$line配置文件已修改，正在安装$line服务..."
-		appmanage.sh add $line
+		$monlorpath/scripts/appmanage.sh add $line
 	fi
 	if [ "$install"  == '0' ] && [ "$installed" == '0' ]; then
 		logsh "【Tools】" "$line配置文件已修改，正在卸载$line服务..."
-		appmanage.sh del $line
+		$monlorpath/scripts/appmanage.sh del $line
 	fi
 done
 result=$(uci -q get monlor.tools.uninstall)

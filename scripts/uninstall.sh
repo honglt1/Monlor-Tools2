@@ -40,7 +40,7 @@ if [ "$result" != '0' ]; then
 fi
 
 if [ -f "$monlorconf" ]; then
-	mv $monlorconf $userdisk/monlor.conf
+	mv $monlorconf $userdisk/.monlor.conf.bak
 fi
 
 xunlei_enable=$(uci get monlor.tools.xunlei)

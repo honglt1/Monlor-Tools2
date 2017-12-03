@@ -9,7 +9,7 @@ if [ "$model" == "R2D" ]; then
 	userdisk="/userdisk/data"
 elif [ "$model" == "R3P" ]; then
 	if [ $(df|grep -Ec '\/extdisks\/sd[a-z][0-9]?') -eq 0 ]; then
-		echo "没有检测到外置储存，是否将配置文件将放在/etc目录?[y/n] "
+		echo -n "没有检测到外置储存，是否将配置文件将放在/etc目录?[y/n] "
 		read answer
 		[ "$answer" == 'y' ] && userdisk=/etc || exit
 	else
@@ -38,6 +38,11 @@ if [ ! -f "/etc/config/monlor" ]; then
 	uci set monlor.tools.xunlei=0
 	uci set monlor.tools.ssh_enable=0
 	uci commit monlor
+fi
+if [ -f "$userdisk/.monlor.conf.bak" ]; then
+	echo -n "检测到备份的配置文件，是否要恢复？[y/n] "
+	read answer
+	[ "$answer" == 'y' ] && mv $userdisk/.monlor.conf.bak $userdisk/.monlor.conf
 fi
 /etc/monlor/scripts/init.sh
 rm -rf /tmp/monlor.tar.gz
