@@ -32,15 +32,15 @@ coding() {
 	git remote add origin https://git.coding.net/monlor/Monlor-Tools.git
 	git push origin master
 }
-
+git add .
+git commit -m "`date +%Y-%m-%d`"
 case $1 in 
 	all) 
 		pack
-		push	
+		github
+		coding
 		;;
 	push) 
-		git add .
-		git commit -m "`date +%Y-%m-%d`"
 		if [ "$2" == "github" ]; then
 			github
 		elif [ "$2" == "coding" ]; then

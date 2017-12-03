@@ -31,6 +31,24 @@ set_config() {
 	passwdline=`cat $CONF | grep -n rpc-passwd | cut -d: -f1`
 	sed -i ""$passwdline"s/.*/rpc-passwd=$passwd/" $CONF
 
+	if [ "$model" = 'mips' ];then
+		mount -o remount,rw /
+		result1=$(md5sum /lib/libstdc\+\+.so  | awk '{print $1}')
+		result2=$(md5sum $monlorpath/apps/$appname/lib/libstdc\+\+.so.6.0.16 | awk '{print $1}')
+		if [ "$result1" != "$result2" ]; then
+			rm -rf /lib/libstdc\+\+.so
+			ln -s $monlorpath/apps/$appname/lib/libstdc\+\+.so.6.0.16 /lib/libstdc\+\+.so
+		fi
+		result3=$(md5sum /lib/libstdc\+\+.so.6 | awk '{print $1}')
+		if [ "$result3" != "$result2" ]; then
+			rm -rf /lib/libstdc\+\+.so.6
+			ln -s $monlorpath/apps/$appname/lib/libstdc\+\+.so.6.0.16 /lib/libstdc\+\+.so.6
+		fi
+		ln -s $monlorpath/apps/$appname/lib/libxml2.so /usr/lib/libxml2.so.2
+	else 
+		[ -d $monlorpath/apps/$appname/lib/ ] && rm -rf $monlorpath/apps/$appname/lib
+	fi 
+
 }
 
 start () {
