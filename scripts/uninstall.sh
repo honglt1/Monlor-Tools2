@@ -10,7 +10,7 @@ logsh "【Tools】" "正在卸载工具箱..."
 
 logsh "【Tools】" "停止所有插件"
 
-cat $monlorpath/config/version.txt | grep -v monlor | cut -d, -f1 | while read line
+ls $monlorpath/apps | while read line
 do
 	result=$(uci -q get monlor.$line.enable)
 	[ "$result" == '1' ] && $monlorpath/apps/$line/script/$line.sh stop
