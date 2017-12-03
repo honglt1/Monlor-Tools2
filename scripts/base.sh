@@ -15,9 +15,9 @@ esac
 
 checkuci() {
 	if [ -z $(uci -q get monlor.$1) ]; then
-		return 1
+		echo 1
 	else
-		return 0
+		echo 0
 	fi
 }
 
@@ -26,7 +26,7 @@ cutsh() {
     	test1=$1
     	test2=$2
 	[ -z "$test2" ] && test2=$test1
-	return `echo $test1 | cut -d, -f$test2`
+	echo `echo $test1 | cut -d, -f$test2`
     
 }
 
