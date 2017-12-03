@@ -22,7 +22,7 @@
 	5. 在线安装插件，下载源coding.net，安装命令appmanage.sh add kms
 
 #### 	懒人一键安装命令
-	curl -skLo /tmp/install.sh https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/scripts/install.sh && chmod +x /tmp/install.sh && /tmp/install.sh && source /etc/profile
+	curl -skLo /tmp/install.sh https://coding.net/u/monlor/p/Monlor-Tools/git/raw/master/install.sh && chmod +x /tmp/install.sh && /tmp/install.sh && source /etc/profile
 
 ## 工具箱命令：
 	1. 卸载：uninstall.sh
@@ -60,4 +60,7 @@
 
 	2017-12-02
 		1. 修复了工具箱多处bug
+
+	2017-12-03
+		1. 更新脚本，插件卸载备份配置，安装检查备份的配置
 

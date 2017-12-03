@@ -34,6 +34,8 @@ if [ ! -f "$monlorconf" ]; then
 	chmod +x $monlorconf
 fi
 
+$monlorpath/scripts/monitor.sh
+
 xunlei_enable=$(uci get monlor.tools.xunlei)
 xunlei_enabled=$(ps | grep -E 'etm|xunlei' | grep -v grep | wc -l)
 if [ "$xunlei_enable" == '1' -a "$xunlei_enabled" != '0' ]; then
@@ -54,6 +56,5 @@ if [ "$ssh_enable" == '1' -a "$ssh_enabled" == '0' ]; then
 	iptables -I INPUT -p tcp --dport 22 -m comment --comment "monlor-ssh" -j ACCEPT > /dev/null 2>&1
 fi
 
-$monlorpath/scripts/monitor.sh
 $monlorpath/scripts/userscript.sh
 

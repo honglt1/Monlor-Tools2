@@ -14,12 +14,10 @@ case "$result" in
 esac
 
 checkuci() {
-	[ -z "$1" ] && echo 1 && exit
-	uci -q show monlor.$1 > /dev/null 2>&1
-	if [ $? -eq 0 ]; then
-		echo 0
+	if [ -z $(uci -q get monlor.$1) ]; then
+		return 1
 	else
-		echo 1
+		return 0
 	fi
 }
 
@@ -28,7 +26,7 @@ cutsh() {
     	test1=$1
     	test2=$2
 	[ -z "$test2" ] && test2=$test1
-	echo `echo $test1 | cut -d, -f$test2`
+	return `echo $test1 | cut -d, -f$test2`
     
 }
 
