@@ -14,6 +14,7 @@ else
 fi
 lanip=$(uci get network.lan.ipaddr)
 redip=$lanip
+service=ShadowSocks
 appname=shadowsocks
 SER_CONF=$monlorpath/apps/$appname/config/ssserver.conf
 CONFIG=$monlorpath/apps/$appname/config/ss.conf
@@ -32,7 +33,7 @@ ssgid=`uci get monlor.$appname.ssgid` > /dev/null 2>&1
 
 get_config() {
     
-	logsh "【ShadowSocks】" "创建ss节点配置文件..."
+	logsh "【$service】" "创建ss节点配置文件..."
 	local_ip=0.0.0.0
 	idinfo=`cat $SER_CONF | grep $id`
 	ss_name=`cutsh $idinfo 1`
@@ -43,7 +44,9 @@ get_config() {
 	ssr_protocol=`cutsh $idinfo 6`
 	ssr_obfs=`cutsh $idinfo 7`
 	ssr_enable=$(uci -q get monlor.$appname.ssr_enable)
-    
+    	
+    	ss_server=`resolveip $ss_server` 
+    	[ $? -ne 0 ] && logsh "【$service】" "ss服务器地址解析失败" && exit
    	if [ "$ssr_enable" = '1' ];then
 		APPPATH=$monlorpath/apps/$appname/bin/ssr-redir
 		LOCALPATH=$monlorpath/apps/$appname/bin/ssr-local
@@ -64,6 +67,9 @@ get_config() {
 	    	ssg_method=`cutsh $idinfo 5`
 	    	ssr_protocol=`cutsh $idinfo 6`
 		ssr_obfs=`cutsh $idinfo 7`
+
+		ssg_server=`resolveip $ssg_server` 
+    		[ $? -ne 0 ] && logsh "【$service】" "ss游戏服务器地址解析失败" && exit
 		echo -e '{\n  "server":"'$ss_server'",\n  "server_port":'$ss_server_port',\n  "local_port":'1085',\n  "local_address":"'$local_ip'",\n  "password":"'$ss_password'",\n  "timeout":600,\n  "method":"'$ss_method'",\n  "protocol":"'$ssr_protocol'",\n  "obfs":"'$ssr_obfs'"\n}' > $SSGCONF
 	
 	fi
@@ -76,7 +82,7 @@ dnsconfig() {
 	service_start $LOCALPATH -c $DNSCONF
 	killall dns2socks > /dev/null 2>&1
 	iptables -t nat -D PREROUTING -s $lanip/24 -p udp --dport 53 -j DNAT --to $redip > /dev/null 2>&1
-	logsh "【ShadowSocks】" "开启dns2socks进程..."
+	logsh "【$service】" "开启dns2socks进程..."
 	[ -z "DNS_SERVER" ] && (DNS_SERVER=8.8.8.8;uci set monlor.$appname.dns_server=8.8.8.8)
 	[ -z "DNS_SERVER_PORT" ] && (DNS_SERVER_PORT=53;uci set monlor.$appname.dns_port=53)
 	DNS_SERVER=$(uci get monlor.$appname.dns_server)
@@ -84,7 +90,7 @@ dnsconfig() {
 	uci commit monlor
 	service_start $DNSPATH 127.0.0.1:1082 $DNS_SERVER:$DNS_SERVER_PORT 127.0.0.1:15353 
 	if [ $? -ne 0 ];then
-    	logsh "【ShadowSocks】" "启动失败！"
+    	logsh "【$service】" "启动失败！"
     	exit
 	fi
     
@@ -125,7 +131,7 @@ get_action_chain() {
 
 load_nat() {
 
-    logsh "【ShadowSocks】" "加载iptables的nat规则..."
+    logsh "【$service】" "加载iptables的nat规则..."
     iptables -t nat -N SHADOWSOCKS
     iptables -t nat -A SHADOWSOCKS -d 0.0.0.0/8 -j RETURN
     iptables -t nat -A SHADOWSOCKS -d $lanip/24 -j RETURN
@@ -141,14 +147,14 @@ load_nat() {
     	mac=$line
 	proxy_name=$(cat /tmp/dhcp.leases | grep $mac | cut -d' ' -f4)
 	proxy_mode=$(cat $monlorpath/apps/$appname/config/sscontrol.conf | grep $mac | cut -d, -f2)
-	logsh "【ShadowSocks】" "加载ACL规则:【$proxy_name】模式为:$(get_mode_name $proxy_mode)"
+	logsh "【$service】" "加载ACL规则:【$proxy_name】模式为:$(get_mode_name $proxy_mode)"
 	iptables -t nat -A SHADOWSOCKS  -m mac --mac-source $mac $(get_jump_mode $proxy_mode) $(get_action_chain $proxy_mode)
     done
 
     #default alc mode
     ss_acl_default_mode=$(uci get monlor.$appname.ss_acl_default_mode)
 	[ -z "$ss_acl_default_mode" ] && ( ss_acl_default_mode=1;uci set monlor.$appname.ss_acl_default_mode=1;uci commit monlor)
-	logsh "【ShadowSocks】" "加载ACL规则:其余主机模式为:$(get_mode_name $ss_acl_default_mode)"
+	logsh "【$service】" "加载ACL规则:其余主机模式为:$(get_mode_name $ss_acl_default_mode)"
     iptables -t nat -A SHADOWSOCKS -p tcp -j $(get_action_chain $ss_acl_default_mode)
         
 	[ ! -f $customize_black ] && touch $customize_black
@@ -170,10 +176,10 @@ load_nat() {
 
 start() {
 
-	[ ! -s $SER_CONF ] && logsh "【ShadowSocks】" "没有添加ss服务器!" && exit 
+	[ ! -s $SER_CONF ] && logsh "【$service】" "没有添加ss服务器!" && exit 
 	result=$(ps | grep ss-redir | grep -v grep | wc -l)
 	if [ "$result" != '0'  ];then
-		logsh "【ShadowSocks】" "SS已经在运行！"	
+		logsh "【$service】" "SS已经在运行！"	
 		exit
 	fi
 
@@ -183,13 +189,13 @@ start() {
 
 	load_nat
     	
-	logsh "【ShadowSocks】" "启动ss主进程($id)..."
+	logsh "【$service】" "启动ss主进程($id)..."
     ss_mode=$(uci get monlor.$appname.ss_mode)
 	case $ss_mode in
     "gfwlist")
         	service_start $APPPATH -b 0.0.0.0 -c $CONFIG   
         	if [ $? -ne 0 ]; then
-            	logsh "【ShadowSocks】" "启动失败！"
+            	logsh "【$service】" "启动失败！"
             	exit
         	fi
         	ss_gfwlist
@@ -197,7 +203,7 @@ start() {
     "whitelist")
     	service_start $APPPATH -b 0.0.0.0 -c $CONFIG
     	if [ $? -ne 0 ]; then                                                                                                  
-                    logsh "【ShadowSocks】" "启动失败！"                       
+                    logsh "【$service】" "启动失败！"                       
                     exit                                
         fi
         ss_whitelist
@@ -205,23 +211,23 @@ start() {
     "wholemode")
         	service_start $APPPATH -b 0.0.0.0 -c $CONFIG 
         	if [ $? -ne 0 ]; then
-            	logsh "【ShadowSocks】" "启动失败！"
+            	logsh "【$service】" "启动失败！"
             	exit
         	fi
         	ss_wholemode
         	;;
 	"empty")
-		logsh "【ShadowSocks】" "未启动ss进程！"
+		logsh "【$service】" "未启动ss进程！"
 	esac
 
 	if [ `uci get monlor.$appname.ssgena` == 1 ]; then             
         ssg_mode=$(uci get monlor.$appname.ssg_mode)
-		logsh "【ShadowSocks】" "启动ss游戏进程($ssgid)..."
+		logsh "【$service】" "启动ss游戏进程($ssgid)..."
 		case $ssg_mode in
 		"cngame")
 			service_start $SSGBIN -b 0.0.0.0 -u -c $SSGCONF
                 	if [ $? -ne 0 ]; then
-                       	 	logsh "【ShadowSocks】" "启动失败！"
+                       	 	logsh "【$service】" "启动失败！"
                         	exit
                 	fi
                 	ss_addudp	
@@ -230,14 +236,14 @@ start() {
 		"frgame") 
 			service_start $SSGBIN -b 0.0.0.0 -u -c $SSGCONF
 			if [ $? -ne 0 ]; then
-				logsh "【ShadowSocks】" "启动失败"
+				logsh "【$service】" "启动失败"
 				exit
 			fi
 			ss_addudp
 			ss_frgame
 			;;
 		"empty")
-			logsh "【ShadowSocks】" "未启动ss游戏进程！"
+			logsh "【$service】" "未启动ss游戏进程！"
 		esac
 	fi
 	
@@ -256,7 +262,7 @@ start() {
 
 ss_gfwlist() {
 
-	logsh "【ShadowSocks】" "添加国外黑名单规则..."
+	logsh "【$service】" "添加国外黑名单规则..."
 	cat $gfwlist $customize_black | while read line                                             
 	do                                                                         
 		echo "server=/.$line/127.0.0.1#15353" >> /etc/dnsmasq.d/gfwlist_ipset.conf
@@ -270,7 +276,7 @@ ss_gfwlist() {
 
 ss_whitelist() {
 
-	logsh "【ShadowSocks】" "添加国外白名单规则..."                                    
+	logsh "【$service】" "添加国外白名单规则..."                                    
 	sed -e "s/^/-A nogfwnet &/g" -e "1 i\-N nogfwnet hash:net" $chnroute | ipset -R -!
 	iptables -t nat -A SHADOWSOCK -p tcp -m set --match-set customize_black dst -j REDIRECT --to-ports 1081
 	iptables -t nat -A SHADOWSOCK -p tcp -m set ! --match-set nogfwnet dst -j REDIRECT --to-ports 1081 
@@ -278,7 +284,7 @@ ss_whitelist() {
 
 ss_addudp() {
 
-	logsh "【ShadowSocks】" "添加iptables的udp规则..."
+	logsh "【$service】" "添加iptables的udp规则..."
 	#iptables -t nat -A PREROUTING -s $lanip/24 -p udp --dport 53 -j DNAT --to $lanip
     ip rule add fwmark 0x01/0x01 table 300
     ip route add local 0.0.0.0/0 dev lo table 300
@@ -297,7 +303,7 @@ ss_addudp() {
 
 ss_cngame() {
 
-	logsh "【ShadowSocks】" "添加国内游戏iptables规则..."
+	logsh "【$service】" "添加国内游戏iptables规则..."
 	
 	iptables -t mangle -A SHADOWSOCKS -p udp -m set ! --match-set customize_white dst -j TPROXY --on-port 1085 --tproxy-mark 0x01/0x01         
 
@@ -305,7 +311,7 @@ ss_cngame() {
 
 ss_frgame() {
 
-	logsh "【ShadowSocks】" "添加国外游戏iptables规则..."
+	logsh "【$service】" "添加国外游戏iptables规则..."
 
 	[ $ss_mode != "whitelist" ] && sed -e "s/^/-A nogfwnet &/g" -e "1 i\-N nogfwnet hash:net" $chnroute | ipset -R -!
 	iptables -t mangle -A SHADOWSOCKS -p udp -m set ! --match-set nogfwnet dst -j TPROXY --on-port 1085 --tproxy-mark 0x01/0x01
@@ -314,7 +320,7 @@ ss_frgame() {
 
 ss_wholemode() {
 
-	logsh "【ShadowSocks】" "添加全局模式iptables规则..."
+	logsh "【$service】" "添加全局模式iptables规则..."
 	iptables -t nat -A SHADOWSOCK -p tcp -j REDIRECT --to-ports 1081
 
 }
@@ -322,7 +328,7 @@ ss_wholemode() {
 
 stop() {
 	
-	logsh "【ShadowSocks】" "关闭ss主进程..."
+	logsh "【$service】" "关闭ss主进程..."
 	killall ss-redir > /dev/null 2>&1
 	killall ssg-redir > /dev/null 2>&1
 	killall ss-local > /dev/null 2>&1
@@ -334,7 +340,7 @@ stop() {
 
 stop_ss_rules() {
 
-	logsh "【ShadowSocks】" "清除iptables规则..."
+	logsh "【$service】" "清除iptables规则..."
 	cd /tmp
 	iptables -t nat -S | grep -E 'SHADOWSOCK|SHADOWSOCKS'| sed 's/-A/iptables -t nat -D/g'|sed 1,2d > clean.sh && chmod 777 clean.sh && ./clean.sh && rm clean.sh
 	ip rule del fwmark 0x01/0x01 table 300 &> /dev/null
