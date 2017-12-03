@@ -13,11 +13,11 @@ appname=entware
 BIN=/opt/etc/init.d/rc.unslung
 # CONF=$monlorpath/apps/$appname/config/$appname.conf
 LOG=/var/log/$appname.log
+path=$(uci get monlor.$appname.path)
 
 install() {
 
 	logsh "【$service】" "安装$appname服务"
-	path=$(uci get monlor.$appname.path)
 	if [ -z "$path" ]; then 
 		logsh "【$service】" "未配置安装路径！" 
 		exit
@@ -26,6 +26,7 @@ install() {
 		logsh "【$service】" "检测到第一次运行$appname服务，正在安装..."
 		mkdir -p $path > /dev/null 2>&1
 		[ $? -ne 0 ] && logsh "【Tools】" "创建目录失败，检查你的路径是否正确！" && exit
+		umount -lf /opt > /dev/null 2>&1
 		mount $path /opt
 		if [ "$model" == "arm" ]; then
 			wget -O - http://pkg.entware.net/binaries/armv5/installer/entware_install.sh | sh
@@ -44,7 +45,7 @@ install() {
 
 start () {
 
-	result=$(ps | grep $BIN | grep -v grep | wc -l)
+	result=$(ps | grep "$appname" | grep -v grep | wc -l)
     	if [ "$result" != '0' ];then
 		logsh "【$service】" "$appname已经在运行！"
 		exit 1
@@ -68,13 +69,14 @@ start () {
 stop () {
 
 	logsh "【$service】" "正在停止$appname服务... "
-	/opt/etc/init.d/rc.unslung stop
+	/opt/etc/init.d/rc.unslung stop > /dev/null 2>&1
 	[ -f $BIN ] && umount -lf /opt
 	sed -i "/LD_LIBRARY_PATH/d" /etc/profile
 	sed -i "s/\/opt\/bin:\/opt\/sbin://" /etc/profile
 	# ps | grep $BIN | grep -v grep | awk '{print$1}' | xargs kill -9 > /dev/null 2>&1
 	# iptables -D INPUT -p tcp --dport $port -m comment --comment "monlor-$appname" -j ACCEPT > /dev/null 2>&1
 	logsh "【$service】" "停止成功，请运行source /etc/profile使配置生效!"
+	logsh "【$service】" "若要重置【$appname】服务，删除$path文件并启动即可"
 
 }
 
