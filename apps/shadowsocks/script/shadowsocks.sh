@@ -71,7 +71,7 @@ get_config() {
 
 		ssg_server=`resolveip $ssg_server` 
     		[ $? -ne 0 ] && logsh "【$service】" "ss游戏服务器地址解析失败" && exit
-		echo -e '{\n  "server":"'$ss_server'",\n  "server_port":'$ss_server_port',\n  "local_port":'1085',\n  "local_address":"'$local_ip'",\n  "password":"'$ss_password'",\n  "timeout":600,\n  "method":"'$ss_method'",\n  "protocol":"'$ssr_protocol'",\n  "obfs":"'$ssr_obfs'"\n}' > $SSGCONF
+		echo -e '{\n  "server":"'$ssg_server'",\n  "server_port":'$ssg_server_port',\n  "local_port":'1085',\n  "local_address":"'$local_ip'",\n  "password":"'$ssg_password'",\n  "timeout":600,\n  "method":"'$ssg_method'",\n  "protocol":"'$ssr_protocol'",\n  "obfs":"'$ssr_obfs'"\n}' > $SSGCONF
 	fi
 
 }
