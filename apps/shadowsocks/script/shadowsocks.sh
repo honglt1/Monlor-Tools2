@@ -43,22 +43,18 @@ get_config() {
 	ss_method=`cutsh $idinfo 5`
 	ssr_protocol=`cutsh $idinfo 6`
 	ssr_obfs=`cutsh $idinfo 7`
-	ssr_enable=$(uci -q get monlor.$appname.ssr_enable)
     	
     	ss_server=`resolveip $ss_server` 
     	[ $? -ne 0 ] && logsh "【$service】" "ss服务器地址解析失败" && exit
-   	if [ "$ssr_enable" = '1' ];then
+   	if [ ! -z "$ssr_obfs" ];then
 		APPPATH=$monlorpath/apps/$appname/bin/ssr-redir
 		LOCALPATH=$monlorpath/apps/$appname/bin/ssr-local
-		echo -e '{\n  "server":"'$ss_server'",\n  "server_port":'$ss_server_port',\n  "local_port":'1081',\n  "local_address":"'$local_ip'",\n  "password":"'$ss_password'",\n  "timeout":600,\n  "method":"'$ss_method'",\n  "protocol":"'$ssr_protocol'",\n  "obfs":"'$ssr_obfs'"\n}' > $CONFIG
-		cp $CONFIG $DNSCONF && sed -i 's/1081/1082/g' $DNSCONF
-	else
-		echo -e '{\n  "server":"'$ss_server'",\n  "server_port":'$ss_server_port',\n  "local_port":'1081',\n  "local_address":"'$local_ip'",\n  "password":"'$ss_password'",\n  "timeout":600,\n  "method":"'$ss_method'",\n  "protocol":"'$ssr_protocol'",\n  "obfs":"'$ssr_obfs'"\n}' > $CONFIG
-		cp $CONFIG $DNSCONF && sed -i 's/1081/1082/g' $DNSCONF
 	fi
+	#生成配置文件
+	echo -e '{\n  "server":"'$ss_server'",\n  "server_port":'$ss_server_port',\n  "local_port":'1081',\n  "local_address":"'$local_ip'",\n  "password":"'$ss_password'",\n  "timeout":600,\n  "method":"'$ss_method'",\n  "protocol":"'$ssr_protocol'",\n  "obfs":"'$ssr_obfs'"\n}' > $CONFIG
+	cp $CONFIG $DNSCONF && sed -i 's/1081/1082/g' $DNSCONF
 	
 	if [ `uci get monlor.$appname.ssgena` == 1 ]; then
-		cp $APPPATH $SSGBIN
 		idinfo=`cat $SER_CONF | grep $ssgid`
 	    	ssg_name=`cutsh $idinfo 1`
 	    	ssg_server=`cutsh $idinfo 2`
@@ -67,11 +63,15 @@ get_config() {
 	    	ssg_method=`cutsh $idinfo 5`
 	    	ssr_protocol=`cutsh $idinfo 6`
 		ssr_obfs=`cutsh $idinfo 7`
+		if [ ! -z "$ssr_obfs" ]; then
+			cp $monlorpath/apps/$appname/bin/ssr-redir $SSGBIN
+		else
+			cp $monlorpath/apps/$appname/bin/ss-redir $SSGBIN
+		fi
 
 		ssg_server=`resolveip $ssg_server` 
     		[ $? -ne 0 ] && logsh "【$service】" "ss游戏服务器地址解析失败" && exit
 		echo -e '{\n  "server":"'$ss_server'",\n  "server_port":'$ss_server_port',\n  "local_port":'1085',\n  "local_address":"'$local_ip'",\n  "password":"'$ss_password'",\n  "timeout":600,\n  "method":"'$ss_method'",\n  "protocol":"'$ssr_protocol'",\n  "obfs":"'$ssr_obfs'"\n}' > $SSGCONF
-	
 	fi
 
 }
