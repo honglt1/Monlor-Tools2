@@ -330,8 +330,10 @@ stop() {
 	
 	logsh "【$service】" "关闭ss主进程..."
 	killall ss-redir > /dev/null 2>&1
+	killall ssr-redir > /dev/null 2>&1
 	killall ssg-redir > /dev/null 2>&1
 	killall ss-local > /dev/null 2>&1
+	killall ssr-local > /dev/null 2>&1
 	killall $DNSPATH > /dev/null 2>&1
 	#ps | grep dns2socks | grep -v grep | xargs kill -9 > /dev/null 2>&1
 	stop_ss_rules
