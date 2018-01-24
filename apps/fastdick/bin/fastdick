@@ -1,0 +1,112 @@
+#!/bin/ash
+TEST_URL="https://baidu.com"
+UA_XL="User-Agent: swjsq/0.0.1"
+if [ ! -z "`wget --no-check-certificate -O - $TEST_URL 2>&1|grep "100%"`" ]; then
+   HTTP_REQ="wget -q --no-check-certificate -O - "
+   POST_ARG="--post-data="
+else
+   command -v curl >/dev/null 2>&1 && curl -kI $TEST_URL >/dev/null 2>&1 || { echo >&2 "Xunlei-FastD1ck cannot find wget or curl installed with https(ssl) enabled in this system."; exit 1; }
+   HTTP_REQ="curl -ks"
+   POST_ARG="--data "
+fi
+uid=###
+pwd=###
+nic=eth0
+peerid=###
+uid_orig=$uid
+last_login_xunlei=0
+login_xunlei_intv=600
+day_of_month_orig=`date +%d`
+orig_day_of_month=`echo $day_of_month_orig|grep -oE "[1-9]{1,2}"`
+#portal=`$HTTP_REQ http://api.portal.swjsq.vip.xunlei.com:82/v2/queryportal`
+#portal_ip=`echo $portal|grep -oE '([0-9]{1,3}[\.]){3}[0-9]{1,3}'`
+#portal_port_temp=`echo $portal|grep -oE "port...[0-9]{1,5}"`
+#portal_port=`echo $portal_port_temp|grep -oE '[0-9]{1,5}'`
+portal_ip=58.220.12.55
+portal_port=12380
+if [ -z "$portal_ip" ]; then
+    sleep 30
+    portal=`$HTTP_REQ http://api.portal.swjsq.vip.xunlei.com:81/v2/queryportal`
+    portal_ip=`echo $portal|grep -oE '([0-9]{1,3}[\.]){3}[0-9]{1,3}'`
+    portal_port_temp=`echo $portal|grep -oE "port...[0-9]{1,5}"`
+    portal_port=`echo $portal_port_temp|grep -oE '[0-9]{1,5}'`
+    if [ -z "$portal_ip" ]; then
+        portal_ip="119.147.41.210"
+        portal_port=80
+    fi
+fi
+api_url="http://$portal_ip:$portal_port/v2"
+i=100
+while true; do
+    if test $i -ge 100; then
+        tmstmp=`date "+%s"`
+        let slp=login_xunlei_intv-tmstmp+last_login_xunlei
+        if test $slp -ge 0; then
+            sleep $slp
+        fi
+        last_login_xunlei=$tmstmp
+        echo "login xunlei"
+        ret=`$HTTP_REQ https://login.mobile.reg2t.sandai.net:443/ $POST_ARG"{\"userName\": \"monlor\", \"sdkVersion\": 177550, \"isCompressed\": 0, \"clientVersion\": \"2.0.3.4\", \"appName\": \"ANDROID-com.xunlei.vip.swjsq\", \"devicesign\": \"div100.85015f312c7d16d5299d6d964c2e6481ec684e423314e34380fae649ac077f01\", \"sequenceNo\": 1000001, \"businessType\": 68, \"loginType\": 0, \"rsaKey\": {\"e\": \"010001\", \"n\": \"AC69F5CCC8BDE47CD3D371603748378C9CFAD2938A6B021E0E191013975AD683F5CBF9ADE8BD7D46B4D2EC2D78AF146F1DD2D50DC51446BB8880B8CE88D476694DFC60594393BEEFAA16F5DBCEBE22F89D640F5336E42F587DC4AFEDEFEAC36CF007009CCCE5C1ACB4FF06FBA69802A8085C2C54BADD0597FC83E6870F1E36FD\"}, \"sessionID\": \"\", \"cmdID\": 1, \"verifyCode\": \"\", \"peerID\": \"28CFE91C638F004V\", \"protocolVersion\": 108, \"platformVersion\": 1, \"passWord\": \"56743BA185B18B526DB9E37FCDB513CA7913F79B5E4F56916DC5C935F9E4A18B5D7176F22F7A26F50F2F2E8ECAEA09BD7D08269E6B7721292212D6BF61AF9A0F79701C6B86DEB172FFD1A9A2E56BC6B392CCB104AAEF0492C72110D5D6580771473CD708D325FE1958E9DB18D1FDEA01357599570BD8081522525D8FDA7C442A\", \"extensionList\": \"\", \"verifyKey\": \"\"}" --header "$UA_XL"`
+        session_temp=`echo $ret|grep -oE "sessionID...[A-F,0-9]{32}"`
+        session=`echo $session_temp|grep -oE "[A-F,0-9]{32}"`
+        uid_temp=`echo $ret|grep -oE "userID..[0-9]{9}"`
+        uid=`echo $uid_temp|grep -oE "[0-9]{9}"`
+        i=18
+        if [ -z "$session" ]; then
+            echo "session is empty"
+            i=100
+            sleep 60
+            uid=$uid_orig
+            continue
+        else
+            echo "session is $session"
+        fi
+        if [ -z "$uid" ]; then
+            #echo "uid is empty"
+            uid=$uid_orig
+        else
+            echo "uid is $uid"
+        fi
+    fi
+    if test $i -eq 18; then
+        echo "upgrade"
+        _ts=`date +%s`0000
+        $HTTP_REQ "$api_url/upgrade?peerid=$peerid&userid=$uid&sessionid=$session&user_type=1&client_type=android-swjsq-2.0.3.4&time_and=$_ts&client_version=androidswjsq-2.0.3.4&os=android-5.0.1.24SmallRice&dial_account=11755811260"
+        i=1
+        sleep 590
+        continue
+    fi
+    sleep 1
+    day_of_month_orig=`date +%d`
+    day_of_month=`echo $day_of_month_orig|grep -oE "[1-9]{1,2}"`
+    if [[ -z $orig_day_of_month || $day_of_month -ne $orig_day_of_month ]]; then
+        echo "recover"
+        orig_day_of_month=$day_of_month
+        _ts=`date +%s`0000
+        $HTTP_REQ "$api_url/recover?peerid=$peerid&userid=$uid&sessionid=$session&client_type=android-swjsq-2.0.3.4&time_and=$_ts&client_version=androidswjsq-2.0.3.4&os=android-5.0.1.24SmallRice&dial_account=11755811260"
+        sleep 5
+        i=100
+        continue
+    fi
+    #echo "renew xunlei" > /var/log/fastdick.log
+    ret=`$HTTP_REQ https://login.mobile.reg2t.sandai.net:443/ $POST_ARG"{\"protocolVersion\":108,\"sequenceNo\":1000000,\"platformVersion\":1,\"peerID\":\"$peerid\",\"businessType\":68,\"clientVersion\":\"2.0.3.4\",\"isCompressed\":0,\"cmdID\":11,\"userID\":$uid,\"sessionID\":\"$session\"}" --header "$UA_XL"`
+    error_code=`echo $ret|grep -oE "errorCode..[0-9]+"|grep -oE "[0-9]+"`
+    if [[ -z $error_code || $error_code -ne 0 ]]; then
+        i=100
+        continue
+    fi
+    #echo "keepalive" > /var/log/fastdick.log
+    _ts=`date +%s`0000
+    ret=`$HTTP_REQ "$api_url/keepalive?peerid=$peerid&userid=$uid&sessionid=$session&client_type=android-swjsq-2.0.3.4&time_and=$_ts&client_version=androidswjsq-2.0.3.4&os=android-5.0.1.24SmallRice&dial_account=11755811260"`
+    if [[ -z $ret ]]; then
+        sleep 60
+        i=18
+        continue
+    fi
+    if [ ! -z "`echo $ret|grep "not exist channel"`" ]; then
+        i=100
+    else
+        let i=i+1
+        sleep 590
+    fi
+done
