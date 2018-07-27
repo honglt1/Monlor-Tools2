@@ -1,5 +1,10 @@
 # Monlor-Tools
 
+>工具箱2.0已经比较完善了, 出于学习的目的, 想重新写新的工具箱, 尝试支持更多的固件.
+>现有工具箱处于维护状态, 有严重bug可能会更新解决一下.
+>如果Koolshare大佬们写的软件中心2.0有希望能移植到小米路由器, 也可以考虑移植而不开发新的工具箱.
+>刚开通了个博客[Monlor's Blog](https://www.monlor.com/), 有时间会分享很多工具箱的使用教程, 喜欢的话加个收藏呗.
+
 ![工具箱界面](https://raw.githubusercontent.com/monlor/Monlor-Tools/master/temp/img.png)
 
 >工具箱正处于测试状态，更新比较频繁，安装要有一定的动手能力，出问题会用U盘刷固件。  
